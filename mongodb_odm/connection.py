@@ -7,7 +7,7 @@ def _get_connection_client(url: str):
     return MongoClient(url)
 
 
-def connect(url: str = ""):
+def connect(url: str):
     if "client" in _connection:
         return _connection["client"]
     _connection["url"] = url

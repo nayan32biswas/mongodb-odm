@@ -1,4 +1,5 @@
 from typing import List
+from bson import SON
 
 from pymongo import IndexModel, ASCENDING
 
@@ -39,7 +40,10 @@ def index_for_a_collection(operation):
     for index in indexes:
         temp_val = index.document
         # Replace SON object with dict
-        temp_val["key"] = temp_val["key"].to_dict()
+        if type(temp_val["key"]) == SON:
+            temp_val["key"] = temp_val["key"].to_dict()
+        else:
+            continue
         new_indexes.append(temp_val)
         # Store index object for future use
         new_indexes_store[temp_val["name"]] = index
@@ -77,7 +81,9 @@ def index_for_a_collection(operation):
             collection.drop_index(db_index["name"])
     if len(new_indexes) > 0:
         new_indexes = [
-            new_indexes_store[new_index["name"]] for new_index in new_indexes if new_index
+            new_indexes_store[new_index["name"]]
+            for new_index in new_indexes
+            if new_index
         ]
         try:
             collection.create_indexes(new_indexes)
@@ -109,7 +115,10 @@ def get_all_indexes():
         indexes = get_model_indexes(model)
         if indexes:
             collection_name = model._get_collection_name()
-            obj = {"collection_name": collection_name, "create_indexes": indexes}
+            obj = {
+                "collection_name": collection_name,
+                "create_indexes": indexes,
+            }
             if (
                 hasattr(model.Config, "allow_inheritance")
                 and model.Config.allow_inheritance is True

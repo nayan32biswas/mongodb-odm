@@ -10,47 +10,12 @@ from pymongo.command_cursor import CommandCursor
 from pymongo.results import UpdateResult, DeleteResult
 from pymongo.collection import Collection
 
-
-from .fields import PydanticDBRef as _PydanticDBRef
-from .types import PydanticObjectId as _PydanticObjectId
-from .utils import camel_to_snake
+from .types import PydanticObjectId, PydanticDBRef  # type: ignore
+from .utils import convert_model_to_collection
 from .connection import get_db, get_client
 
 
 INHERITANCE_FIELD_NAME = "_cls"
-
-
-class Object:
-    def from_list(self, values) -> List[Any]:
-        temp = []
-        for v in values:
-            if isinstance(v, dict):
-                temp.append(Object(**v))
-            elif isinstance(v, list) or isinstance(v, tuple):
-                temp.append(self.from_list(v))
-            else:
-                temp.append(v)
-        return temp
-
-    def __init__(self, **kwargs) -> None:
-        self.__dict__.update(kwargs)
-        for k, v in kwargs.items():
-            if isinstance(v, dict):
-                # setattr(self, k, Object(**v))
-                self.__dict__[k] = Object(**v)
-            elif isinstance(v, list) or isinstance(v, tuple):
-                # setattr(self, k, self.from_list(v))
-                self.__dict__[k] = self.from_list(v)
-            else:
-                # setattr(self, k, v)
-                self.__dict__[k] = v
-
-    def __repr__(self) -> str:
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in self.__dict__)
-        return "{}({})".format(type(self).__name__, ", ".join(items))
-
-    def __eq__(self, other) -> bool:
-        return self.__dict__ == other.__dict__
 
 
 class _BaseDocument(BaseModel):
@@ -117,12 +82,12 @@ class _BaseDocument(BaseModel):
 
 
 class Document(_BaseDocument):
-    id: _PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
+    id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
 
     @property
-    def ref(self) -> _PydanticDBRef:
+    def ref(self) -> PydanticDBRef:
         collection_name = self._get_collection_name()
-        return _PydanticDBRef(collection=collection_name, id=self.id)
+        return PydanticDBRef(collection=collection_name, id=self.id)
 
     def create(self, get_obj=False, **kwargs) -> Self:
         _collection = self._get_collection()
@@ -204,6 +169,18 @@ class Document(_BaseDocument):
     #             return cls(**data)
     #     else:
     #         return None
+
+    @classmethod
+    def get(
+        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
+    ) -> Self:
+        qs = cls.find_raw(filter, **kwargs)
+        if sort:
+            qs = qs.sort(sort)
+        for data in qs.limit(1):
+            """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
+            return cls(**data)
+        raise Exception(f"Object not found for {cls.__name__}.")
 
     @classmethod
     def find_one(
@@ -303,17 +280,6 @@ class Document(_BaseDocument):
         if cls._get_child() is not None:
             filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
         return _collection.delete_many(filter, **kwargs)
-
-
-def convert_model_to_collection(model: Any) -> str:
-    if (
-        hasattr(model.Config, "collection_name")
-        and model.Config.collection_name is not None
-    ):
-        """By default model has Config in Basemodel"""
-        return model.Config.collection_name
-    else:
-        return camel_to_snake(model.__name__)
 
 
 __all__ = ["INHERITANCE_FIELD_NAME", "Document"]
