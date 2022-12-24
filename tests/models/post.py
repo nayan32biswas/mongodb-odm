@@ -5,8 +5,8 @@ from typing import Optional
 from pydantic import Field
 from pymongo import ASCENDING, IndexModel
 
-from mongodb_odm.types import PydanticObjectId
-from mongodb_odm.models import Document
+from mongodb_odm import PydanticObjectId
+from mongodb_odm import Document
 
 
 class Post(Document):
@@ -23,7 +23,6 @@ class Post(Document):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        collection_name = "post"
         indexes = [
             IndexModel([("author", ASCENDING)]),
         ]

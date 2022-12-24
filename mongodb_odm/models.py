@@ -3,6 +3,7 @@ from typing import Any, Iterator, List, Optional, Tuple
 from typing_extensions import Self
 from bson import ObjectId
 
+
 from pydantic import BaseModel, Field
 from pymongo import DESCENDING
 from pymongo.cursor import Cursor
@@ -10,7 +11,7 @@ from pymongo.command_cursor import CommandCursor
 from pymongo.results import UpdateResult, DeleteResult
 from pymongo.collection import Collection
 
-from .types import PydanticObjectId, PydanticDBRef  # type: ignore
+from .types import PydanticObjectId  # type: ignore
 from .utils import convert_model_to_collection
 from .connection import get_db, get_client
 
@@ -84,11 +85,6 @@ class _BaseDocument(BaseModel):
 class Document(_BaseDocument):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
 
-    @property
-    def ref(self) -> PydanticDBRef:
-        collection_name = self._get_collection_name()
-        return PydanticDBRef(collection=collection_name, id=self.id)
-
     def create(self, get_obj=False, **kwargs) -> Self:
         _collection = self._get_collection()
 
@@ -97,22 +93,8 @@ class Document(_BaseDocument):
             data = {f"{INHERITANCE_FIELD_NAME}": self._get_child(), **data}
 
         inserted_id = _collection.insert_one(data, **kwargs).inserted_id
-        if get_obj is True:
-            data: Any = _collection.find_one({"_id": inserted_id}, **kwargs)
-            model = self.__class__
-            obj = model(**data)
-            self.__dict__.update(obj.dict())
-            return obj
-        else:
-            self.__dict__.update({"id": inserted_id})
-            return self
-
-    @classmethod
-    def get_or_create(cls, session=None, **kwargs) -> Tuple[Self, bool]:
-        obj = cls.find_last(kwargs)
-        if obj:
-            return obj, False
-        return cls(**kwargs).create(session=session), True
+        self.__dict__.update({"id": inserted_id})
+        return self
 
     @classmethod
     def find_raw(cls, filter: dict = {}, projection: dict = {}, **kwargs) -> Cursor:
@@ -156,34 +138,8 @@ class Document(_BaseDocument):
             else:
                 yield cls(**data)
 
-    # @classmethod
-    # def find_one_old(cls, filter: dict = {}, raw=False, **kwargs) -> Optional[Any]:
-    #     _collection = cls._get_collection()
-    #     if cls._get_child() is not None:
-    #         filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
-    #     data = _collection.find_one(filter, **kwargs)
-    #     if data:
-    #         if raw:
-    #             return data
-    #         else:
-    #             return cls(**data)
-    #     else:
-    #         return None
-
     @classmethod
-    def get(
-        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
-    ) -> Self:
-        qs = cls.find_raw(filter, **kwargs)
-        if sort:
-            qs = qs.sort(sort)
-        for data in qs.limit(1):
-            """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
-            return cls(**data)
-        raise Exception(f"Object not found for {cls.__name__}.")
-
-    @classmethod
-    def find_one(
+    def __find_one(
         cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
     ) -> Optional[Self]:
         qs = cls.find_raw(filter, **kwargs)
@@ -195,10 +151,28 @@ class Document(_BaseDocument):
         return None
 
     @classmethod
+    def get_or_create(
+        cls, filter: dict = {}, session=None, **kwargs
+    ) -> Tuple[Self, bool]:
+        obj = cls.__find_one(filter)
+        if obj:
+            return obj, False
+        return cls(**filter).create(session=session, **kwargs), True
+
+    @classmethod
+    def get(
+        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
+    ) -> Self:
+        obj = cls.__find_one(filter, sort=sort, **kwargs)
+        if obj:
+            return obj
+        raise Exception("Object not found.")
+
+    @classmethod
     def find_first(
         cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
     ) -> Optional[Self]:
-        return cls.find_one(filter, sort=sort, **kwargs)
+        return cls.__find_one(filter, sort=sort, **kwargs)
 
     @classmethod
     def find_last(
@@ -207,7 +181,7 @@ class Document(_BaseDocument):
         sort: Optional[List[Tuple[str, int]]] = [("_id", DESCENDING)],
         **kwargs,
     ) -> Optional[Self]:
-        return cls.find_one(filter, sort=sort, **kwargs)
+        return cls.__find_one(filter, sort=sort, **kwargs)
 
     @classmethod
     def count_documents(cls, filter: dict = {}, **kwargs) -> int:

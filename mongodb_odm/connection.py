@@ -1,33 +1,43 @@
 from pymongo import MongoClient
+from pymongo.database import Database
 
-_connection = {}
+__connection = {}
 
 
-def _get_connection_client(url: str):
+def _get_connection_client(url: str) -> MongoClient:
     return MongoClient(url)
 
 
-def connect(url: str):
-    if "client" in _connection:
-        return _connection["client"]
-    _connection["url"] = url
-    _connection["client"] = _get_connection_client(url)
-    return _connection["client"]
+def connect(url: str) -> MongoClient:
+    if "client" in __connection:
+        return __connection["client"]
+    __connection["url"] = url
+    __connection["client"] = _get_connection_client(url)
+    return __connection["client"]
 
 
-def disconnect():
-    _connection["client"].close()
-    del _connection["client"]
+def disconnect() -> bool:
+    if "client" in __connection:
+        __connection["client"].close()
+        del __connection["client"]
+    return True
 
 
-def get_client():
-    if not _connection or "client" not in _connection:
-        if "url" in _connection:
-            connect(_connection["url"])
+def force_disconnect() -> bool:
+    disconnect()
+    if "url" in __connection:
+        del __connection["url"]
+    return True
+
+
+def get_client() -> MongoClient:
+    if not __connection or "client" not in __connection:
+        if "url" in __connection:
+            connect(__connection["url"])
         else:
             raise Exception("DB connection is not provided")
-    return _connection["client"]
+    return __connection["client"]
 
 
-def get_db():
+def get_db() -> Database:
     return get_client().get_database()
