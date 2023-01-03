@@ -46,8 +46,8 @@ class Content(Document):
 class ContentDescription(Content):
     description: str = Field(...)
 
-    # class Config:
-    #     collection_name = "content_description"
+    class Config:
+        indexes = []
 
 
 class ImageStyle(str, Enum):
@@ -61,3 +61,6 @@ class ImageStyle(str, Enum):
 class ContentImage(Content):
     style: ImageStyle = Field(default=ImageStyle.CENTER)
     image_path: str = Field(...)
+
+    class Config:
+        indexes = []

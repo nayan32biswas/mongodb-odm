@@ -52,6 +52,8 @@ class _BaseDocument(BaseModel):
                 raise Exception(
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
+            if base_model.Config == model.Config:
+                raise Exception(f"Child Model{model.__name__} should declare a separate Config class.")
             return base_model, model
         else:
             return model, None
