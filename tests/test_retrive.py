@@ -20,16 +20,14 @@ def populate_data():
     user = get_user()
     posts = []
 
-    posts.append(Post(author=user.id, title="Populate Data",
-                 is_publish=True).create())
+    posts.append(Post(author=user.id, title="Populate Data", is_publish=True).create())
     posts.append(
         Post(author=user.id, title="Populate Data One", is_publish=True).create()
     )
 
     for post in posts:
         for _ in range(3):
-            ContentDescription(
-                post=post.id, description="Demo description").create()
+            ContentDescription(post=post.id, description="Demo description").create()
         for _ in range(4):
             ContentImage(post=post.id, image_path="/demo/image.png").create()
         for _ in range(4):
@@ -39,23 +37,20 @@ def populate_data():
                 description="Comment",
             )
             for _ in range(4):
-                comment.childs.append(EmbeddedComment(
-                    user=user.id, description=""))
+                comment.childs.append(EmbeddedComment(user=user.id, description=""))
 
 
 def test_find_first():
     populate_data()
     post = Post.find_first()
-    assert isinstance(
-        post, Post), "Each object should carry all characteristic of model"
+    assert isinstance(post, Post), "Each object should carry all characteristic of model"
     assert isinstance(post.id, ObjectId), "Invalid data return"
 
 
 def test_find_last():
     populate_data()
     post = Post.find_last()
-    assert isinstance(
-        post, Post), "Each object should carry all characteristic of model"
+    assert isinstance(post, Post), "Each object should carry all characteristic of model"
     assert isinstance(post.id, ObjectId), "Invalid data return"
 
 
@@ -76,8 +71,7 @@ def test_is_exists():
 def test_find():
     post_qs = Post.find(limit=10)
     for post in post_qs:
-        assert isinstance(
-            post, Post), "find method should return Post type object"
+        assert isinstance(post, Post), "find method should return Post type object"
         assert isinstance(post.id, ObjectId), "Invalid data return"
 
 
@@ -101,15 +95,13 @@ def test_get_or_create():
 def test_aggregate():
     post_qs = Post.aggregate(pipeline=[])
     for post in post_qs:
-        assert isinstance(
-            post, dict), "aggregate method should return dict type object"
+        assert isinstance(post, dict), "aggregate method should return dict type object"
 
 
 def test_get_random_one():
     user = get_user()
     post = Post.get_random_one(filter={"author": user.id})
-    assert isinstance(
-        post, Post), "get_random_one method should return Post type object"
+    assert isinstance(post, Post), "get_random_one method should return Post type object"
 
     assert post.author == user.id, "Random post author should match"
 
@@ -123,25 +115,35 @@ def test_find_inheritance_object():
         assert isinstance(content.id, ObjectId), "Invalid data return"
 
 
+def test_get_db_name():
+    collection_name = Post._db()
+    assert isinstance(collection_name, str)
+
+    assert collection_name == "post"
+
+
 def test_find_raw():
-    post_qs = Post.find_raw(limit=2)
-    for post in post_qs:
+    for post in Post.find_raw(limit=2):
         assert isinstance(
             post, dict
         ), "Each object should carry all characteristic of model"
 
 
 def test_projection():
-    post_qs = Post.find_raw(projection={"_id": 1})
+    for obj in Post.find_raw(projection={"_id": 1}):
+        assert isinstance(obj["_id"], ObjectId)
 
 
 def test_sort():
-    post_qs = Post.find(sort=[("_id", DESCENDING)])
+    for obj in Post.find(sort=[("_id", DESCENDING)]):
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_skip():
-    post_qs = Post.find(skip=2)
+    for obj in Post.find(skip=2):
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_limit():
-    post_qs = Post.find(limit=10)
+    for obj in Post.find(limit=10):
+        assert isinstance(obj.id, ObjectId)

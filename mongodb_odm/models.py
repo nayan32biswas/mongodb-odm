@@ -53,7 +53,9 @@ class _BaseDocument(BaseModel):
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
             if base_model.Config == model.Config:
-                raise Exception(f"Child Model{model.__name__} should declare a separate Config class.")
+                raise Exception(
+                    f"Child Model{model.__name__} should declare a separate Config class."
+                )
             return base_model, model
         else:
             return model, None
@@ -229,6 +231,8 @@ class Document(_BaseDocument):
             updated_data = {"$set": self.dict(exclude={"id"})}
         if hasattr(self, "updated_at"):
             datetime_now = datetime.utcnow()
+            if "$set" not in updated_data:
+                updated_data["$set"] = {}
             updated_data["$set"]["updated_at"] = datetime_now
             self.__dict__.update({"updated_at": datetime_now})
 
@@ -258,6 +262,3 @@ class Document(_BaseDocument):
         if cls._get_child() is not None:
             filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
         return _collection.delete_many(filter, **kwargs)
-
-
-__all__ = ["INHERITANCE_FIELD_NAME", "Document"]
