@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Any, Iterator, List, Optional, Tuple
 from typing_extensions import Self
@@ -13,10 +14,11 @@ from pymongo.collection import Collection
 
 from .types import PydanticObjectId  # type: ignore
 from .utils import convert_model_to_collection
-from .connection import get_db, get_client
+from .connection import get_db
 
 
 INHERITANCE_FIELD_NAME = "_cls"
+logger = logging.getLogger(__name__)
 
 
 class _BaseDocument(BaseModel):
@@ -77,15 +79,15 @@ class _BaseDocument(BaseModel):
     def _db(cls) -> str:
         return cls._get_collection_name()
 
-    @classmethod
-    def start_session(cls):
-        return get_client().start_session()
+    # @classmethod
+    # def start_session(cls):
+    #     return get_client().start_session()
 
 
 class Document(_BaseDocument):
     id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
 
-    def create(self, get_obj=False, **kwargs) -> Self:
+    def create(self, **kwargs) -> Self:
         _collection = self._get_collection()
 
         data = self.dict(exclude={"id"})

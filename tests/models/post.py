@@ -46,6 +46,9 @@ class Content(Document):
 class ContentDescription(Content):
     description: str = Field(...)
 
+    # class Config:
+    #     collection_name = "content_description"
+
 
 class ImageStyle(str, Enum):
     CENTER = "CENTER"
