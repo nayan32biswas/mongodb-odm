@@ -3,8 +3,8 @@ from bson import SON
 
 from pymongo import IndexModel, ASCENDING
 
-from .connection import get_db
-from .models import Document, INHERITANCE_FIELD_NAME
+from ..connection import get_db
+from ..models import Document, INHERITANCE_FIELD_NAME
 
 
 def index_for_a_collection(operation):
@@ -27,7 +27,7 @@ def index_for_a_collection(operation):
     # print(indexes)
     db_indexes = []
     for index in collection.list_indexes():
-        temp_val = index.to_dict()
+        temp_val = index.to_dict()  # type: ignore
         # Skip "_id" index since it's create by mongodb system
         if "_id" in temp_val["key"]:
             continue

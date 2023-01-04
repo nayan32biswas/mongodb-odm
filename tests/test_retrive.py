@@ -5,6 +5,7 @@ from pymongo import DESCENDING
 
 from .conftest import init_config  # noqa
 
+from mongodb_odm.data_conversion import OdmObj
 from .models.post import Content, ContentDescription, ContentImage, Post  # noqa
 from .models.comment import Comment, EmbeddedComment
 from .models.user import get_user
@@ -95,7 +96,7 @@ def test_get_or_create():
 def test_aggregate():
     post_qs = Post.aggregate(pipeline=[])
     for post in post_qs:
-        assert isinstance(post, dict), "aggregate method should return dict type object"
+        assert isinstance(post, OdmObj), "aggregate method should return dict type object"
 
 
 def test_get_random_one():
@@ -107,8 +108,7 @@ def test_get_random_one():
 
 
 def test_find_inheritance_object():
-    content_qs = Content.find(limit=10)
-    for content in content_qs:
+    for content in Content.find(limit=10):
         assert isinstance(
             content, Content
         ), "Each object should carry all characteristic of model"

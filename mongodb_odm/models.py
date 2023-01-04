@@ -8,13 +8,13 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 from pymongo import DESCENDING
 from pymongo.cursor import Cursor
-from pymongo.command_cursor import CommandCursor
 from pymongo.results import UpdateResult, DeleteResult
 from pymongo.collection import Collection
 
-from .types import PydanticObjectId  # type: ignore
-from .utils import convert_model_to_collection
 from .connection import get_db
+from .data_conversion import dict2obj
+from .types import PydanticObjectId  # type: ignore
+from .utils.utils import convert_model_to_collection
 
 
 INHERITANCE_FIELD_NAME = "_cls"
@@ -142,6 +142,7 @@ class Document(_BaseDocument):
             if is_dynamic_model and data[INHERITANCE_FIELD_NAME] in model_childs:
                 yield model_childs[data[INHERITANCE_FIELD_NAME]](**data)
             else:
+                print(f"---{data}====")
                 yield cls(**data)
 
     @classmethod
@@ -204,13 +205,14 @@ class Document(_BaseDocument):
         return _collection.count_documents(filter, **kwargs, limit=1) >= 1
 
     @classmethod
-    def aggregate(cls, pipeline: List[Any], **kwargs) -> CommandCursor:
+    def aggregate(cls, pipeline: List[Any], **kwargs) -> Iterator[Any]:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             pipeline = [
                 {"$match": {f"{INHERITANCE_FIELD_NAME}": cls._get_child()}}
             ] + pipeline
-        return _collection.aggregate(pipeline, **kwargs)
+        for obj in _collection.aggregate(pipeline, **kwargs):
+            yield dict2obj(obj)
 
     @classmethod
     def get_random_one(cls, filter: dict = {}, **kwargs) -> Optional[Self]:

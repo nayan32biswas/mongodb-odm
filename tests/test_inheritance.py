@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 def test_parent_data_retrive():
     for obj in Content.find():
+        print(obj)
         assert isinstance(obj.id, ObjectId)
 
 
@@ -30,7 +31,7 @@ def test_child_exists():
 
 def test_child_aggregation():
     for obj in ContentDescription.aggregate(pipeline=[]):
-        assert isinstance(obj["_id"], ObjectId)
+        assert isinstance(obj._id, ObjectId)
 
 
 def test_child_get_random_one():
