@@ -48,7 +48,7 @@ from pydantic import Field
 from pymongo import IndexModel, ASCENDING
 from typing import Optional
 
-from mongodb_odm.models import Document
+from mongodb_odm import Document
 
 
 class User(Document):

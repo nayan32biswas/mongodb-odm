@@ -20,6 +20,8 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Database",
     "Topic :: Database :: Database Engines/Servers",
     "Topic :: Internet",
@@ -33,7 +35,7 @@ python = "^3.7"
 pymongo = "^4.3.3"
 pydantic = "^1.10.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 async_generator = { version = "*", python = "~3.6" }
 async-exit-stack = { version = "*", python = "~3.6" }
 autoflake = "^1.4"
@@ -67,9 +69,7 @@ context = '${CONTEXT}'
 [tool.coverage.report]
 exclude_lines = [
     "pragma: no cover",
-    "@overload",
     'if __name__ == "__main__":',
-    "if TYPE_CHECKING:",
 ]
 
 [tool.isort]

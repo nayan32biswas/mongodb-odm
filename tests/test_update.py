@@ -34,6 +34,10 @@ def test_update_model_raw():
     updated_post = Post.get({"_id": post.id})
     assert updated_post.title == UPDATE_TITLE, "Update Model has no impact on DB."
 
+    post.update({"$unset": {"title": 1}})
+    for obj in Post.find_raw({"_id": post.id}):
+        assert obj.get("title") is None
+
     post.delete()
 
 

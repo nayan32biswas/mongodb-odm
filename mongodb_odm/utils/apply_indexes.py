@@ -1,10 +1,13 @@
+import logging
 from typing import List
 from bson import SON
 
 from pymongo import IndexModel, ASCENDING
 
-from .connection import get_db
-from .models import Document, INHERITANCE_FIELD_NAME
+from ..connection import get_db
+from ..models import Document, INHERITANCE_FIELD_NAME
+
+logger = logging.getLogger(__name__)
 
 
 def index_for_a_collection(operation):
@@ -27,7 +30,7 @@ def index_for_a_collection(operation):
     # print(indexes)
     db_indexes = []
     for index in collection.list_indexes():
-        temp_val = index.to_dict()
+        temp_val = index.to_dict()  # type: ignore
         # Skip "_id" index since it's create by mongodb system
         if "_id" in temp_val["key"]:
             continue
@@ -81,9 +84,7 @@ def index_for_a_collection(operation):
             collection.drop_index(db_index["name"])
     if len(new_indexes) > 0:
         new_indexes = [
-            new_indexes_store[new_index["name"]]
-            for new_index in new_indexes
-            if new_index
+            new_indexes_store[new_index["name"]] for new_index in new_indexes if new_index
         ]
         try:
             collection.create_indexes(new_indexes)
@@ -95,7 +96,9 @@ def index_for_a_collection(operation):
 
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
-        print(f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added')
+        logger.info(
+            f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added'
+        )
     return ne, de
 
 
@@ -144,11 +147,9 @@ def apply_indexes():
         new_index += ne
         delete_index += de
 
-    print()
     if delete_index:
-        print(delete_index, "index deleted.")
+        logger.info(f"{delete_index}, index deleted.")
     if new_index:
-        print(new_index, "index created.")
+        logger.info(f"{new_index}, index created.")
     if [new_index, delete_index] == [0, 0]:
-        print("No change detected.")
-    print()
+        logger.info("No change detected.")

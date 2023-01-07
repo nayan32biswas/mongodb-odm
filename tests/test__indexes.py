@@ -4,8 +4,8 @@ from typing import List
 from pydantic import Field
 from pymongo import IndexModel, ASCENDING
 
-from mongodb_odm.apply_indexes import apply_indexes
-from mongodb_odm.models import Document
+from mongodb_odm.utils.apply_indexes import apply_indexes
+from mongodb_odm import Document
 from .conftest import init_config  # noqa
 
 
