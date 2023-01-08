@@ -4,8 +4,8 @@ import pytest
 from mongodb_odm.connection import connect
 
 DB_URL = os.environ.get(
-    "MONGO_HOST",
-    "mongodb://root:password@localhost:27017/test?authSource=admin",
+    "TEST_MONGO_HOST",
+    "mongodb://root:password@db:27017/test?authSource=admin",
 )
 
 

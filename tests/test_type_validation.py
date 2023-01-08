@@ -23,3 +23,11 @@ def test_validate_pydantic_object_id():
         assert False
     except Exception as e:
         assert str(e) != "assert False"
+
+
+def test_invalid_object_id():
+    try:
+        _ = PydanticObjectId.validate("invalid ObjectId")
+        assert False
+    except Exception as e:
+        assert str(e) != "assert False"

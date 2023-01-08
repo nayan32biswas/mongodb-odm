@@ -3,10 +3,9 @@ from typing import List
 from bson import ObjectId
 
 from pydantic import BaseModel, Field
-from pymongo import ASCENDING, IndexModel
 
 from mongodb_odm import PydanticObjectId
-from mongodb_odm import Document
+from mongodb_odm import ASCENDING, Document, IndexModel
 
 MAX_CHILD_COMMENT = 100
 

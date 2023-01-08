@@ -7,10 +7,10 @@
 <p align="center">
 
 <a href="https://github.com/nayan32biswas/mongodb-odm" target="_blank">
-    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/nayan32biswas/mongodb-odm/total?color=%2300FF00&logo=github&style=flat-square">
+    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/nayan32biswas/mongodb-odm/total?color=success">
 </a>
 <a href="https://pypi.org/project/mongodb-odm/">
-<img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=%2300FF00&label=PyPi%20Package&logo=pypi">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=blue">
 </a>
 </p>
 
@@ -20,21 +20,21 @@
 
 The purpose of this module is to do provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes of a collection name when you are doing database operation. This module provides you minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
-**MongoDb-ODM** is based on Python type annotations, and powered by <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a> and <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a>.
+**MongoDb-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a>.
 
 The key features are:
 
 - **Intuitive to write**: Great editor support. Completion everywhere. Less time debugging. Designed to be easy to use and learn. Less time reading docs.
 - **Easy to use**: It has sensible defaults and does a lot of work underneath to simplify the code you write.
 - **Compatible**: It is designed to be compatible with **FastAPI**, **Pydantic**, and **PyMongo**.
-- **Extensible**: You have all the power of **PyMongo** and Pydantic underneath.
+- **Extensible**: You have all the power of **PyMongo** and **Pydantic** underneath.
 - **Short**: Minimize code duplication. A single type annotation does a lot of work. No need to duplicate models in **PyMongo** and Pydantic.
 
 ---
 
 ## Requirement
 
-**MongoDb-ODM** will work on <a href="https://www.python.org/downloads/" class="external-link" target="_blank">Python 3.6 and above</a>
+**MongoDb-ODM** will work on <a href="https://www.python.org/downloads/" class="external-link" target="_blank">Python 3.7 and above</a>
 
 This **MongoDb-ODM** is build top of **PyMongo** and **Pydantic**. Those package are required and will auto install while **MongoDb-ODM** was installed.
 
@@ -72,7 +72,6 @@ class User(Document):
             IndexModel([("username", ASCENDING)], unique=True),
             IndexModel([("email", ASCENDING)]),
         )
-
 ```
 
 #### Create Document
@@ -92,14 +91,12 @@ user = User(
 ```py
 for user in find({"is_active": True}):
     print(user)
-
 ```
 
 - Find first object with filter
 
 ```py
 user = User.find_first({"is_active": True})
-
 ```
 
 #### Update Data
@@ -108,7 +105,6 @@ user = User.find_first({"is_active": True})
 ```py
 user = User.find_first({"is_active": True})
 user.full_name = "New Name"
-
 ```
 
 #### Delete Data
@@ -118,3 +114,22 @@ user = User.find_first({"is_active": True})
 if user:
     user.delete()
 ```
+
+### Apply Indexes
+
+```py
+from mongodb_odm import apply_indexes, ASCENDING, Document, IndexModel
+
+
+class User(Document):
+    ...
+
+    class Config:
+        indexes = (
+            IndexModel([("username", ASCENDING)], unique=True),
+            IndexModel([("email", ASCENDING)]),
+        )
+```
+
+- To create indexes in database diclare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** module that are directly imported from **pymongo**.
+- Call `apply_indexes` function from your CLI. You can use [Typer](https://typer.tiangolo.com/) to implement CLI.

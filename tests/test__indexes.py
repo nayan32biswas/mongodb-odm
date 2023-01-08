@@ -2,10 +2,9 @@ from datetime import datetime
 import logging
 from typing import List
 from pydantic import Field
-from pymongo import IndexModel, ASCENDING
 
 from mongodb_odm.utils.apply_indexes import apply_indexes
-from mongodb_odm import Document
+from mongodb_odm import ASCENDING, Document, IndexModel
 from .conftest import init_config  # noqa
 
 

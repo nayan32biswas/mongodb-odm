@@ -12,4 +12,4 @@ class PydanticObjectId(ObjectId):
             return v
         elif isinstance(v, str):
             return ObjectId(v)
-        raise TypeError("Invalid ObjectId required")
+        raise TypeError("Invalid data. ObjectId required")

@@ -1,9 +1,8 @@
 from datetime import datetime
 from pydantic import Field
-from pymongo import IndexModel, ASCENDING
 from typing import Optional
 
-from mongodb_odm import Document
+from mongodb_odm import ASCENDING, Document, IndexModel
 from ..conftest import init_config  # noqa
 
 

@@ -1,10 +1,10 @@
 import logging
 from datetime import datetime
 from bson import ObjectId
-from pymongo import DESCENDING
 
 from .conftest import init_config  # noqa
 
+from mongodb_odm import DESCENDING
 from mongodb_odm.data_conversion import OdmObj
 from .models.post import Content, ContentDescription, ContentImage, Post  # noqa
 from .models.comment import Comment, EmbeddedComment

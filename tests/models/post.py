@@ -3,10 +3,9 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import Field
-from pymongo import ASCENDING, IndexModel
 
 from mongodb_odm import PydanticObjectId
-from mongodb_odm import Document
+from mongodb_odm import ASCENDING, Document, IndexModel
 
 
 class Post(Document):
