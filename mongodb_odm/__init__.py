@@ -1,2 +1,2 @@
-from mongodb_odm.models import Document  # noqa
-from mongodb_odm.types import PydanticObjectId  # noqa
+from .models import Document  # noqa
+from .types import PydanticObjectId  # noqa
