@@ -1,9 +1,13 @@
+import logging
 from typing import List
+from bson import SON
 
 from pymongo import IndexModel, ASCENDING
 
-from .connection import get_db
-from .models import Document, INHERITANCE_FIELD_NAME
+from ..connection import get_db
+from ..models import Document, INHERITANCE_FIELD_NAME
+
+logger = logging.getLogger(__name__)
 
 
 def index_for_a_collection(operation):
@@ -26,7 +30,7 @@ def index_for_a_collection(operation):
     # print(indexes)
     db_indexes = []
     for index in collection.list_indexes():
-        temp_val = index.to_dict()
+        temp_val = index.to_dict()  # type: ignore
         # Skip "_id" index since it's create by mongodb system
         if "_id" in temp_val["key"]:
             continue
@@ -39,7 +43,10 @@ def index_for_a_collection(operation):
     for index in indexes:
         temp_val = index.document
         # Replace SON object with dict
-        temp_val["key"] = temp_val["key"].to_dict()
+        if type(temp_val["key"]) == SON:
+            temp_val["key"] = temp_val["key"].to_dict()
+        else:
+            continue
         new_indexes.append(temp_val)
         # Store index object for future use
         new_indexes_store[temp_val["name"]] = index
@@ -89,7 +96,9 @@ def index_for_a_collection(operation):
 
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
-        print(f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added')
+        logger.info(
+            f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added'
+        )
     return ne, de
 
 
@@ -109,7 +118,10 @@ def get_all_indexes():
         indexes = get_model_indexes(model)
         if indexes:
             collection_name = model._get_collection_name()
-            obj = {"collection_name": collection_name, "create_indexes": indexes}
+            obj = {
+                "collection_name": collection_name,
+                "create_indexes": indexes,
+            }
             if (
                 hasattr(model.Config, "allow_inheritance")
                 and model.Config.allow_inheritance is True
@@ -135,11 +147,9 @@ def apply_indexes():
         new_index += ne
         delete_index += de
 
-    print()
     if delete_index:
-        print(delete_index, "index deleted.")
+        logger.info(f"{delete_index}, index deleted.")
     if new_index:
-        print(new_index, "index created.")
+        logger.info(f"{new_index}, index created.")
     if [new_index, delete_index] == [0, 0]:
-        print("No change detected.")
-    print()
+        logger.info("No change detected.")
