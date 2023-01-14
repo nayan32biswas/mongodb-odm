@@ -38,6 +38,12 @@ The key features are:
 
 This **MongoDb-ODM** is build top of **PyMongo** and **Pydantic**. Those package are required and will auto install while **MongoDb-ODM** was installed.
 
+## Installation
+
+```console
+$ pip install mongodb-odm
+```
+
 ## Example
 
 ### Define model
