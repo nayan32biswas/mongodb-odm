@@ -84,7 +84,7 @@ user = User(
 ).create()
 ```
 
-### Retrive Document
+### Retrieve Document
 
 - Filter data from collection
 
@@ -132,5 +132,5 @@ class User(Document):
         )
 ```
 
-- To create indexes in database diclare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** module that are directly imported from **pymongo**.
+- To create indexes in database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** module that are directly imported from **pymongo**.
 - Call `apply_indexes` function from your CLI. You can use [Typer](https://typer.tiangolo.com/) to implement CLI.
