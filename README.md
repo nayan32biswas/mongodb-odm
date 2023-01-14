@@ -40,24 +40,19 @@ This **MongoDb-ODM** is build top of **PyMongo** and **Pydantic**. Those package
 
 ## Example
 
-#### Define model
+### Define model
 
 ```py
 from datetime import datetime
 from pydantic import Field
-from pymongo import IndexModel, ASCENDING
 from typing import Optional
 
-from mongodb_odm import Document
+from mongodb_odm import ASCENDING, Document, IndexModel
 
 
 class User(Document):
     username: str = Field(...)
-    email: Optional[str] = Field(default=None)
     full_name: str = Field(...)
-
-    is_active: bool = True
-    date_joined: datetime = Field(default_factory=datetime.utcnow)
 
     last_login: datetime = Field(default_factory=datetime.utcnow)
     password: Optional[str] = Field(default=None)
@@ -70,47 +65,48 @@ class User(Document):
         collection_name = "user"
         indexes = (
             IndexModel([("username", ASCENDING)], unique=True),
-            IndexModel([("email", ASCENDING)]),
         )
 ```
 
-#### Create Document
+### Create Document
 
 ```py
 user = User(
-    email="example@example.com",
+    username="username",
     full_name="Example Name",
     password="hash-password",
 ).create()
 ```
 
-#### Retrive Document
+### Retrive Document
 
 - Filter data from collection
 
 ```py
-for user in find({"is_active": True}):
+for user in User.find():
     print(user)
 ```
 
 - Find first object with filter
 
 ```py
-user = User.find_first({"is_active": True})
+user = User.find_first()
 ```
 
-#### Update Data
+### Update Data
 
 
 ```py
-user = User.find_first({"is_active": True})
-user.full_name = "New Name"
+user = User.find_first()
+if user:
+    user.full_name = "New Name"
+    user.update()
 ```
 
-#### Delete Data
+### Delete Data
 
 ```py
-user = User.find_first({"is_active": True})
+user = User.find_first()
 if user:
     user.delete()
 ```
@@ -127,7 +123,6 @@ class User(Document):
     class Config:
         indexes = (
             IndexModel([("username", ASCENDING)], unique=True),
-            IndexModel([("email", ASCENDING)]),
         )
 ```
 
