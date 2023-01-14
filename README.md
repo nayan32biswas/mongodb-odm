@@ -1,4 +1,4 @@
-# ODM
+# MongoDB-ODM
 
 <p align="center">
     <em>MongoDB-ODM, NOSQL databases in Python, designed for simplicity, compatibility, and robustness.</em>
