@@ -1,42 +1,40 @@
 import logging
 
 from .conftest import init_config  # noqa
-
-from .models.post import ContentDescription, ContentImage, Post, Content  # noqa
+from .models.course import Content, ContentDescription, ContentImage, Course  # noqa
 from .models.user import get_user
-
 
 logger = logging.getLogger(__name__)
 
 
-def test_create_post():
+def test_create_course():
     user = get_user()
-    _ = Post(
-        author=user.id,
-        title="Post Title",
+    _ = Course(
+        author_id=user._id,
+        title="Course Title",
         is_publish=True,
     ).create()
 
 
 def test_inheritance_model_create():
     user = get_user()
-    post = Post(
-        author=user.id,
-        title="Post Title",
+    course = Course(
+        author_id=user._id,
+        title="Course Title",
         is_publish=True,
         short_description="Short Description",
     ).create()
 
     content_description = ContentDescription(
-        post=post.id, description="Long Description...."
+        course_id=course._id, description="Long Description...."
     ).create()
 
     content_image = ContentImage(
-        post=post.id, image_path="/image/path/image.png"
+        course_id=course._id, image_path="/image/path/image.png"
     ).create()
 
     content_count = Content.count_documents(
-        {"_id": {"$in": [content_description.id, content_image.id]}}
+        {"_id": {"$in": [content_description._id, content_image._id]}}
     )
 
     assert (

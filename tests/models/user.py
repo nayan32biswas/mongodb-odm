@@ -1,8 +1,8 @@
 from datetime import datetime
-from pydantic import Field
 from typing import Optional
 
-from mongodb_odm import ASCENDING, Document, IndexModel
+from mongodb_odm import ASCENDING, Document, Field, IndexModel
+
 from ..conftest import init_config  # noqa
 
 
@@ -21,7 +21,7 @@ class User(Document):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
+    class Config(Document.Config):
         collection_name = "user"
         indexes = (
             IndexModel([("username", ASCENDING)], unique=True),
@@ -34,9 +34,8 @@ class User(Document):
 
 
 def get_user():
-    USERNAME = "test-user"
-    user = User.find_first({"username": "test-user"})
+    user = User.find_one({"username": "one"})
     if user:
         return user
-    user = User(username=USERNAME, full_name="Full Name").create()
+    user = User(username="one", full_name="Full Name").create()
     return user

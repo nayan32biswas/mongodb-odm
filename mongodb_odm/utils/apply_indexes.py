@@ -1,33 +1,31 @@
 import logging
 from typing import List
+
 from bson import SON
+from pymongo import ASCENDING, IndexModel
 
-from pymongo import IndexModel, ASCENDING
-
-from ..connection import get_db
-from ..models import Document, INHERITANCE_FIELD_NAME
+from ..connection import db
+from ..models import INHERITANCE_FIELD_NAME, Document
 
 logger = logging.getLogger(__name__)
 
 
 def index_for_a_collection(operation):
-    db = get_db()
     """
-    First get all incexes for a collection and match with operation.
+    First get all indexes for a collection and match with operation.
     Remove full match object.
 
     If db_index partially match with operation_index then recreate/update it.
 
-    For new_indexes unmatch with db_indexes create new index.
-    For db_indexes unmatch with new_indexes drop indexes.
+    For new_indexes unmatched with db_indexes create new index.
+    For db_indexes unmatched with new_indexes drop indexes.
     """
     try:
-        collection = db[operation["collection_name"]]
+        collection = db()[operation["collection_name"]]
         indexes = operation["create_indexes"]
     except Exception:
         raise Exception("Invalid index object")
 
-    # print(indexes)
     db_indexes = []
     for index in collection.list_indexes():
         temp_val = index.to_dict()  # type: ignore
@@ -51,9 +49,6 @@ def index_for_a_collection(operation):
         # Store index object for future use
         new_indexes_store[temp_val["name"]] = index
 
-    # print(db_indexes)
-    # print(new_indexes)
-
     update_indexes = []
     for i in range(len(db_indexes)):
         partial_match = None
@@ -67,8 +62,8 @@ def index_for_a_collection(operation):
 
             """
             # TODO: make a list for partial match
-            if pertial match db_indexes[i] with new_indexes[i]:
-                parial_match = j
+            if partial match db_indexes[i] with new_indexes[i]:
+                partial_match = j
                 # not break here check if any other match exist
             """
 
@@ -84,13 +79,15 @@ def index_for_a_collection(operation):
             collection.drop_index(db_index["name"])
     if len(new_indexes) > 0:
         new_indexes = [
-            new_indexes_store[new_index["name"]] for new_index in new_indexes if new_index
+            new_indexes_store[new_index["name"]]
+            for new_index in new_indexes
+            if new_index
         ]
         try:
             collection.create_indexes(new_indexes)
         except Exception as e:
-            print(f'\nProblem arise at "{operation["collection_name"]}": {e}\n')
-            raise Exception(str(e))
+            logger.error(f'\nProblem arise at "{operation["collection_name"]}": {e}\n')
+            raise e
 
     # TODO: apply action for update_indexes
 
@@ -127,20 +124,23 @@ def get_all_indexes():
                 and model.Config.allow_inheritance is True
             ):
                 """If a model has child model"""
-                indexes.append(IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)]))
+                if model.Config.index_inheritance_field is True:
+                    """No _cls indexes will apply if index_inheritance_field = False"""
+                    indexes.append(IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)]))
                 for child_model in model.__subclasses__():
+                    """Get all indexes that are defined in child model"""
                     indexes += get_model_indexes(child_model)
             operations.append(obj)
     return operations
 
 
 def apply_indexes():
-    """Run "python -m app.main applyindexes" to apply and indexes."""
+    """Run "python -m app.main apply-indexes" to apply and indexes."""
 
     """First get all indexes from all model."""
     operations = get_all_indexes()
 
-    """Then excute each indexes operation for each model."""
+    """Then execute each indexes operation for each model."""
     new_index, delete_index = 0, 0
     for operation in operations:
         ne, de = index_for_a_collection(operation)

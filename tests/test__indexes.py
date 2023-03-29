@@ -1,12 +1,11 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import List
-from pydantic import Field
 
+from mongodb_odm import ASCENDING, Document, Field, IndexModel, disconnect
 from mongodb_odm.utils.apply_indexes import apply_indexes
-from mongodb_odm import ASCENDING, Document, IndexModel
-from .conftest import init_config  # noqa
 
+from .conftest import init_config  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -15,16 +14,31 @@ class TestIndexes(Document):
     username: str = Field(...)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config:
+    class Config(Document.Config):
         collection_name = "test_indexes"
         indexes = [
             IndexModel([("username", ASCENDING)], unique=True),
         ]
 
 
+def test_create_indexes_without_connection():
+    disconnect()
+
+    try:
+        apply_indexes()
+        assert False
+    except Exception as e:
+        assert str(e) != "assert False"
+
+
+def test_no_index_change():
+    apply_indexes()
+
+    apply_indexes()  # No index was changed
+
+
 def check_indexes(index_keys: List[str]):
     for i, index in enumerate(TestIndexes._get_collection().list_indexes()):
-        print(i, index)
         assert index_keys[i] in index.to_dict()["key"]  # type: ignore
     return True
 
@@ -55,8 +69,7 @@ def test_remove_indexes():
 
 
 def test_indexes_for_all_db():
-    from .models.comment import Comment  # noqa
-    from .models.post import Post, ContentDescription, ContentImage  # noqa
+    from .models.course import Comment, ContentDescription, ContentImage, Course  # noqa
     from .models.user import User  # noqa
 
     apply_indexes()

@@ -1,18 +1,42 @@
+# Python
 *.pyc
+.mypy_cache
+*.py[cod]
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage*
+.cache
+.pytest_cache
+coverage.xml
+
+# Distribution / packaging / files
+poetry.lock
 env*
 .env
-.mypy_cache
+env/
+.eggs/
+.Python
+env/
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# OS
+.DS_Store
+
+# Sphinx documentation
+docs/_build/
+
+# viewdoc output
+.long-description.html
+
+#VS Code
 .vscode
+
+# JetBrains
 .idea
-
-poetry.lock
-build
-dist
-htmlcov
-
-*.egg-info
-.coverage*
-coverage.xml
-site
-*.db
-.cache

@@ -1,14 +1,14 @@
 import logging
 
 from bson import ObjectId
+from mongodb_odm.data_conversion import dict2obj
 
 from .conftest import init_config  # noqa
-from mongodb_odm.data_conversion import dict2obj
 
 logger = logging.getLogger(__name__)
 
 
-monogdb_data = {
+mongodb_data = {
     "list": [1, 2],
     "bytes": bytes(b"ABC"),
     "dict_data": {"a": 1, "b": 2},
@@ -26,13 +26,13 @@ monogdb_data = {
 
 
 def test_dict2obj():
-    obj = dict2obj(monogdb_data)
+    obj = dict2obj(mongodb_data)
 
     assert isinstance(obj.list, list)
     assert isinstance(obj.bytes, bytes)
 
-    assert obj.list[0] == monogdb_data["list"][0]
-    assert obj.nested_dict.a.a == monogdb_data["nested_dict"]["a"]["a"]
+    assert obj.list[0] == mongodb_data["list"][0]
+    assert obj.nested_dict.a.a == mongodb_data["nested_dict"]["a"]["a"]
 
 
 def test_obj_equality():
@@ -49,12 +49,12 @@ def test_obj_equality():
 
 
 def test_obj2dict():
-    obj = dict2obj(monogdb_data)
+    obj = dict2obj(mongodb_data)
 
-    assert monogdb_data == obj.dict()
+    assert mongodb_data == obj.dict()
 
 
 def test_odm_obj_str():
-    obj = dict2obj(monogdb_data)
+    obj = dict2obj(mongodb_data)
 
     assert isinstance(str(obj), str)

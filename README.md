@@ -18,9 +18,10 @@
 
 ## Introduction
 
-The purpose of this module is to do provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes of a collection name when you are doing database operation. This module provides you minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
+The purpose of this module is to provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
-**MongoDb-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a>.
+**MongoDB-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a>.
+
 
 The key features are:
 
@@ -34,9 +35,9 @@ The key features are:
 
 ## Requirement
 
-**MongoDb-ODM** will work on <a href="https://www.python.org/downloads/" class="external-link" target="_blank">Python 3.7 and above</a>
+**MongoDB-ODM** will work on <a href="https://www.python.org/downloads/" class="external-link" target="_blank">Python 3.7 and above</a>
 
-This **MongoDb-ODM** is build top of **PyMongo** and **Pydantic**. Those package are required and will auto install while **MongoDb-ODM** was installed.
+This **MongoDB-ODM** is built on top of **PyMongo** and **Pydantic**. Those packages are required and will auto-install while **MongoDB-ODM** was installed.
 
 ## Installation
 
@@ -48,89 +49,138 @@ $ pip install mongodb-odm
 
 ### Define model
 
-```py
-from datetime import datetime
-from pydantic import Field
+```Python
 from typing import Optional
+from mongodb_odm import connect, Document, Field, IndexModel, ASCENDING
 
-from mongodb_odm import ASCENDING, Document, IndexModel
 
+class Player(Document):
+    name: str = Field(...)
+    country: Optional[str] = None
 
-class User(Document):
-    username: str = Field(...)
-    full_name: str = Field(...)
+    class Config(Document.Config):
+        collection_name = "player"
+        indexes = [
+            IndexModel([("country", ASCENDING)]),
+        ]
+```
 
-    last_login: datetime = Field(default_factory=datetime.utcnow)
-    password: Optional[str] = Field(default=None)
-    image: Optional[str] = Field(default=None)
+### Set Connection
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        collection_name = "user"
-        indexes = (
-            IndexModel([("username", ASCENDING)], unique=True),
-        )
+```Python
+connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
 ```
 
 ### Create Document
 
-```py
-user = User(
-    username="username",
-    full_name="Example Name",
-    password="hash-password",
-).create()
+```Python
+pele = Player(name="Pelé", country_code="BRA").create()
+maradona = Player(name="Diego Maradona", country_code="ARG", rating=97).create()
+zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 ```
 
 ### Retrieve Document
 
-- Filter data from collection
+#### Find data from collection
 
-```py
-for user in User.find():
-    print(user)
+```Python
+for player in Player.find({"name": "ARG"}):
+    print(player)
 ```
 
-- Find first object with filter
+#### Find one object with filter
 
-```py
-user = User.find_first()
+```Python
+player = Player.find_one({"name": "Pelé"})
 ```
 
 ### Update Data
 
-
-```py
-user = User.find_first()
-if user:
-    user.full_name = "New Name"
-    user.update()
+```Python
+player = Player.find_one({"name": "Pelé"})
+if player:
+    player.rating = 98  # potential
+    player.update()
 ```
 
 ### Delete Data
 
-```py
-user = User.find_first()
-if user:
-    user.delete()
+```Python
+player = Player.find_one({"name": "Pelé"})
+if player:
+    player.delete()
 ```
 
 ### Apply Indexes
 
-```py
-from mongodb_odm import apply_indexes, ASCENDING, Document, IndexModel
+```Python
+from mongodb_odm import Document, IndexModel, ASCENDING
 
 
-class User(Document):
+class Player(Document):
     ...
-
-    class Config:
-        indexes = (
-            IndexModel([("username", ASCENDING)], unique=True),
-        )
+    class Config(Document.Config):
+        indexes = [
+            IndexModel([("country", ASCENDING)]),
+        ]
 ```
 
-- To create indexes in database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** module that are directly imported from **pymongo**.
-- Call `apply_indexes` function from your CLI. You can use [Typer](https://typer.tiangolo.com/) to implement CLI.
+- To create indexes in the database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
+- Call the `apply_indexes` function from your CLI. You can use [Typer](https://typer.tiangolo.com/) to implement CLI.
+
+## Example Code
+
+This is a short example of full code
+
+```python
+import os
+from typing import Optional
+
+from mongodb_odm import ASCENDING, Document, IndexModel, connect
+
+
+class Player(Document):
+    name: str
+    country_code: str
+    rating: Optional[int] = None
+
+    class Config(Document.Config):
+        indexes = [
+            IndexModel([("rating", ASCENDING)]),
+        ]
+
+
+connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
+
+pele = Player(name="Pelé", country_code="BRA").create()
+maradona = Player(name="Diego Maradona", country_code="ARG", rating=97).create()
+zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
+
+for player in Player.find():
+    print(player)
+
+player = Player.find_one({"name": "Pelé"})
+if player:
+    player.rating = 98  # potential
+    player.update()
+
+player = Player.find_one({"name": "Pelé"})
+```
+
+### Supported Framework
+
+**MongoDB-ODM** is not framework dependent. We can use this package in any system. But we take special consideration being compatible with <a href="https://fastapi.tiangolo.com/" class="external-link" target="_blank">FastAPI</a> and <a href="https://flask.palletsprojects.com/en/2.2.x/" class="external-link" target="_blank">Flask</a>.
+
+### Credit
+
+This package is built on top of <a href="https://pymongo.readthedocs.io/en/stable" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev" class="external-link" target="_blank">Pydantic</a>.
+
+Documentation generated by <a href="https://www.mkdocs.org/" class="external-link" target="_blank">MkDocs</a> and <a href="https://squidfunk.github.io/mkdocs-material/" class="external-link" target="_blank">Material for MkDocs</a>.
+
+Documentation inspired by <a href="https://sqlmodel.tiangolo.com" class="external-link" target="_blank">SQLModel</a>.
+
+But we use other packages for development and other purposes. Check **pyproject.toml** to know about all packages we use to build this package.
+
+## License
+
+This project is licensed under the terms of the [MIT license](https://github.com/nayan32biswas/mongodb-odm/blob/main/LICENSE).

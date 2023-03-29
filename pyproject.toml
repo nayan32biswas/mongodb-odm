@@ -17,8 +17,6 @@ classifiers = [
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -32,28 +30,22 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
-pymongo = "^4.3.3"
-pydantic = "^1.10.0"
+python = "^3.8"
+pymongo = { version = "^4.3.3", extras = ["srv"] }
+pydantic = "^1.10.7"
 
 [tool.poetry.group.dev.dependencies]
-async_generator = { version = "*", python = "~3.7" }
-async-exit-stack = { version = "*", python = "~3.7" }
-autoflake = "^1.4"
-black = { version = "^22.10.0", python = "^3.7" }
-cairosvg = { version = "^2.5.2", python = "^3.7" }
-coverage = { extras = ["toml"], version = "^6.2" }
-fastapi = "^0.68.1"
+black = "^23.1.0"
+coverage = { extras = ["toml"], version = "^7.2.2" }
 flake8 = "^5.0.4"
-isort = "^5.9.3"
-mypy = "0.971"
-mdx-include = "^1.4.1"
-mkdocs = "^1.2.1"
-mkdocs-material = "^8.1.4"
-pillow = { version = "^9.3.0", python = "^3.7" }
-pre-commit = "^2.20.0"
-pytest = "^7.0.1"
-requests = "^2.26.0"
+isort = "^5.12.0"
+mypy = "1.1.1"
+mdx-include = "^1.4.2"
+mkdocs = "^1.4.2"
+mkdocs-material = "^9.1.4"
+pre-commit = "^3.2.1"
+pytest = "^7.2.2"
+pip-tools = "6.12.3"
 
 [build-system]
 requires = ["poetry-core"]
@@ -64,14 +56,12 @@ source = "init"
 
 [tool.coverage.run]
 parallel = true
-source = ["docs_src", "tests", "mongodb_odm"]
+source = ["docs_src", "mongodb_odm", "tests"]
 context = '${CONTEXT}'
 
 [tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    'if __name__ == "__main__":',
-]
+exclude_lines = ['if __name__ == "__main__":']
+# omit = ["tests/*.py"]
 
 [tool.isort]
 profile = "black"
@@ -99,5 +89,3 @@ strict_equality = true
 [[tool.mypy.overrides]]
 module = ""
 warn_unused_ignores = false
-
-# invalidate CI cache: 1

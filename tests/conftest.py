@@ -1,16 +1,15 @@
 import os
+
 import pytest
+from mongodb_odm import connect, disconnect
+from mongodb_odm.connection import db
 
-from mongodb_odm.connection import connect
-
-DB_URL = os.environ.get(
-    "TEST_MONGO_HOST",
-    "mongodb://root:password@db:27017/test?authSource=admin",
-)
+DB_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
 
 
 @pytest.fixture(autouse=True)
 def init_config():
     connect(DB_URL)
+    db().command("dropDatabase")
     yield None
-    # disconnect()
+    disconnect()

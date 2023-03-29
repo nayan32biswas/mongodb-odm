@@ -1,10 +1,11 @@
 import logging
-
-from mongodb_odm import Document
 from typing import Optional
 
+from mongodb_odm import Document
+
 from .conftest import init_config  # noqa
-from .models.post import Post, ContentDescription
+from .models.course import ContentDescription, Course
+from .utils import populate_data
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +32,32 @@ def test_invalid_allow_inheritance():
         assert str(e) != "assert False"
 
 
+def test_allow_inheritance_true_for_child_and_parent():
+    class Parent(Document):
+        field: Optional[int] = None
+
+        class Config(Document.Config):
+            allow_inheritance = True
+
+    class Child(Parent):
+        other_field: Optional[int] = None
+
+        class Config(Document.Config):
+            allow_inheritance = True
+
+    try:
+        _ = Child().create()
+        assert False
+    except Exception as e:
+        assert str(e) != "assert False"
+
+
 def test_invalid_Config():
     class Parent(Document):
         field: Optional[int] = None
 
-        class Config:
-            collection_name = "post"
+        class Config(Document.Config):
+            collection_name = "course"
             allow_inheritance = False
 
     class Child(Parent):
@@ -50,13 +71,17 @@ def test_invalid_Config():
 
 
 def test_get_error_on_null_obj():
+    populate_data()
     try:
-        _ = Post.get({"_id": -1})
+        _ = Course.get({"_id": -1})
         assert False
     except Exception as e:
         assert str(e) != "assert False"
 
 
 def test_get_random_one_none():
-    obj = ContentDescription.get_random_one({"_id": -1})
-    assert obj is None
+    try:
+        _ = ContentDescription.get_random_one({"_id": -1})
+        assert False
+    except Exception as e:
+        assert str(e) != "assert False"

@@ -1,47 +1,52 @@
 import logging
 from datetime import datetime
-from typing import Any, Iterator, List, Optional, Tuple
-from typing_extensions import Self
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
+
 from bson import ObjectId
-
-
-from pydantic import BaseModel, Field
-from pymongo import DESCENDING
+from pydantic import BaseModel
+from pymongo.collection import Collection, _DocumentType, _WriteOp  # type: ignore
 from pymongo.cursor import Cursor
-from pymongo.results import UpdateResult, DeleteResult
-from pymongo.collection import Collection
+from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
+from typing_extensions import Self
 
-from .connection import get_db
+from .connection import db, get_client
 from .data_conversion import dict2obj
-from .types import PydanticObjectId  # type: ignore
-from .utils.utils import convert_model_to_collection
+from .exceptions import ObjectDoesNotExist
+from .fields import Field
+from .types import SORT_TYPE, ODMObjectId  # type: ignore
+from .utils.utils import convert_model_to_collection, get_relationship_fields_info
 
-
-INHERITANCE_FIELD_NAME = "_cls"
 logger = logging.getLogger(__name__)
+INHERITANCE_FIELD_NAME = "_cls"
+
+_cashed_collection: Dict[Any, Tuple[str, Optional[str]]] = {}
+_cashed_field_info: Dict[str, Dict] = {}
+
+
+def _clear_cache():
+    global _cashed_collection, _cashed_field_info
+    for key in [key for key in _cashed_collection.keys()]:
+        del _cashed_collection[key]
+
+    for key in [key for key in _cashed_field_info.keys()]:
+        del _cashed_field_info[key]
 
 
 class _BaseDocument(BaseModel):
-    class Config:
+    class Config(BaseModel.Config):
         # Those fields will work as the default value of any child class.
-        orm_mode = True
-        allow_population_by_field_name = True
-        collection_name = None
-        allow_inheritance = False
-
-    def __init__(self, *args, **kwargs) -> None:
-        if type(self) is Document:
-            raise Exception(
-                "Document is an abstract class and cannot be instantiated directly"
-            )
-        super().__init__(*args, **kwargs)
+        orm_mode: bool = True
+        allow_population_by_field_name: bool = True
+        collection_name: Optional[str] = None
+        allow_inheritance: bool = False
+        index_inheritance_field: bool = True
 
     def __setattr__(self, key, value) -> None:
         """Add '# type: ignore' as a comment if get type error while getting this value"""
         self.__dict__[key] = value
 
     @classmethod
-    def _get_collection_class(cls) -> Any:
+    def __get_collection_class(cls):
         model: Any = cls
         if model.__base__ != Document:
             base_model = model.__base__
@@ -52,7 +57,10 @@ class _BaseDocument(BaseModel):
                 raise Exception(
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
-            if base_model.Config == model.Config:
+            if (
+                base_model.Config.allow_inheritance is True
+                and model.Config.allow_inheritance is True
+            ):
                 raise Exception(
                     f"Child Model{model.__name__} should declare a separate Config class."
                 )
@@ -61,52 +69,93 @@ class _BaseDocument(BaseModel):
             return model, None
 
     @classmethod
+    def __get_collection_config(cls) -> Tuple[str, Optional[str]]:
+        global _cashed_collection
+        if cls in _cashed_collection:
+            return _cashed_collection[cls]
+
+        model, child_model = cls.__get_collection_class()
+        _cashed_collection[cls] = (
+            convert_model_to_collection(model),
+            convert_model_to_collection(child_model) if child_model else None,
+        )
+        return _cashed_collection[cls]
+
+    @classmethod
     def _get_collection_name(cls) -> str:
-        collection, _ = cls._get_collection_class()
-        return convert_model_to_collection(collection)
+        return cls.__get_collection_config()[0]
 
     @classmethod
     def _get_child(cls) -> Optional[str]:
-        _, collection = cls._get_collection_class()
-        if collection is None:
-            return None
-        return convert_model_to_collection(collection)
+        return cls.__get_collection_config()[1]
 
     @classmethod
     def _get_collection(cls) -> Collection:
-        if not hasattr(cls, "_collection") or cls._collection is None:
-            db = get_db()
-            cls._collection = db[cls._get_collection_name()]
-        return cls._collection
+        return db()[cls._get_collection_name()]
 
     @classmethod
     def _db(cls) -> str:
         return cls._get_collection_name()
 
-    # @classmethod
-    # def start_session(cls):
-    #     return get_client().start_session()
+    @classmethod
+    def get_inheritance_key(cls) -> dict:
+        return {INHERITANCE_FIELD_NAME: cls._get_child()}
+
+    @classmethod
+    def get_relational_field_info(cls) -> Dict[str, Dict]:
+        global _cashed_field_info
+        field_info_key = f"{hash(cls)}-field_info"
+
+        cached_field_info = _cashed_field_info.get(field_info_key)
+        if not cached_field_info:
+            cached_field_info = get_relationship_fields_info(cls)
+            _cashed_field_info[field_info_key] = cached_field_info
+        return cached_field_info
+
+    @classmethod
+    def get_exclude_fields(cls) -> Set[str]:
+        relational_fields = cls.get_relational_field_info().keys()
+        return {"_id", "id", *relational_fields}
+
+    @classmethod
+    def to_mongo(cls, self_obj) -> dict:
+        return self_obj.dict(exclude=cls.get_exclude_fields(), exclude_none=True)
+
+    @classmethod
+    def start_session(cls):
+        return get_client().start_session()
+
+    def __str__(self) -> str:
+        return super().__repr__()
 
 
 class Document(_BaseDocument):
-    id: PydanticObjectId = Field(default_factory=ObjectId, alias="_id")
+    _id: ODMObjectId = Field(default_factory=ObjectId)
+    id: ODMObjectId = Field(default_factory=ObjectId, alias="_id")
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        if "_id" in kwargs:
+            object.__setattr__(self, "_id", kwargs["_id"])
+        else:
+            object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
 
     def create(self, **kwargs) -> Self:
         _collection = self._get_collection()
 
-        data = self.dict(exclude={"id"})
+        data = self.to_mongo(self)
         if self._get_child() is not None:
-            data = {f"{INHERITANCE_FIELD_NAME}": self._get_child(), **data}
+            data = {**self.get_inheritance_key(), **data}
 
         inserted_id = _collection.insert_one(data, **kwargs).inserted_id
-        self.__dict__.update({"id": inserted_id})
+        self.__dict__.update({"_id": inserted_id, "id": inserted_id})
         return self
 
     @classmethod
     def find_raw(cls, filter: dict = {}, projection: dict = {}, **kwargs) -> Cursor:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         if projection:
             return _collection.find(filter, projection, **kwargs)
         return _collection.find(filter, **kwargs)
@@ -115,12 +164,13 @@ class Document(_BaseDocument):
     def find(
         cls,
         filter: dict = {},
-        sort: Optional[List[Tuple[str, int]]] = None,
+        projection: dict = {},
+        sort: Optional[SORT_TYPE] = None,
         skip: Optional[int] = None,
         limit: Optional[int] = None,
         **kwargs,
     ) -> Iterator[Self]:
-        qs = cls.find_raw(filter, **kwargs)
+        qs = cls.find_raw(filter, projection, **kwargs)
         if sort:
             qs = qs.sort(sort)
         if skip:
@@ -128,7 +178,7 @@ class Document(_BaseDocument):
         if limit:
             qs = qs.limit(limit)
 
-        model_childs = {}
+        model_children = {}
         is_dynamic_model = False
         if (
             hasattr(cls.Config, "allow_inheritance")
@@ -136,19 +186,23 @@ class Document(_BaseDocument):
         ):
             is_dynamic_model = True
             for model in cls.__subclasses__():
-                model_childs[cls._get_child()] = model
+                model_children[model._get_child()] = model
 
         for data in qs:
-            if is_dynamic_model and data.get(INHERITANCE_FIELD_NAME) in model_childs:
-                yield model_childs[data[INHERITANCE_FIELD_NAME]](**data)
+            if is_dynamic_model and data.get(INHERITANCE_FIELD_NAME) in model_children:
+                yield model_children[data[INHERITANCE_FIELD_NAME]](**data)
             else:
                 yield cls(**data)
 
     @classmethod
-    def __find_one(
-        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
+    def find_one(
+        cls,
+        filter: dict = {},
+        projection: dict = {},
+        sort: Optional[SORT_TYPE] = None,
+        **kwargs,
     ) -> Optional[Self]:
-        qs = cls.find_raw(filter, **kwargs)
+        qs = cls.find_raw(filter, projection=projection, **kwargs)
         if sort:
             qs = qs.sort(sort)
         for data in qs.limit(1):
@@ -157,82 +211,71 @@ class Document(_BaseDocument):
         return None
 
     @classmethod
-    def get_or_create(
-        cls, filter: dict = {}, session=None, **kwargs
-    ) -> Tuple[Self, bool]:
-        obj = cls.__find_one(filter)
-        if obj:
-            return obj, False
-        return cls(**filter).create(session=session, **kwargs), True
-
-    @classmethod
-    def get(
-        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
-    ) -> Self:
-        obj = cls.__find_one(filter, sort=sort, **kwargs)
+    def get(cls, filter: dict, sort: Optional[SORT_TYPE] = None, **kwargs) -> Self:
+        obj = cls.find_one(filter, sort=sort, **kwargs)
         if obj:
             return obj
-        raise Exception("Object not found.")
+        raise ObjectDoesNotExist("Object not found.")
 
     @classmethod
-    def find_first(
-        cls, filter: dict = {}, sort: Optional[List[Tuple[str, int]]] = None, **kwargs
-    ) -> Optional[Self]:
-        return cls.__find_one(filter, sort=sort, **kwargs)
-
-    @classmethod
-    def find_last(
-        cls,
-        filter: dict = {},
-        sort: Optional[List[Tuple[str, int]]] = [("_id", DESCENDING)],
-        **kwargs,
-    ) -> Optional[Self]:
-        return cls.__find_one(filter, sort=sort, **kwargs)
+    def get_or_create(
+        cls, filter: dict, sort: Optional[SORT_TYPE] = None, **kwargs
+    ) -> Tuple[Self, bool]:
+        obj = cls.find_one(filter, sort=sort, **kwargs)
+        if obj:
+            return obj, False
+        return cls(**filter).create(), True
 
     @classmethod
     def count_documents(cls, filter: dict = {}, **kwargs) -> int:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.count_documents(filter, **kwargs)
 
     @classmethod
     def exists(cls, filter: dict = {}, **kwargs) -> bool:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.count_documents(filter, **kwargs, limit=1) >= 1
 
     @classmethod
-    def aggregate(cls, pipeline: List[Any], _raw=False, **kwargs) -> Iterator[Any]:
+    def aggregate(
+        cls, pipeline: List[Any], get_raw=False, inheritance_filter=True, **kwargs
+    ) -> Iterator[Any]:
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            pipeline = [
-                {"$match": {f"{INHERITANCE_FIELD_NAME}": cls._get_child()}}
-            ] + pipeline
+        if inheritance_filter and cls._get_child() is not None:
+            if len(pipeline) > 0 and "$match" in pipeline[0]:
+                pipeline[0]["$match"] = {
+                    f"{INHERITANCE_FIELD_NAME}": cls._get_child(),
+                    **pipeline[0]["$match"],
+                }
+            else:
+                pipeline = [
+                    {"$match": {f"{INHERITANCE_FIELD_NAME}": cls._get_child()}}
+                ] + pipeline
         for obj in _collection.aggregate(pipeline, **kwargs):
-            if _raw is True:
+            if get_raw is True:
                 yield obj
             else:
                 yield dict2obj(obj)
 
     @classmethod
-    def get_random_one(cls, filter: dict = {}, **kwargs) -> Optional[Self]:
-        _collection = cls._get_collection()
+    def get_random_one(cls, filter: dict = {}, **kwargs) -> Self:
         if cls._get_child() is not None:
-            filter[INHERITANCE_FIELD_NAME] = cls._get_child()
+            filter = {**cls.get_inheritance_key(), **filter}
         pipeline = [{"$match": filter}, {"$sample": {"size": 1}}]
-        for data in _collection.aggregate(pipeline, **kwargs):
+        for data in cls.aggregate(pipeline, get_raw=True, **kwargs):
             return cls(**data)
-        return None
+        raise ObjectDoesNotExist("Object not found.")
 
     def update(self, raw: dict = {}, **kwargs) -> UpdateResult:
-        _collection = self._get_collection()
-        filter = {"_id": self.id}
+        filter = {"_id": self._id}
         if raw:
             updated_data = raw
         else:
-            updated_data = {"$set": self.dict(exclude={"id"})}
+            updated_data = {"$set": self.to_mongo(self)}
         if hasattr(self, "updated_at"):
             datetime_now = datetime.utcnow()
             if "$set" not in updated_data:
@@ -240,29 +283,92 @@ class Document(_BaseDocument):
             updated_data["$set"]["updated_at"] = datetime_now
             self.__dict__.update({"updated_at": datetime_now})
 
-        return _collection.update_one(filter, updated_data, **kwargs)
+        return self.update_one(filter, updated_data, **kwargs)
 
     @classmethod
     def update_one(cls, filter: dict = {}, data: dict = {}, **kwargs) -> UpdateResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.update_one(filter, data, **kwargs)
 
     @classmethod
     def update_many(cls, filter: dict = {}, data: dict = {}, **kwargs) -> UpdateResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.update_many(filter, data, **kwargs)
 
     def delete(self, **kwargs) -> DeleteResult:
-        _collection = self._get_collection()
-        return _collection.delete_one({"_id": self.id}, **kwargs)
+        return self.delete_one({"_id": self._id}, **kwargs)
+
+    @classmethod
+    def delete_one(cls, filter: dict = {}, **kwargs) -> DeleteResult:
+        _collection = cls._get_collection()
+        if cls._get_child() is not None:
+            filter = {**cls.get_inheritance_key(), **filter}
+        return _collection.delete_one(filter, **kwargs)
 
     @classmethod
     def delete_many(cls, filter: dict = {}, **kwargs) -> DeleteResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
-            filter = {f"{INHERITANCE_FIELD_NAME}": cls._get_child(), **filter}
+            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.delete_many(filter, **kwargs)
+
+    @classmethod
+    def bulk_write(
+        cls, requests: Sequence[_WriteOp[_DocumentType]], **kwargs
+    ) -> BulkWriteResult:
+        _collection = cls._get_collection()
+        return _collection.bulk_write(requests, **kwargs)
+
+    @classmethod
+    def load_related(
+        cls,
+        object_list: Union[Iterator[Self], Sequence[Self]],
+        fields: List[str] = [],
+        **kwargs,
+    ) -> Sequence[Self]:
+        """Get model relational field from cache"""
+        cached_field_info = cls.get_relational_field_info()
+
+        """Match with user given fields"""
+        loadable_fields_info = {}
+        if fields:
+            loadable_fields_info = {}
+            for field in fields:
+                if field not in cached_field_info:
+                    raise Exception(f'Invalid field "{field}"')
+                loadable_fields_info[field] = cached_field_info[field]
+        else:
+            loadable_fields_info = {**cached_field_info}
+
+        field_keys = loadable_fields_info.keys()
+        fields_id_dict = {field: [] for field in field_keys}
+
+        """Load all necessary id from given object_list"""
+        results = []
+        for obj in object_list:
+            for field, field_info in loadable_fields_info.items():
+                fields_id_dict[field].append(obj.__dict__[field_info["local_field"]])
+            results.append(obj)
+
+        """Load all document for all relational model"""
+        field_data_data = {field: {} for field in field_keys}
+        for field, ids in fields_id_dict.items():
+            field_data_data[field] = {
+                obj.id: obj
+                for obj in loadable_fields_info[field]["model"].find(
+                    {"_id": {"$in": ids}}
+                )
+            }
+
+        """Assign loaded document with results"""
+        for obj in results:
+            for field, field_info in loadable_fields_info.items():
+                obj.__dict__[field] = field_data_data[field].get(
+                    obj.__dict__[field_info["local_field"]]
+                )
+
+        return results

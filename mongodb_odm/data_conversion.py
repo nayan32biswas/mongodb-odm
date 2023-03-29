@@ -1,7 +1,7 @@
 from typing import Any
 
 
-class OdmObj(object):
+class ODMObj(object):
     def __repr__(self) -> str:
         items = ("{}={!r}".format(k, self.__dict__[k]) for k in self.__dict__)
         return "{}({})".format(type(self).__name__, ", ".join(items))
@@ -22,7 +22,7 @@ class OdmObj(object):
 def _to_dict(obj):
     if isinstance(obj, list):
         obj = [_to_dict(x) for x in obj]
-    if not isinstance(obj, OdmObj):
+    if not isinstance(obj, ODMObj):
         return obj
 
     n_d = {}
@@ -37,9 +37,11 @@ def _to_obj(d):
     if not isinstance(d, dict):
         return d
 
-    obj = OdmObj()
+    obj = ODMObj()
     for k, v in d.items():
         obj.__dict__[k] = _to_obj(v)
+        if k == "_id":
+            obj.__dict__["id"] = obj.__dict__[k]
     return obj
 
 
