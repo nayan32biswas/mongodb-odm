@@ -34,7 +34,7 @@ The key features are:
 
 ## Requirement
 
-**MongoDB-ODM** will work on <a href="https://www.python.org/downloads" class="external-link" target="_blank">Python 3.7 and above</a>
+**MongoDB-ODM** will work on <a href="https://www.python.org/downloads" class="external-link" target="_blank">Python 3.8 and above</a>
 
 This **MongoDB-ODM** is built on top of **PyMongo** and **Pydantic**. Those packages are required and will auto-install while **MongoDB-ODM** was installed.
 
