@@ -6,13 +6,28 @@
 
 <p align="center">
 
-<a href="https://github.com/nayan32biswas/mongodb-odm" target="_blank">
-    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/nayan32biswas/mongodb-odm/total?color=success">
+<a href="https://github.com/nayan32biswas/mongodb-odm/actions/workflows/test.yml" target="_blank">
+    <img src="https://github.com/nayan32biswas/mongodb-odm/actions/workflows/test.yml/badge.svg?branch=main&event=push" alt="Test">
 </a>
-<a href="https://pypi.org/project/mongodb-odm">
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=blue">
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/nayan32biswas/mongodb-odm" target="_blank">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/nayan32biswas/mongodb-odm.svg" alt="Coverage">
+<br />
+<a href="https://pypi.org/project/mongodb-odm/" target="_blank">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=%2334D058&label=PyPi%20Package">
 </a>
+<a href="https://pypi.org/project/mongodb-odm/" target="_blank">
+    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mongodb-odm?color=%2334D058">
+</a>
+
 </p>
+
+---
+
+**Documentation**: <a href="https://mongodb-odm.readthedocs.io" target="_blank">https://mongodb-odm.readthedocs.io</a>
+
+**PyPi**: <a href="https://pypi.org/project/mongodb-odm" target="_blank">https://pypi.org/project/mongodb-odm</a>
+
+**Repository**: <a href="https://github.com/nayan32biswas/mongodb-odm" target="_blank">https://github.com/nayan32biswas/mongodb-odm</a>
 
 ---
 
