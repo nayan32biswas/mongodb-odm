@@ -6,13 +6,28 @@
 
 <p align="center">
 
-<a href="https://github.com/nayan32biswas/mongodb-odm" target="_blank">
-    <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/nayan32biswas/mongodb-odm/total?color=success">
+<a href="https://github.com/nayan32biswas/mongodb-odm/actions/workflows/test.yml" target="_blank">
+    <img src="https://github.com/nayan32biswas/mongodb-odm/actions/workflows/test.yml/badge.svg?branch=main&event=push" alt="Test">
 </a>
-<a href="https://pypi.org/project/mongodb-odm/">
-    <img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=blue">
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/nayan32biswas/mongodb-odm" target="_blank">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/nayan32biswas/mongodb-odm.svg" alt="Coverage">
+<br />
+<a href="https://pypi.org/project/mongodb-odm/" target="_blank">
+    <img alt="PyPI" src="https://img.shields.io/pypi/v/mongodb-odm?color=%2334D058&label=PyPi%20Package">
 </a>
+<a href="https://pypi.org/project/mongodb-odm/" target="_blank">
+    <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mongodb-odm?color=%2334D058">
+</a>
+
 </p>
+
+---
+
+**Documentation**: <a href="https://mongodb-odm.readthedocs.io" target="_blank">https://mongodb-odm.readthedocs.io</a>
+
+**PyPi**: <a href="https://pypi.org/project/mongodb-odm" target="_blank">https://pypi.org/project/mongodb-odm</a>
+
+**Repository**: <a href="https://github.com/nayan32biswas/mongodb-odm" target="_blank">https://github.com/nayan32biswas/mongodb-odm</a>
 
 ---
 
@@ -21,7 +36,6 @@
 The purpose of this module is to provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
 **MongoDB-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a>.
-
 
 The key features are:
 

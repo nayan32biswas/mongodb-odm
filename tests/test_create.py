@@ -12,7 +12,6 @@ def test_create_course():
     _ = Course(
         author_id=user._id,
         title="Course Title",
-        is_publish=True,
     ).create()
 
 
@@ -21,7 +20,6 @@ def test_inheritance_model_create():
     course = Course(
         author_id=user._id,
         title="Course Title",
-        is_publish=True,
         short_description="Short Description",
     ).create()
 

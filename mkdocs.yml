@@ -47,12 +47,11 @@ nav:
       - Object Relationship:
         - Foreign Key Relationship: tutorial/relation/foreignkey_relationship.md
         - Many to Many Relationship: tutorial/relation/many_to_many_relationship.md
-  - reference.md
+  - api-reference.md
   - Advanced User Guide:
       - advanced-tutorial/index.md
       - advanced-tutorial/model-inheritance.md
-  - help.md
-  - contributing.md
+  - help-get-help.md
   - release-notes.md
 
 markdown_extensions:
@@ -67,7 +66,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format ""
+          format: "!!python/name:pymdownx.superfences.fence_code_format"
   - pymdownx.tabbed:
       alternate_style: true
   - mdx_include

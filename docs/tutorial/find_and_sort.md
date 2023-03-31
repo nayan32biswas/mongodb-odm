@@ -2,6 +2,10 @@
 
 To find and sort documents we will use the same classmethod `find` that we are using for finding and filtering data.
 
+### Database
+
+We will start from the same database structure and the same number of data as previously.
+
 ## Sort by ID desc
 
 ```python

@@ -7,7 +7,11 @@ We will work on the existing Player model.
 Let's create some data in the database `test_db` and a collection `player`.
 
 ```python
-{!./docs_src/tutorial/find_and_filter/tutorial000.py[ln:18-37]!}
+# Code omitted above
+
+{!./docs_src/tutorial/find_and_filter/tutorial000.py[ln:7-37]!}
+
+# Code omitted below
 ```
 
 <details>
@@ -164,6 +168,43 @@ Player(id=ObjectId('id'), name='Kylian Mbappé', country_code='FRA', rating=91, 
 Player(id=ObjectId('id'), name='Miroslav Klose', country_code='GER', rating=91, _id=ObjectId('id'))
 ...
 ```
+
+## Read data with projection
+
+Some time needs to limit some fields that should not pull from the database to improve network performance. Like we have a description field that has a very long string but on the list page, we don't need to pull them.
+
+In that scenario we can use `projection` kwargs in `find` function to limit on the data pulling.
+
+In that scenario, we can use `projection` kwargs in the `find` function to limit the data pulling.
+
+In this example, we eliminate the `rating` field while getting data from the database.
+
+```python
+# Code omitted above
+
+{!./docs_src/tutorial/find_and_filter/tutorial000.py[ln:54-58]!}
+
+# Code omitted below
+```
+
+<details>
+<summary>Full file preview</summary>
+```Python
+{!./docs_src/tutorial/find_and_filter/tutorial000.py!}
+```
+</details>
+
+Check the console after executing the code.
+
+```bash
+Player(id=ObjectId('id'), name='Zinedine Zidane', country_code='FRA', rating=None, _id=ObjectId('id'))
+Player(id=ObjectId('id'), name='Ronaldo', country_code='BRA', rating=None, _id=ObjectId('id'))
+Player(id=ObjectId('id'), name='Lionel Messi', country_code='ARG', rating=None, _id=ObjectId('id'))
+...
+```
+
+!!!warning
+    We need to pull all fields that are required. We can only eliminate only `optional` or `nullable` fields. If we did not pull a field then the field value will be the default value.
 
 ## Learning Curve
 

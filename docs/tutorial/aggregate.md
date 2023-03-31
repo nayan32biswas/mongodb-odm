@@ -16,24 +16,9 @@ An aggregation pipeline consists of one or more stages that process documents:
 
 Read <a  href="https://www.mongodb.com/docs/manual/aggregation/" class="external-link" target="_blank">MongoDB aggregation</a> for more details about aggregation.
 
-## Create data for player
+### Database
 
-First, insert some player data before starting to work.
-
-```python
-# Code omitted above
-
-{!./docs_src/tutorial/aggregate/tutorial000.py[ln:23-42]!}
-
-# Code omitted below
-```
-
-<details>
-<summary>Full file preview</summary>
-```Python
-{!./docs_src/tutorial/aggregate/tutorial000.py!}
-```
-</details>
+We will start from the same database structure and the same number of data as previously.
 
 ## Aggregate data using MongoDB Console
 

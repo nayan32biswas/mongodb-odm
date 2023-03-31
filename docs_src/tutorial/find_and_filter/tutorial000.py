@@ -51,6 +51,13 @@ def filter_documents():
     print()
 
 
+def read_documents_with_projection():
+    documents = Player.find(projection={"rating": 0})
+    for player in documents:
+        print(player)
+    print()
+
+
 def main():
     connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
     apply_indexes()
@@ -58,6 +65,7 @@ def main():
 
     read_documents()
     filter_documents()
+    read_documents_with_projection()
 
 
 if __name__ == "__main__":

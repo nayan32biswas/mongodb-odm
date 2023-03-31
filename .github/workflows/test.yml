@@ -15,7 +15,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
@@ -50,7 +50,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: python -m poetry install
       - run: mkdir coverage
-      - name: Test          
+      - name: Test
         run: |
           docker run -d --rm --name mongo -p 27017:27017 mongo
           python -m poetry run bash scripts/test.sh

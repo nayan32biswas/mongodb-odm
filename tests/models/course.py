@@ -22,8 +22,7 @@ class Course(Document):
     short_description: Optional[str] = Field(max_length=512, default=None)
     cover_image: Optional[str] = None
 
-    published_at: Optional[datetime] = None
-    is_publish: bool = True
+    publish_at: Optional[datetime] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

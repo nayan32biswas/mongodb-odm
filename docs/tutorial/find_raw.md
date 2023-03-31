@@ -12,6 +12,10 @@ The `find_raw` is a very thin layer on top of the `find` from `PyMongo`.
 
 Behind the hood, multiple classmethod of **MongoDB-ODM** use `find_raw` for simplicity.
 
+### Database
+
+We will start from the same database structure and the same number of data as previously.
+
 ## Filter Collection
 
 We can filter document using `find_raw`

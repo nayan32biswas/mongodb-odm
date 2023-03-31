@@ -2,22 +2,9 @@
 
 We can improve data retrieval performance by limiting or skipping data for a big data set.
 
-## Create data to database
+### Database
 
-```python
-# Code omitted above
-
-{!./docs_src/tutorial/find_limit_and_skip/tutorial000.py[ln:23-42]!}
-
-# Code omitted below
-```
-
-<details>
-<summary>Full file preview</summary>
-```Python
-{!./docs_src/tutorial/find_limit_and_skip/tutorial000.py!}
-```
-</details>
+We will start from the same database structure and the same number of data as previously.
 
 ## Limit Data
 

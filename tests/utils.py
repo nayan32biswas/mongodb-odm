@@ -18,11 +18,15 @@ def create_courses():
     user_one = User.get({"username": "one"})
     user_two = User.get({"username": "two"})
 
-    one = Course(author_id=user_one.id, title="one").create()
+    one = Course(
+        author_id=user_one.id, title="one", short_description="short description one"
+    ).create()
     ContentDescription(course_id=one.id, description="Description one").create()
     ContentImage(course_id=one.id, image_path="/media/one.png").create()
 
-    two = Course(author_id=user_two.id, title="two").create()
+    two = Course(
+        author_id=user_two.id, title="two", short_description="short description two"
+    ).create()
     ContentDescription(course_id=two.id, description="Description two").create()
     ContentImage(course_id=two.id, image_path="/media/two.png").create()
 

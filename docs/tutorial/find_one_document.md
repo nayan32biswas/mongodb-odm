@@ -1,5 +1,9 @@
 # Find One Document
 
+### Database
+
+We will start from the same database structure and the same number of data as previously.
+
 ## Find One
 
 Some times we need to find one object. In that scenario, we will use classmethod `find_one`.

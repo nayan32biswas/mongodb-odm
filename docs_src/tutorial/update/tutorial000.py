@@ -15,11 +15,6 @@ class Player(Document):
         ]
 
 
-def configuration():
-    connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
-    apply_indexes()
-
-
 def create_players():
     Player(name="Pelé", country_code="BRA", rating=98).create()
     Player(name="Diego Maradona", country_code="ARG", rating=97).create()
@@ -40,6 +35,11 @@ def create_players():
     Player(name="David Beckham", country_code="ENG", rating=89).create()
     Player(name="Wayne Rooney", country_code="ENG", rating=80).create()
     Player(name="Harry Kane", country_code="ENG", rating=89).create()
+
+
+def configuration():
+    connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
+    apply_indexes()
 
 
 def update_document():

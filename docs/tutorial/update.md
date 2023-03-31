@@ -7,7 +7,7 @@ Let's create some data in the database `test_db` and a collection `player`.
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/update/tutorial000.py[ln:23-42]!}
+{!./docs_src/tutorial/update/tutorial000.py[ln:7-37]!}
 
 # Code omitted below
 ```

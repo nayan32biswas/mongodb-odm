@@ -1,5 +1,9 @@
 # Get Document
 
+### Database
+
+We will start from the same database structure and the same number of data as previously.
+
 ## Get First Document
 
 Sometimes we need to get one object. In that scenario, we will use classmethod `get`.

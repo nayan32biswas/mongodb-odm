@@ -29,8 +29,9 @@ dist/
 # OS
 .DS_Store
 
-# Sphinx documentation
+# MkDocs
 docs/_build/
+site
 
 # viewdoc output
 .long-description.html

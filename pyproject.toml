@@ -1,17 +1,19 @@
 [tool.poetry]
 name = "mongodb-odm"
-version = "0.1.0-alpha.3"
+version = "0"
 description = "MongoDB-ODM, NOSQL databases in Python, designed for simplicity, compatibility, and robustness."
 authors = ["Nayan Biswas <nayan32biswas@gmail.com>"]
 readme = "README.md"
-homepage = "https://github.com/nayan32biswas/mongodb-odm"
-documentation = "https://github.com/nayan32biswas/mongodb-odm"
-repository = "https://github.com/nayan32biswas/mongodb-odm"
 license = "MIT"
+# homepage = "https://github.com/nayan32biswas/mongodb-odm"
+documentation = "https://mongodb-odm.readthedocs.io"
+repository = "https://github.com/nayan32biswas/mongodb-odm"
+
 exclude = []
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Framework :: AsyncIO",
+    "Operating System :: OS Independent",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
@@ -56,7 +58,7 @@ source = "init"
 
 [tool.coverage.run]
 parallel = true
-source = ["docs_src", "mongodb_odm", "tests"]
+source = ["docs_src", "mongodb_odm"]
 context = '${CONTEXT}'
 
 [tool.coverage.report]
@@ -89,3 +91,9 @@ strict_equality = true
 [[tool.mypy.overrides]]
 module = ""
 warn_unused_ignores = false
+
+[tool.flake8]
+    exclude = ".env"
+    max-complexity = 10
+    max-line-length = 100
+    extend-ignore = """"""
