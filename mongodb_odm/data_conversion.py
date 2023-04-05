@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List, Union
+from typing import Any, Dict, Generator, List, Tuple, Union
 
 
 class ODMObj(object):
@@ -12,7 +12,7 @@ class ODMObj(object):
     def __eq__(self, other: object) -> bool:
         return self.__dict__ == other.__dict__
 
-    def __iter__(self) -> Generator[tuple[str, Any], None, None]:
+    def __iter__(self) -> Generator[Tuple[str, Any], None, None]:
         yield from self.__dict__.items()
 
     def dict(self) -> Any:
