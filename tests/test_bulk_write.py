@@ -23,7 +23,9 @@ def test_bulk_insert():
 def test_bulk_update():
     NewModel.bulk_write(
         [
-            UpdateOne({"title": "bulk insert"}, {"$set": {"title": "updated"}}),
+            UpdateOne(
+                {"title": "bulk insert"}, {"$set": {"title": "updated"}}
+            ),
         ]
     )
 

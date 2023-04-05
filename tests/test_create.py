@@ -1,7 +1,12 @@
 import logging
 
 from .conftest import init_config  # noqa
-from .models.course import Content, ContentDescription, ContentImage, Course  # noqa
+from .models.course import (
+    Content,
+    ContentDescription,
+    ContentImage,
+    Course,
+)
 from .models.user import get_user
 
 logger = logging.getLogger(__name__)
@@ -37,4 +42,5 @@ def test_inheritance_model_create():
 
     assert (
         content_count == 2
-    ), "Content count should be 2 as ContentDescription and ContentImage belong to Content collection"
+    ), "Content count should be 2 as ContentDescription \
+        and ContentImage belong to Content collection"

@@ -1,7 +1,13 @@
 import os
 from typing import Optional  # (1)
 
-from mongodb_odm import ASCENDING, Document, IndexModel, apply_indexes, connect  # (2)
+from mongodb_odm import (
+    ASCENDING,
+    Document,
+    IndexModel,
+    apply_indexes,
+    connect,
+)  # (2)
 
 
 class Player(Document):  # (3)
@@ -50,7 +56,9 @@ def filter_players():  # (20)
 
 
 def find_one_object():  # (24)
-    player = Player.find_one({"rating": {"country_code": "BRA", "$gte": 90}})  # (25)
+    player = Player.find_one(
+        {"rating": {"country_code": "BRA", "$gte": 90}}
+    )  # (25)
     if player:
         print(player)
 
@@ -88,7 +96,9 @@ def get_random_one():  # (44)
 
 
 def main():  # (10)
-    connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))  # (11)
+    connect(
+        os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
+    )  # (11)
     apply_indexes()  # (12)
     create_players()  # (13)
 

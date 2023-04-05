@@ -1,7 +1,13 @@
 import os
 from typing import Optional
 
-from mongodb_odm import DESCENDING, Document, IndexModel, apply_indexes, connect
+from mongodb_odm import (
+    DESCENDING,
+    Document,
+    IndexModel,
+    apply_indexes,
+    connect,
+)
 
 
 class Player(Document):

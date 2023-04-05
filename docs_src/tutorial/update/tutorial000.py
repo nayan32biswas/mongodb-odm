@@ -56,7 +56,9 @@ def update_one_document():
 
 
 def update_many_document():
-    result = Player.update_many(filter={"rating": 91}, data={"$set": {"rating": 92}})
+    result = Player.update_many(
+        filter={"rating": 91}, data={"$set": {"rating": 92}}
+    )
     print(result.modified_count)
 
 

@@ -81,7 +81,7 @@ To update multiple documents we will use classmethod `update_many`.
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/update/tutorial000.py[ln:58-60]!}
+{!./docs_src/tutorial/update/tutorial000.py[ln:58-62]!}
 
 # Code omitted below
 ```

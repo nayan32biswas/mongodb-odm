@@ -59,7 +59,9 @@ def get_document():
 
 
 def get_last_document():
-    player = Player.get(filter={"rating": {"$gte": 90}}, sort=[("_id", DESCENDING)])
+    player = Player.get(
+        filter={"rating": {"$gte": 90}}, sort=[("_id", DESCENDING)]
+    )
     print(player)
 
 

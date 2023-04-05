@@ -1,8 +1,10 @@
 import logging
-from typing import List
+from typing import Any, Dict, List, Tuple, Type
 
 from bson import SON
 from pymongo import ASCENDING, IndexModel
+
+from mongodb_odm.types import DICT_TYPE
 
 from ..connection import db
 from ..models import INHERITANCE_FIELD_NAME, Document
@@ -10,7 +12,7 @@ from ..models import INHERITANCE_FIELD_NAME, Document
 logger = logging.getLogger(__name__)
 
 
-def index_for_a_collection(operation):
+def index_for_a_collection(operation: DICT_TYPE) -> Tuple[int, int]:
     """
     First get all indexes for a collection and match with operation.
     Remove full match object.
@@ -28,28 +30,28 @@ def index_for_a_collection(operation):
 
     db_indexes = []
     for index in collection.list_indexes():
-        temp_val = index.to_dict()  # type: ignore
+        old_index = index.to_dict()  # type: ignore
         # Skip "_id" index since it's create by mongodb system
-        if "_id" in temp_val["key"]:
+        if "_id" in old_index["key"]:
             continue
-        temp_val.pop("v", None)
-        db_indexes.append(temp_val)
+        old_index.pop("v", None)
+        db_indexes.append(old_index)
 
     new_indexes = []
     new_indexes_store = {}
 
     for index in indexes:
-        temp_val = index.document
+        new_index: Any = index.document  # type: ignore
         # Replace SON object with dict
-        if type(temp_val["key"]) == SON:
-            temp_val["key"] = temp_val["key"].to_dict()
+        if type(new_index["key"]) == SON:
+            new_index["key"] = new_index["key"].to_dict()
         else:
             continue
-        new_indexes.append(temp_val)
+        new_indexes.append(new_index)
         # Store index object for future use
-        new_indexes_store[temp_val["name"]] = index
+        new_indexes_store[new_index["name"]] = index
 
-    update_indexes = []
+    update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
     for i in range(len(db_indexes)):
         partial_match = None
         for j in range(len(new_indexes)):
@@ -86,7 +88,8 @@ def index_for_a_collection(operation):
         try:
             collection.create_indexes(new_indexes)
         except Exception as e:
-            logger.error(f'\nProblem arise at "{operation["collection_name"]}": {e}\n')
+            logger.error(
+                f'\nProblem arise at "{operation["collection_name"]}": {e}\n')
             raise e
 
     # TODO: apply action for update_indexes
@@ -94,23 +97,26 @@ def index_for_a_collection(operation):
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
         logger.info(
-            f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added'
+            f'Applied for "{operation["collection_name"]}": {de} deleted, \
+                {ne} added'
         )
     return ne, de
 
 
-def get_model_indexes(model) -> List:
+def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
     if hasattr(model.Config, "indexes"):
         return list(model.Config.indexes)
     return []
 
 
-def get_all_indexes():
+def get_all_indexes() -> List[DICT_TYPE]:
     """
-    First imports all child models of Document since it's the abstract parent model.
-    Then retrieve all the child modules and will try to get indexes inside the Config class.
+    First imports all child models of Document since it's the abstract parent \
+        model.
+    Then retrieve all the child modules and will try to get indexes inside \
+        the Config class.
     """
-    operations = []
+    operations: List[DICT_TYPE] = []
     for model in Document.__subclasses__():
         indexes = get_model_indexes(model)
         if indexes:
@@ -125,8 +131,12 @@ def get_all_indexes():
             ):
                 """If a model has child model"""
                 if model.Config.index_inheritance_field is True:
-                    """No _cls indexes will apply if index_inheritance_field = False"""
-                    indexes.append(IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)]))
+                    """
+                    No _cls indexes will apply if \
+                        index_inheritance_field = False
+                    """
+                    indexes.append(IndexModel(
+                        [(INHERITANCE_FIELD_NAME, ASCENDING)]))
                 for child_model in model.__subclasses__():
                     """Get all indexes that are defined in child model"""
                     indexes += get_model_indexes(child_model)
@@ -134,7 +144,7 @@ def get_all_indexes():
     return operations
 
 
-def apply_indexes():
+def apply_indexes() -> None:
     """Run "python -m app.main apply-indexes" to apply and indexes."""
 
     """First get all indexes from all model."""

@@ -48,7 +48,9 @@ def configuration():
 def create_data():
     course = Course(title="MongoDB-ODM Tutorial").create()
 
-    Text(course_id=course.id, title="Introduction", text="Introduction Text").create()
+    Text(
+        course_id=course.id, title="Introduction", text="Introduction Text"
+    ).create()
     Video(
         course_id=course.id,
         title="Environment Setup",

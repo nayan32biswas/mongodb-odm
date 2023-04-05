@@ -64,19 +64,19 @@ $ pip install mongodb-odm
 ### Define model
 
 ```Python
-{!./docs_src/overview.py[ln:1-13]!}
+{!./docs_src/overview.py[ln:1-15]!}
 ```
 
 ### Set Connection
 
 ```Python
-{!./docs_src/overview.py[ln:16-16]!}
+{!./docs_src/overview.py[ln:18-18]!}
 ```
 
 ### Create Document
 
 ```Python
-{!./docs_src/overview.py[ln:18-20]!}
+{!./docs_src/overview.py[ln:20-24]!}
 ```
 
 ### Retrieve Document
@@ -84,31 +84,31 @@ $ pip install mongodb-odm
 #### Find data from collection
 
 ```Python
-{!./docs_src/overview.py[ln:22-23]!}
+{!./docs_src/overview.py[ln:26-27]!}
 ```
 
 #### Find first object with filter
 
 ```Python
-{!./docs_src/overview.py[ln:25-25]!}
+{!./docs_src/overview.py[ln:29-29]!}
 ```
 
 ### Update Data
 
 ```Python
-{!./docs_src/overview.py[ln:25-28]!}
+{!./docs_src/overview.py[ln:29-32]!}
 ```
 
 ### Delete Data
 
 ```Python
-{!./docs_src/overview.py[ln:30-32]!}
+{!./docs_src/overview.py[ln:35-36]!}
 ```
 
 ### Apply Indexes
 
-```Python hl_lines="11-13"
-{!./docs_src/overview.py[ln:1-13]!}
+```Python hl_lines="13-15"
+{!./docs_src/overview.py[ln:1-15]!}
 ```
 
 - To create indexes in the database declare <a href="https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing" class="external-link" target="_blank">IndexModel</a> and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
@@ -119,7 +119,7 @@ $ pip install mongodb-odm
 This is a short example of full code
 
 ```Python
-{!./docs_src/overview.py[ln:1-32]!}
+{!./docs_src/overview.py!}
 ```
 
 ### Supported Framework

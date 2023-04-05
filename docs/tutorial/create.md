@@ -70,7 +70,7 @@ Set database connection one time for a project. It's recommended to set up a con
 ```{.python .annotate hl_lines="4"}
 # Code omitted above
 
-{!./docs_src/tutorial/create/tutorial000.py[ln:24-27]!}
+{!./docs_src/tutorial/create/tutorial000.py[ln:24-29]!}
 
 # Code omitted below
 ```

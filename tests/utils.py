@@ -19,15 +19,23 @@ def create_courses():
     user_two = User.get({"username": "two"})
 
     one = Course(
-        author_id=user_one.id, title="one", short_description="short description one"
+        author_id=user_one.id,
+        title="one",
+        short_description="short description one",
     ).create()
-    ContentDescription(course_id=one.id, description="Description one").create()
+    ContentDescription(
+        course_id=one.id, description="Description one"
+    ).create()
     ContentImage(course_id=one.id, image_path="/media/one.png").create()
 
     two = Course(
-        author_id=user_two.id, title="two", short_description="short description two"
+        author_id=user_two.id,
+        title="two",
+        short_description="short description two",
     ).create()
-    ContentDescription(course_id=two.id, description="Description two").create()
+    ContentDescription(
+        course_id=two.id, description="Description two"
+    ).create()
     ContentImage(course_id=two.id, image_path="/media/two.png").create()
 
 
@@ -39,10 +47,14 @@ def create_comments():
     course_two = Course.get({"title": "two"})
 
     comment_one = Comment(
-        course_id=course_one.id, user_id=user_three.id, description="Comment One"
+        course_id=course_one.id,
+        user_id=user_three.id,
+        description="Comment One",
     ).create()
     Comment(
-        course_id=course_two.id, user_id=user_three.id, description="Comment Two"
+        course_id=course_two.id,
+        user_id=user_three.id,
+        description="Comment Two",
     ).create()
 
     comment_one.children.append(
