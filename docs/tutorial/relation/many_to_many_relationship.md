@@ -19,7 +19,7 @@ Then declare the middle model `PlayerSkill` that will have `player_id`, `skill_i
 ```Python hl_lines="23"
 # Code omitted above
 
-{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:16-49]!}
+{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:16-50]!}
 
 # Code omitted below
 ```
@@ -38,7 +38,7 @@ We will define a multi-key index for better performance. Also, we want `player_i
 ```Python hl_lines="14"
 # Code omitted above
 
-{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:36-49]!}
+{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:36-50]!}
 
 # Code omitted below
 ```
@@ -52,7 +52,7 @@ We will get one of the player data and his skills.
 ```Python
 # Code omitted above
 
-{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:74-79]!}
+{!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:74-80]!}
 
 # Code omitted below
 ```
