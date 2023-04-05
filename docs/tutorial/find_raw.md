@@ -42,7 +42,7 @@ Let's see a comparison of `find_raw` with `find` from `PyMongo`.
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/find_raw/tutorial000.py[ln:53-64]!}
+{!./docs_src/tutorial/find_raw/tutorial000.py[ln:53-61]!}
 
 # Code omitted below
 ```

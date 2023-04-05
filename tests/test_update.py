@@ -17,9 +17,7 @@ def test_update_model():
     course.update()
 
     updated_course = Course.get({"_id": course._id})
-    assert (
-        updated_course.title == UPDATE_TITLE
-    ), "Update Model has no impact on DB."
+    assert updated_course.title == UPDATE_TITLE, "Update Model has no impact on DB."
 
     course.delete()
 
@@ -30,9 +28,7 @@ def test_update_model_raw():
     course = Course.get({})
     course.update({"$set": {"title": UPDATE_TITLE}})
     updated_course = Course.get({"_id": course._id})
-    assert (
-        updated_course.title == UPDATE_TITLE
-    ), "Update Model has no impact on DB."
+    assert updated_course.title == UPDATE_TITLE, "Update Model has no impact on DB."
 
     course.update({"$unset": {"title": 1}})
     for obj in Course.find_raw({"_id": course._id}):
@@ -50,9 +46,7 @@ def test_update_one():
         filter={"_id": course._id}, data={"$set": {"title": UPDATE_TITLE}}
     )
     updated_course = Course.get({"_id": course._id})
-    assert (
-        updated_course.title == UPDATE_TITLE
-    ), "Update One has no impact on DB."
+    assert updated_course.title == UPDATE_TITLE, "Update One has no impact on DB."
 
     course.delete()
 
@@ -68,9 +62,7 @@ def test_update_many():
         data={"$set": {"title": UPDATE_TITLE}},
     )
 
-    assert (
-        updated_course.matched_count == 2
-    ), "Total course was not modified properly."
+    assert updated_course.matched_count == 2, "Total course was not modified properly."
 
     total_update = Course.count_documents(
         filter={

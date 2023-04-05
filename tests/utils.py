@@ -23,9 +23,7 @@ def create_courses():
         title="one",
         short_description="short description one",
     ).create()
-    ContentDescription(
-        course_id=one.id, description="Description one"
-    ).create()
+    ContentDescription(course_id=one.id, description="Description one").create()
     ContentImage(course_id=one.id, image_path="/media/one.png").create()
 
     two = Course(
@@ -33,9 +31,7 @@ def create_courses():
         title="two",
         short_description="short description two",
     ).create()
-    ContentDescription(
-        course_id=two.id, description="Description two"
-    ).create()
+    ContentDescription(course_id=two.id, description="Description two").create()
     ContentImage(course_id=two.id, image_path="/media/two.png").create()
 
 

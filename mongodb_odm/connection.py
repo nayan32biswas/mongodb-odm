@@ -4,9 +4,8 @@ from typing import Any
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from .utils._internal_models import Connection
-
 from .exceptions import ConnectionExist
+from .utils._internal_models import Connection
 
 logger = logging.getLogger(__name__)
 

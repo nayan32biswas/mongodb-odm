@@ -89,9 +89,7 @@ connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
 
 ```Python
 pele = Player(name="Pelé", country_code="BRA").create()
-maradona = Player(
-    name="Diego Maradona", country_code="ARG", rating=97
-).create()
+maradona = Player(name="Diego Maradona", country_code="ARG", rating=97).create()
 zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 ```
 
@@ -169,9 +167,7 @@ class Player(Document):
 connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
 
 pele = Player(name="Pelé", country_code="BRA").create()
-maradona = Player(
-    name="Diego Maradona", country_code="ARG", rating=97
-).create()
+maradona = Player(name="Diego Maradona", country_code="ARG", rating=97).create()
 zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 
 for player in Player.find():

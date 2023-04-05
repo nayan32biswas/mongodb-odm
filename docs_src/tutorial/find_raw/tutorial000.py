@@ -53,9 +53,7 @@ def filter_documents():
 def pymongo_find_and_find_raw_comparison():
     filter = {"rating": {"$gte": 10}}
 
-    connection_url = os.environ.get(
-        "MONGO_URL", "mongodb://localhost:27017/testdb"
-    )
+    connection_url = os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
     db = MongoClient(connection_url).get_database()
 
     py_players = db.player.find(filter)

@@ -2,9 +2,7 @@ from typing import Any, Dict, Mapping, Sequence, Tuple, Union
 
 from bson import ObjectId
 
-SORT_TYPE = Union[
-    str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]
-]
+SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
 
 DICT_TYPE = Dict[str, Any]
 

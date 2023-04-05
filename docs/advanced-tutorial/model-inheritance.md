@@ -74,7 +74,7 @@ First, we create a course document.
 Then we create two `Content`. One `Text` content and the other one video content.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:48-58]!}
+{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:48-56]!}
 ```
 
 <details>
@@ -100,7 +100,7 @@ We can use all our retrieval methods to retrieve data for the inherited model. W
 To get all content we can filter data with parent class `Content`.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:61-63]!}
+{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:59-62]!}
 ```
 
 <details>
@@ -122,7 +122,7 @@ Video(id=ObjectId('id'), course_id=ObjectId('id'), title='Environment Setup', vi
 We can retrieve data using the `Text` and `Video` models.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:67-70]!}
+{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:65-74]!}
 ```
 
 <details>

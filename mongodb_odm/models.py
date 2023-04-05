@@ -1,20 +1,10 @@
 import logging
 from datetime import datetime
-from typing import (
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
 from bson import ObjectId
 from pydantic import BaseModel
-from pymongo import client_session, IndexModel
+from pymongo import IndexModel, client_session
 from pymongo.collection import Collection, _WriteOp
 from pymongo.cursor import Cursor
 from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
@@ -26,10 +16,7 @@ from .exceptions import ObjectDoesNotExist
 from .fields import Field
 from .types import DICT_TYPE, SORT_TYPE, ODMObjectId
 from .utils._internal_models import RelationalFieldInfo
-from .utils.utils import (
-    convert_model_to_collection,
-    get_relationship_fields_info,
-)
+from .utils.utils import convert_model_to_collection, get_relationship_fields_info
 
 logger = logging.getLogger(__name__)
 INHERITANCE_FIELD_NAME = "_cls"
@@ -61,8 +48,7 @@ class _BaseDocument(BaseModel):
 
     def __setattr__(self, key: str, value: Any) -> None:
         """
-        Add '# type: ignore' as a comment if get type error \
-            while getting this value
+        Add '# type: ignore' as a comment if get type error while getting this value
         """
         self.__dict__[key] = value
 
@@ -76,16 +62,14 @@ class _BaseDocument(BaseModel):
                 or base_model.Config.allow_inheritance is not True
             ):
                 raise Exception(
-                    f"Invalid model inheritance. {base_model} does not \
-                        allow model inheritance."
+                    f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
             if (
                 base_model.Config.allow_inheritance is True
                 and model.Config.allow_inheritance is True
             ):
                 raise Exception(
-                    f"Child Model{model.__name__} should declare a \
-                        separate Config class."
+                    f"Child Model{model.__name__} should declare a separate Config class."
                 )
             return base_model, model
         else:
@@ -166,9 +150,7 @@ class Document(_BaseDocument):
         if "_id" in kwargs:
             object.__setattr__(self, "_id", kwargs["_id"])
         else:
-            object.__setattr__(
-                self, "_id", self._id.default_factory()  # type: ignore
-            )
+            object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
 
     def create(self, **kwargs: Any) -> Self:
         _collection = self._get_collection()
@@ -224,10 +206,7 @@ class Document(_BaseDocument):
                 model_children[model._get_child()] = model
 
         for data in qs:
-            if (
-                is_dynamic_model
-                and data.get(INHERITANCE_FIELD_NAME) in model_children
-            ):
+            if is_dynamic_model and data.get(INHERITANCE_FIELD_NAME) in model_children:
                 yield model_children[data[INHERITANCE_FIELD_NAME]](**data)
             else:
                 yield cls(**data)
@@ -244,8 +223,7 @@ class Document(_BaseDocument):
         if sort:
             qs = qs.sort(sort)
         for data in qs.limit(1):
-            """limit 1 is equivalent to find_one and that is \
-                implemented in pymongo find_one"""
+            """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
             return cls(**data)
         return None
 
@@ -365,9 +343,7 @@ class Document(_BaseDocument):
         return _collection.delete_one(filter, **kwargs)
 
     @classmethod
-    def delete_many(
-        cls, filter: DICT_TYPE = {}, **kwargs: Any
-    ) -> DeleteResult:
+    def delete_many(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> DeleteResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -410,9 +386,7 @@ class Document(_BaseDocument):
         results = []
         for obj in object_list:
             for field, field_info in loadable_fields_info.items():
-                fields_id_dict[field].append(
-                    obj.__dict__[field_info.local_field]
-                )
+                fields_id_dict[field].append(obj.__dict__[field_info.local_field])
             results.append(obj)
 
         """Load all document for all relational model"""
@@ -420,9 +394,7 @@ class Document(_BaseDocument):
         for field, ids in fields_id_dict.items():
             field_data_data[field] = {
                 obj.id: obj
-                for obj in loadable_fields_info[field].model.find(
-                    {"_id": {"$in": ids}}
-                )
+                for obj in loadable_fields_info[field].model.find({"_id": {"$in": ids}})
             }
 
         """Assign loaded document with results"""

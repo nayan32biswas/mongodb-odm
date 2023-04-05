@@ -124,9 +124,7 @@ def test_projection_for_find_raw():
 def test_projection_for_find():
     populate_data()
 
-    for obj in Course.find(
-        projection={"short_description": 0, "cover_image": 0}
-    ):
+    for obj in Course.find(projection={"short_description": 0, "cover_image": 0}):
         assert isinstance(obj.id, ObjectId)
         assert obj.cover_image is None
         assert obj.short_description is None

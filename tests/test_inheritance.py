@@ -77,8 +77,6 @@ def test_child_aggregation():
 def test_child_get_random_one():
     populate_data()
     course = Course.get(filter={})
-    ContentDescription(
-        course_id=course._id, description="Demo Description"
-    ).create()
+    ContentDescription(course_id=course._id, description="Demo Description").create()
     obj = ContentDescription.get_random_one()
     assert isinstance(obj._id, ObjectId)

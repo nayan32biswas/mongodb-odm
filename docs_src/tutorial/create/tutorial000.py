@@ -22,9 +22,7 @@ def create_documents():  # (11)
 
 
 def main():  # (8)
-    connect(
-        os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
-    )  # (9)
+    connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))  # (9)
 
     create_documents()  # (10)
 

@@ -64,9 +64,7 @@ def insert_data():
     PlayerSkill(player_id=pele.id, skill_id=kicking.id, rating=49).create()
 
     maradona = Player(name="Diego Maradona", country_id=argentina.id).create()
-    PlayerSkill(
-        player_id=maradona.id, skill_id=catching.id, rating=48
-    ).create()
+    PlayerSkill(player_id=maradona.id, skill_id=catching.id, rating=48).create()
     PlayerSkill(player_id=maradona.id, skill_id=kicking.id, rating=49).create()
 
     zidane = Player(name="Zinedine Zidane", country_id=france.id).create()

@@ -76,7 +76,7 @@ $ pip install mongodb-odm
 ### Create Document
 
 ```Python
-{!./docs_src/overview.py[ln:20-24]!}
+{!./docs_src/overview.py[ln:20-22]!}
 ```
 
 ### Retrieve Document
@@ -84,25 +84,25 @@ $ pip install mongodb-odm
 #### Find data from collection
 
 ```Python
-{!./docs_src/overview.py[ln:26-27]!}
+{!./docs_src/overview.py[ln:24-25]!}
 ```
 
 #### Find first object with filter
 
 ```Python
-{!./docs_src/overview.py[ln:29-29]!}
+{!./docs_src/overview.py[ln:27-27]!}
 ```
 
 ### Update Data
 
 ```Python
-{!./docs_src/overview.py[ln:29-32]!}
+{!./docs_src/overview.py[ln:27-30]!}
 ```
 
 ### Delete Data
 
 ```Python
-{!./docs_src/overview.py[ln:35-36]!}
+{!./docs_src/overview.py[ln:32-35]!}
 ```
 
 ### Apply Indexes
