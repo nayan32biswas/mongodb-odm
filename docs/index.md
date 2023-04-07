@@ -33,7 +33,7 @@
 
 ## Introduction
 
-The purpose of this module is to provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
+The purpose of this module is to provide easy access to the database with the python object feature with **MongoDB** and **PyMongo**. With PyMongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
 **MongoDB-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev" class="external-link" target="_blank">Pydantic</a>.
 
@@ -64,19 +64,19 @@ $ pip install mongodb-odm
 ### Define model
 
 ```Python
-{!./docs_src/overview.py[ln:1-13]!}
+{!./docs_src/overview.py[ln:1-15]!}
 ```
 
 ### Set Connection
 
 ```Python
-{!./docs_src/overview.py[ln:16-16]!}
+{!./docs_src/overview.py[ln:18-18]!}
 ```
 
 ### Create Document
 
 ```Python
-{!./docs_src/overview.py[ln:18-20]!}
+{!./docs_src/overview.py[ln:20-22]!}
 ```
 
 ### Retrieve Document
@@ -84,42 +84,42 @@ $ pip install mongodb-odm
 #### Find data from collection
 
 ```Python
-{!./docs_src/overview.py[ln:22-23]!}
+{!./docs_src/overview.py[ln:24-25]!}
 ```
 
 #### Find first object with filter
 
 ```Python
-{!./docs_src/overview.py[ln:25-25]!}
+{!./docs_src/overview.py[ln:27-27]!}
 ```
 
 ### Update Data
 
 ```Python
-{!./docs_src/overview.py[ln:25-28]!}
+{!./docs_src/overview.py[ln:27-30]!}
 ```
 
 ### Delete Data
 
 ```Python
-{!./docs_src/overview.py[ln:30-32]!}
+{!./docs_src/overview.py[ln:32-35]!}
 ```
 
 ### Apply Indexes
 
-```Python hl_lines="11-13"
-{!./docs_src/overview.py[ln:1-13]!}
+```Python hl_lines="13-15"
+{!./docs_src/overview.py[ln:1-15]!}
 ```
 
-- To create indexes in the database declare <a href="https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing" class="external-link" target="_blank">IndexModel</a> and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
-- Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
+- To create indexes in the database declare <a href="https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing" class="external-link" target="_blank">IndexModel</a> and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **PyMongo**.
+- Import the `apply_indexes` from `mongodb_odm`. Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
 
 ### Example Code
 
-This is a short example of full code
+This is the example of full code of above.
 
 ```Python
-{!./docs_src/overview.py[ln:1-32]!}
+{!./docs_src/overview.py!}
 ```
 
 ### Supported Framework

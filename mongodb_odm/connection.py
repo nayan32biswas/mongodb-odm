@@ -1,36 +1,40 @@
 import logging
+from typing import Any
 
 from pymongo import MongoClient
 from pymongo.database import Database
 
 from .exceptions import ConnectionExist
+from .utils._internal_models import Connection
 
-__connection = {}
 logger = logging.getLogger(__name__)
 
 
-def _get_connection_client(url: str) -> MongoClient:
+__connection_obj = Connection()
+
+
+def _get_connection_client(url: str) -> MongoClient[Any]:
     return MongoClient(url)
 
 
-def connect(url: str) -> MongoClient:
-    if "client" in __connection:
+def connect(url: str) -> MongoClient[Any]:
+    if __connection_obj.client is not None:
         logger.warning("Already have an connection.")
-        return __connection["client"]
-    __connection["url"] = url
-    __connection["client"] = _get_connection_client(url)
+        return __connection_obj.client
+    __connection_obj.url = url
+    __connection_obj.client = _get_connection_client(url)
     logger.info("Connection established successfully")
-    return __connection["client"]
+    return __connection_obj.client
 
 
 def disconnect() -> bool:
-    if "client" in __connection:
-        __connection["client"].close()
-        del __connection["client"]
+    if __connection_obj.client:
+        __connection_obj.client.close()
+        __connection_obj.client = None
     else:
         logger.warning("No client connection found")
-    if "url" in __connection:
-        del __connection["url"]
+    if __connection_obj.url:
+        __connection_obj.url = None
     else:
         logger.warning("No connection URL found.")
     logger.info("Disconnect the db connection")
@@ -41,14 +45,15 @@ def disconnect() -> bool:
     return True
 
 
-def get_client() -> MongoClient:
-    if not __connection or "client" not in __connection:
-        if "url" in __connection:
-            connect(__connection["url"])
+def get_client() -> MongoClient[Any]:
+    if __connection_obj.client is None:
+        if __connection_obj.url is not None:
+            return connect(__connection_obj.url)
         else:
             raise ConnectionExist("DB connection is not provided")
-    return __connection["client"]
+    else:
+        return __connection_obj.client
 
 
-def db() -> Database:
+def db() -> Database[Any]:
     return get_client().get_database()

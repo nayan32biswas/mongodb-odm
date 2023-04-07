@@ -65,7 +65,10 @@ def test_update_many():
     assert updated_course.matched_count == 2, "Total course was not modified properly."
 
     total_update = Course.count_documents(
-        filter={"_id": {"$in": [course1._id, course2._id]}, "title": UPDATE_TITLE},
+        filter={
+            "_id": {"$in": [course1._id, course2._id]},
+            "title": UPDATE_TITLE,
+        },
     )
     assert total_update == 2, "Update Many has no impact on DB."
 

@@ -1,7 +1,7 @@
 import logging
 
 from .conftest import init_config  # noqa
-from .models.course import Content, ContentDescription, ContentImage, Course  # noqa
+from .models.course import Content, ContentDescription, ContentImage, Course
 from .models.user import get_user
 
 logger = logging.getLogger(__name__)

@@ -16,7 +16,8 @@ def test_odm_object_id_str():
 
 def test_odm_object_id_error():
     try:
-        _ = ODMObjectId().validate(1.000)
+        # request with invalid data
+        _ = ODMObjectId().validate(1)  # type: ignore
         assert False
     except Exception as e:
         assert str(e) != "assert False"

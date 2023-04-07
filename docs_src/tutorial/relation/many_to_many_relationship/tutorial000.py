@@ -44,7 +44,8 @@ class PlayerSkill(Document):
     class Config(Document.Config):
         indexes = [
             IndexModel(
-                [("player_id", ASCENDING), ("skill_id", ASCENDING)], unique=True
+                [("player_id", ASCENDING), ("skill_id", ASCENDING)],
+                unique=True,
             ),
         ]
 

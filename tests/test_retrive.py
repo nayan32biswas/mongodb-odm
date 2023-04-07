@@ -6,7 +6,7 @@ from mongodb_odm import DESCENDING
 from mongodb_odm.data_conversion import ODMObj
 
 from .conftest import init_config  # noqa
-from .models.course import Content, ContentDescription, ContentImage, Course  # noqa
+from .models.course import Content, Course
 from .models.user import User
 from .utils import populate_data
 

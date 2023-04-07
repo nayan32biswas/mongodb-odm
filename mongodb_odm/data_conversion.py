@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict, Generator, List, Tuple, Union
 
 
 class ODMObj(object):
@@ -9,17 +9,17 @@ class ODMObj(object):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         return self.__dict__ == other.__dict__
 
-    def __iter__(self):
+    def __iter__(self) -> Generator[Tuple[str, Any], None, None]:
         yield from self.__dict__.items()
 
-    def dict(self):
+    def dict(self) -> Any:
         return _to_dict(self)
 
 
-def _to_dict(obj):
+def _to_dict(obj: Any) -> Any:
     if isinstance(obj, list):
         obj = [_to_dict(x) for x in obj]
     if not isinstance(obj, ODMObj):
@@ -31,7 +31,7 @@ def _to_dict(obj):
     return n_d
 
 
-def _to_obj(d):
+def _to_obj(d: Union[Dict[str, Any], List[Any]]) -> Any:
     if isinstance(d, list):
         d = [_to_obj(x) for x in d]
     if not isinstance(d, dict):
@@ -45,5 +45,5 @@ def _to_obj(d):
     return obj
 
 
-def dict2obj(d: dict) -> Any:
+def dict2obj(d: Dict[str, Any]) -> Any:
     return _to_obj(d)

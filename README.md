@@ -33,7 +33,7 @@
 
 ## Introduction
 
-The purpose of this module is to provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
+The purpose of this module is to provide easy access to the database with the python object feature with **MongoDB** and **PyMongo**. With PyMongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
 **MongoDB-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev/" class="external-link" target="_blank">Pydantic</a>.
 
@@ -64,18 +64,20 @@ $ pip install mongodb-odm
 ### Define model
 
 ```Python
+import os
 from typing import Optional
-from mongodb_odm import connect, Document, Field, IndexModel, ASCENDING
+
+from mongodb_odm import ASCENDING, Document, IndexModel, connect
 
 
 class Player(Document):
-    name: str = Field(...)
-    country: Optional[str] = None
+    name: str
+    country_code: str
+    rating: Optional[int] = None
 
     class Config(Document.Config):
-        collection_name = "player"
         indexes = [
-            IndexModel([("country", ASCENDING)]),
+            IndexModel([("rating", ASCENDING)]),
         ]
 ```
 
@@ -98,7 +100,7 @@ zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 #### Find data from collection
 
 ```Python
-for player in Player.find({"name": "ARG"}):
+for player in Player.find():
     print(player)
 ```
 
@@ -128,23 +130,29 @@ if player:
 ### Apply Indexes
 
 ```Python
-from mongodb_odm import Document, IndexModel, ASCENDING
+import os
+from typing import Optional
+
+from mongodb_odm import ASCENDING, Document, IndexModel, connect
 
 
 class Player(Document):
-    ...
+    name: str
+    country_code: str
+    rating: Optional[int] = None
+
     class Config(Document.Config):
         indexes = [
-            IndexModel([("country", ASCENDING)]),
+            IndexModel([("rating", ASCENDING)]),
         ]
 ```
 
 - To create indexes in the database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
-- Call the `apply_indexes` function from your CLI. You can use [Typer](https://typer.tiangolo.com/) to implement CLI.
+- Import the `apply_indexes` from `mongodb_odm`. Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
 
 ## Example Code
 
-This is a short example of full code
+This is the example of full code of above.
 
 ```python
 import os
@@ -179,6 +187,8 @@ if player:
     player.update()
 
 player = Player.find_one({"name": "Pelé"})
+if player:
+    player.delete()
 ```
 
 ### Supported Framework
