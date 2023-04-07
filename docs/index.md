@@ -33,7 +33,7 @@
 
 ## Introduction
 
-The purpose of this module is to provide easy access to the database with the python object feature with MongoDB and pymongo. With pymongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
+The purpose of this module is to provide easy access to the database with the python object feature with **MongoDB** and **PyMongo**. With PyMongo that was very easy to make spelling mistakes in a collection name when you are doing database operation. This module provides you with minimal ODM with a modeling feature so that you don’t have to look up the MongoDB dashboard(Mongo Compass) to know about field names or data types.
 
 **MongoDB-ODM** is based on Python type annotations, and powered by <a href="https://pymongo.readthedocs.io/en/stable" class="external-link" target="_blank">PyMongo</a> and <a href="https://docs.pydantic.dev" class="external-link" target="_blank">Pydantic</a>.
 
@@ -111,8 +111,8 @@ $ pip install mongodb-odm
 {!./docs_src/overview.py[ln:1-15]!}
 ```
 
-- To create indexes in the database declare <a href="https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing" class="external-link" target="_blank">IndexModel</a> and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
-- Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
+- To create indexes in the database declare <a href="https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing" class="external-link" target="_blank">IndexModel</a> and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **PyMongo**.
+- Import the `apply_indexes` from `mongodb_odm`. Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
 
 ### Example Code
 
