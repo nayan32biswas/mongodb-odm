@@ -35,7 +35,7 @@ Then declare the middle model `PlayerSkill` that will have `player_id`, `skill_i
 
 We will define a multi-key index for better performance. Also, we want `player_id` and `skill_id` to be unique.
 
-```Python hl_lines="14"
+```Python hl_lines="13-16"
 # Code omitted above
 
 {!./docs_src/tutorial/relation/many_to_many_relationship/tutorial000.py[ln:36-50]!}

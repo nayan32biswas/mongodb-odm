@@ -116,7 +116,7 @@ $ pip install mongodb-odm
 
 ### Example Code
 
-This is a short example of full code
+This is the example of full code of above.
 
 ```Python
 {!./docs_src/overview.py!}

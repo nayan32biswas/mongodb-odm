@@ -39,7 +39,7 @@ poetry run bash scripts/format.sh
 To start the docs locally you can run this script:
 
 ```bash
-poetry run bash scripts/docs-serve.sh
+poetry run bash scripts/docs.sh
 ```
 
 ### Testing

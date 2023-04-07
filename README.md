@@ -64,18 +64,20 @@ $ pip install mongodb-odm
 ### Define model
 
 ```Python
+import os
 from typing import Optional
-from mongodb_odm import connect, Document, Field, IndexModel, ASCENDING
+
+from mongodb_odm import ASCENDING, Document, IndexModel, connect
 
 
 class Player(Document):
-    name: str = Field(...)
-    country: Optional[str] = None
+    name: str
+    country_code: str
+    rating: Optional[int] = None
 
     class Config(Document.Config):
-        collection_name = "player"
         indexes = [
-            IndexModel([("country", ASCENDING)]),
+            IndexModel([("rating", ASCENDING)]),
         ]
 ```
 
@@ -98,7 +100,7 @@ zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 #### Find data from collection
 
 ```Python
-for player in Player.find({"name": "ARG"}):
+for player in Player.find():
     print(player)
 ```
 
@@ -128,14 +130,20 @@ if player:
 ### Apply Indexes
 
 ```Python
-from mongodb_odm import Document, IndexModel, ASCENDING
+import os
+from typing import Optional
+
+from mongodb_odm import ASCENDING, Document, IndexModel, connect
 
 
 class Player(Document):
-    ...
+    name: str
+    country_code: str
+    rating: Optional[int] = None
+
     class Config(Document.Config):
         indexes = [
-            IndexModel([("country", ASCENDING)]),
+            IndexModel([("rating", ASCENDING)]),
         ]
 ```
 
@@ -144,7 +152,7 @@ class Player(Document):
 
 ## Example Code
 
-This is a short example of full code
+This is the example of full code of above.
 
 ```python
 import os
@@ -179,6 +187,8 @@ if player:
     player.update()
 
 player = Player.find_one({"name": "Pelé"})
+if player:
+    player.delete()
 ```
 
 ### Supported Framework
