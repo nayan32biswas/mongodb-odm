@@ -80,6 +80,14 @@ You can contribute to the source code with **Pull Requests**.
     - Make sure to add tests.
 - Make sure to add documentation if it's relevant.
 
+#### Steps to be follow before create PR
+
+If you change the code base, make sure to follow those steps before creating PR.
+
+- `poetry run bash scripts/test.sh` Run the unit test and make sure all tests and passed and test coverage is more than 95%.
+- `poetry run bash scripts/lint.sh` Check all formatting is implemented and code format is accurate.
+- `poetry run bash scripts/format.sh` Run auto format like import sorting etc.
+
 ## Stay Connected
 
 ### Announcements
