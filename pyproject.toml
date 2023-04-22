@@ -8,8 +8,9 @@ license = "MIT"
 # homepage = "https://github.com/nayan32biswas/mongodb-odm"
 documentation = "https://mongodb-odm.readthedocs.io"
 repository = "https://github.com/nayan32biswas/mongodb-odm"
+# include = ["mongodb_odm"]
+# exclude = []
 
-exclude = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: AsyncIO",
