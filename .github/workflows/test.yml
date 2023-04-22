@@ -60,6 +60,7 @@ jobs:
           MONGO_URL: mongodb://localhost:27017/testdb
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
+          REMOTE_MONGO_URL: ${{ secrets.REMOTE_MONGO_URL }}
       - name: Store coverage files
         uses: actions/upload-artifact@v3
         with:

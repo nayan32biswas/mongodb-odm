@@ -2,10 +2,9 @@ import logging
 import os
 from typing import Any
 
-from pymongo.errors import OperationFailure
 from mongodb_odm import connect, disconnect
-
 from mongodb_odm.models import Document
+from pymongo.errors import OperationFailure
 
 from .models.course import Course
 from .models.user import get_user
