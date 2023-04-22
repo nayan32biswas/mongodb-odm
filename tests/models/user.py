@@ -23,14 +23,14 @@ class User(Document):
 
     class Config(Document.Config):
         collection_name = "user"
-        indexes = (
+        indexes = [
             IndexModel([("username", ASCENDING)], unique=True),
             IndexModel(
                 [("email", ASCENDING)],
                 unique=True,
                 partialFilterExpression={"email": {"$type": "string"}},
             ),
-        )
+        ]
 
 
 def get_user():

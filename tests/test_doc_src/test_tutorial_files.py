@@ -1,3 +1,5 @@
+from mongodb_odm import disconnect
+
 from ..conftest import init_config  # noqa
 
 
@@ -70,5 +72,12 @@ def test_update():
 
 def test_delete():
     from docs_src.tutorial.delete import tutorial000
+
+    tutorial000.main()
+
+
+def test_transaction():
+    disconnect()
+    from docs_src.tutorial.transaction import tutorial000
 
     tutorial000.main()

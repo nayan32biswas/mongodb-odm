@@ -134,8 +134,8 @@ class _BaseDocument(BaseModel):
         return self.dict(exclude=self.get_exclude_fields(), exclude_none=True)
 
     @classmethod
-    def start_session(cls) -> client_session.ClientSession:
-        return get_client().start_session()
+    def start_session(cls, **kwargs: Any) -> client_session.ClientSession:
+        return get_client().start_session(**kwargs)
 
     def __str__(self) -> str:
         return super().__repr__()
