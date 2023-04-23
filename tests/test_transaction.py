@@ -13,9 +13,16 @@ from .models.user import get_user
 logger = logging.getLogger(__name__)
 
 
-def test_create_with_transaction():
+def setup_remote_connection():
     disconnect()  # disconnect existing connection
+    # NOTE: Remote connection used to test DB transaction
+    # MongoDB does not support transaction without replica-set
     connect(os.environ.get("REMOTE_MONGO_URL", ""))
+
+
+def test_create_with_transaction():
+    setup_remote_connection()
+
     user = get_user()
     Course.delete_many()
 
@@ -35,8 +42,8 @@ def test_create_with_transaction():
 
 
 def test_create_with_transaction_rollback():
-    disconnect()  # disconnect existing connection
-    connect(os.environ.get("REMOTE_MONGO_URL", ""))
+    setup_remote_connection()
+
     user = get_user()
     Course.delete_many()
 
@@ -62,17 +69,18 @@ def test_create_with_transaction_rollback():
 
 
 def test_update_with_transaction_rollback():
-    disconnect()  # disconnect existing connection
-    connect(os.environ.get("REMOTE_MONGO_URL", ""))
+    setup_remote_connection()
+
     user = get_user()
     Course.delete_many()
 
-    # use uuid4 to make title unique across async testing
+    # Use uuid4 to make the title unique for async testing.
     course_title = f"Course Title {uuid4()}"
     course: Course = Course(
         author_id=user._id,
         title=course_title,
     ).create()
+
     with Document.start_session() as session:
         with session.start_transaction():
             try:
@@ -82,7 +90,5 @@ def test_update_with_transaction_rollback():
             except Exception:
                 session.abort_transaction()
 
-    if course:
-        assert (
-            Course.find_one({"title": course_title}) is not None
-        ), "Course title should not be updated"
+    course = Course.get({"_id": course.id})
+    assert course.title == course_title, "Course title should not be updated"
