@@ -1,6 +1,7 @@
 import logging
 import os
 from typing import Any
+from uuid import uuid4
 
 from mongodb_odm import connect, disconnect
 from mongodb_odm.models import Document
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def test_create_with_transaction():
     disconnect()  # disconnect existing connection
-    connect(os.environ.get("REMOTE_MONGO_URL", "mongodb://localhost:27017/test_db"))
+    connect(os.environ.get("REMOTE_MONGO_URL", ""))
     user = get_user()
     Course.delete_many()
 
@@ -35,7 +36,7 @@ def test_create_with_transaction():
 
 def test_create_with_transaction_rollback():
     disconnect()  # disconnect existing connection
-    connect(os.environ.get("REMOTE_MONGO_URL", "mongodb://localhost:27017/test_db"))
+    connect(os.environ.get("REMOTE_MONGO_URL", ""))
     user = get_user()
     Course.delete_many()
 
@@ -62,11 +63,12 @@ def test_create_with_transaction_rollback():
 
 def test_update_with_transaction_rollback():
     disconnect()  # disconnect existing connection
-    connect(os.environ.get("REMOTE_MONGO_URL", "mongodb://localhost:27017/test_db"))
+    connect(os.environ.get("REMOTE_MONGO_URL", ""))
     user = get_user()
     Course.delete_many()
 
-    course_title = "Course Title"
+    # use uuid4 to make title unique across async testing
+    course_title = f"Course Title {uuid4()}"
     course: Course = Course(
         author_id=user._id,
         title=course_title,
@@ -75,12 +77,12 @@ def test_update_with_transaction_rollback():
         with session.start_transaction():
             try:
                 course.title = "Title Updated"
-                course.update()
+                course.update(session=session)
                 raise Exception("Custom error on transaction")
             except Exception:
                 session.abort_transaction()
 
     if course:
         assert (
-            Course.find_one({"title": course_title}) is None
+            Course.find_one({"title": course_title}) is not None
         ), "Course title should not be updated"
