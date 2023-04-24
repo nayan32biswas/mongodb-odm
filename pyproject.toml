@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mongodb-odm"
-version = "0"
+version = "0.2.0"
 description = "MongoDB-ODM, NOSQL databases in Python, designed for simplicity, compatibility, and robustness."
 authors = ["Nayan Biswas <nayan32biswas@gmail.com>"]
 readme = "README.md"
@@ -8,8 +8,9 @@ license = "MIT"
 # homepage = "https://github.com/nayan32biswas/mongodb-odm"
 documentation = "https://mongodb-odm.readthedocs.io"
 repository = "https://github.com/nayan32biswas/mongodb-odm"
+# include = ["mongodb_odm"]
+# exclude = []
 
-exclude = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: AsyncIO",
@@ -93,7 +94,7 @@ module = ""
 warn_unused_ignores = false
 
 [tool.flake8]
-    exclude = ".env"
-    max-complexity = 10
-    max-line-length = 100
-    extend-ignore = """"""
+exclude = ".env"
+max-complexity = 10
+max-line-length = 100
+extend-ignore = """"""

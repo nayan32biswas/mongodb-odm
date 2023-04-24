@@ -47,6 +47,7 @@ nav:
       - Object Relationship:
         - Foreign Key Relationship: tutorial/relation/foreignkey_relationship.md
         - Many to Many Relationship: tutorial/relation/many_to_many_relationship.md
+      - tutorial/transaction.md
   - api-reference.md
   - Advanced User Guide:
       - advanced-tutorial/index.md
