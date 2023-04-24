@@ -1,5 +1,6 @@
 import logging
 import os
+from time import sleep
 from typing import Any
 from uuid import uuid4
 
@@ -63,6 +64,8 @@ def test_create_with_transaction_rollback():
                 session.abort_transaction()
 
     if course:
+        # Sleep for 5 second to replica the dataset
+        sleep(5)
         assert (
             Course.find_one({"_id": course.id}) is None
         ), "Course should not be created"
@@ -90,5 +93,7 @@ def test_update_with_transaction_rollback():
             except Exception:
                 session.abort_transaction()
 
+    # Sleep for 5 second to replica the dataset
+    sleep(5)
     course = Course.get({"_id": course.id})
     assert course.title == course_title, "Course title should not be updated"
