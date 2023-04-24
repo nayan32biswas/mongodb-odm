@@ -25,7 +25,6 @@ def test_create_with_transaction():
     setup_remote_connection()
 
     user = get_user()
-    Course.delete_many()
 
     course: Any = None
     with Document.start_session() as session:
@@ -37,6 +36,8 @@ def test_create_with_transaction():
             session.commit_transaction()  # This will automatically apply if not called explicitly.
 
     if course:
+        # Sleep for 5 seconds to replicate the dataset.
+        sleep(5)
         assert (
             Course.find_one({"_id": course.id}) is not None
         ), "Course should be created"
@@ -46,7 +47,6 @@ def test_create_with_transaction_rollback():
     setup_remote_connection()
 
     user = get_user()
-    Course.delete_many()
 
     course: Any = None
     with Document.start_session() as session:
@@ -64,7 +64,7 @@ def test_create_with_transaction_rollback():
                 session.abort_transaction()
 
     if course:
-        # Sleep for 5 second to replica the dataset
+        # Sleep for 5 seconds to replicate the dataset.
         sleep(5)
         assert (
             Course.find_one({"_id": course.id}) is None
@@ -75,7 +75,6 @@ def test_update_with_transaction_rollback():
     setup_remote_connection()
 
     user = get_user()
-    Course.delete_many()
 
     # Use uuid4 to make the title unique for async testing.
     course_title = f"Course Title {uuid4()}"
@@ -93,7 +92,7 @@ def test_update_with_transaction_rollback():
             except Exception:
                 session.abort_transaction()
 
-    # Sleep for 5 second to replica the dataset
+    # Sleep for 5 seconds to replicate the dataset.
     sleep(5)
     course = Course.get({"_id": course.id})
     assert course.title == course_title, "Course title should not be updated"
