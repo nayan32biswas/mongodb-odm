@@ -17,7 +17,7 @@ def setup_remote_connection():
     disconnect()  # disconnect existing connection
     # NOTE: Remote connection used to test DB transaction
     # MongoDB does not support transaction without replica-set
-    connect(os.environ.get("REMOTE_MONGO_URL", ""))
+    connect(os.environ.get("RS_MONGO_URL", ""))
 
 
 def test_create_with_transaction():

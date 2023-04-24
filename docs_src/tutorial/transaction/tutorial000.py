@@ -2,6 +2,7 @@ import os
 from typing import Optional
 
 from mongodb_odm import Document, connect
+from pymongo.errors import OperationFailure
 
 
 class Player(Document):
@@ -11,21 +12,55 @@ class Player(Document):
 
 
 def create_documents():
-    pele = Player(name="Pelé", country_code="BRA").create()
-
     with Document.start_session() as session:
         with session.start_transaction():
-            pele.rating = 98
-            pele.update(session=session)
+            try:
+                Player(
+                    name="Pelé",
+                    country_code="BRA",
+                ).create(session=session)
 
-            maradona = Player(name="Diego Maradona", country_code="ARG", rating=97)
-            maradona.create(session=session)
+                maradona = Player(name="Diego Maradona", country_code="ARG")
+                maradona.create(session=session)
+            except OperationFailure:
+                session.abort_transaction()
+
+
+def update_documents():
+    with Document.start_session() as session:
+        with session.start_transaction():
+            try:
+                pele = Player.get({"name": "Pelé"})
+                pele.rating = 98
+                pele.update(session=session)
+
+                maradona = Player.get({"name": "Diego Maradona"})
+                pele.rating = 97
+                maradona.update(session=session)
+            except OperationFailure:
+                session.abort_transaction()
+
+
+def delete_documents():
+    with Document.start_session() as session:
+        with session.start_transaction():
+            try:
+                pele = Player.get({"name": "Pelé"})
+                pele.delete(session=session)
+
+                maradona = Player.get({"name": "Diego Maradona"})
+                maradona.delete(session=session)
+            except OperationFailure:
+                session.abort_transaction()
 
 
 def main():
-    connect(os.environ.get("REMOTE_MONGO_URL", "mongodb://localhost:27017/testdb"))
+    # Use a database that has a replica set.
+    connect(os.environ.get("RS_MONGO_URL", ""))
 
     create_documents()
+    update_documents()
+    delete_documents()
 
 
 if __name__ == "__main__":
