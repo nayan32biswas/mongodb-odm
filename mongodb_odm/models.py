@@ -167,7 +167,7 @@ class Document(_BaseDocument):
     def find_raw(
         cls,
         filter: Optional[DICT_TYPE] = None,
-        projection: Optional[Dict[str, int]] = None,
+        projection: Optional[DICT_TYPE] = None,
         **kwargs: Any,
     ) -> Cursor[Any]:
         if filter is None:
@@ -184,7 +184,7 @@ class Document(_BaseDocument):
     def find(
         cls,
         filter: Optional[DICT_TYPE] = None,
-        projection: Optional[Dict[str, int]] = None,
+        projection: Optional[DICT_TYPE] = None,
         sort: Optional[SORT_TYPE] = None,
         skip: Optional[int] = None,
         limit: Optional[int] = None,
@@ -221,7 +221,7 @@ class Document(_BaseDocument):
     def find_one(
         cls,
         filter: Optional[DICT_TYPE] = None,
-        projection: Optional[Dict[str, int]] = None,
+        projection: Optional[DICT_TYPE] = None,
         sort: Optional[SORT_TYPE] = None,
         **kwargs: Any,
     ) -> Optional[Self]:
