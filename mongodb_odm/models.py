@@ -166,10 +166,13 @@ class Document(_BaseDocument):
     @classmethod
     def find_raw(
         cls,
-        filter: DICT_TYPE = {},
-        projection: Dict[str, int] = {},
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
         **kwargs: Any,
     ) -> Cursor[Any]:
+        if filter is None:
+            filter = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -180,13 +183,16 @@ class Document(_BaseDocument):
     @classmethod
     def find(
         cls,
-        filter: DICT_TYPE = {},
-        projection: Dict[str, int] = {},
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
         sort: Optional[SORT_TYPE] = None,
         skip: Optional[int] = None,
         limit: Optional[int] = None,
         **kwargs: Any,
     ) -> Iterator[Self]:
+        if filter is None:
+            filter = {}
+
         qs = cls.find_raw(filter, projection, **kwargs)
         if sort:
             qs = qs.sort(sort)
@@ -214,11 +220,14 @@ class Document(_BaseDocument):
     @classmethod
     def find_one(
         cls,
-        filter: DICT_TYPE = {},
-        projection: Dict[str, int] = {},
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
         sort: Optional[SORT_TYPE] = None,
         **kwargs: Any,
     ) -> Optional[Self]:
+        if filter is None:
+            filter = {}
+
         qs = cls.find_raw(filter, projection=projection, **kwargs)
         if sort:
             qs = qs.sort(sort)
@@ -252,14 +261,20 @@ class Document(_BaseDocument):
         return cls(**filter).create(), True
 
     @classmethod
-    def count_documents(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> int:
+    def count_documents(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> int:
+        if filter is None:
+            filter = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
         return _collection.count_documents(filter, **kwargs)
 
     @classmethod
-    def exists(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> bool:
+    def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
+        if filter is None:
+            filter = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -291,7 +306,10 @@ class Document(_BaseDocument):
                 yield dict2obj(obj)
 
     @classmethod
-    def get_random_one(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> Self:
+    def get_random_one(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> Self:
+        if filter is None:
+            filter = {}
+
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
         pipeline = [{"$match": filter}, {"$sample": {"size": 1}}]
@@ -299,7 +317,7 @@ class Document(_BaseDocument):
             return cls(**data)
         raise ObjectDoesNotExist("Object not found.")
 
-    def update(self, raw: DICT_TYPE = {}, **kwargs: Any) -> UpdateResult:
+    def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
         filter = {"_id": self._id}
         if raw:
             updated_data = raw
@@ -316,8 +334,16 @@ class Document(_BaseDocument):
 
     @classmethod
     def update_one(
-        cls, filter: DICT_TYPE = {}, data: DICT_TYPE = {}, **kwargs: Any
+        cls,
+        filter: Optional[DICT_TYPE] = None,
+        data: Optional[DICT_TYPE] = None,
+        **kwargs: Any,
     ) -> UpdateResult:
+        if filter is None:
+            filter = {}
+        if data is None:
+            data = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -325,8 +351,16 @@ class Document(_BaseDocument):
 
     @classmethod
     def update_many(
-        cls, filter: DICT_TYPE = {}, data: DICT_TYPE = {}, **kwargs: Any
+        cls,
+        filter: Optional[DICT_TYPE] = None,
+        data: Optional[DICT_TYPE] = None,
+        **kwargs: Any,
     ) -> UpdateResult:
+        if filter is None:
+            filter = {}
+        if data is None:
+            data = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -336,14 +370,24 @@ class Document(_BaseDocument):
         return self.delete_one({"_id": self._id}, **kwargs)
 
     @classmethod
-    def delete_one(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> DeleteResult:
+    def delete_one(
+        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+    ) -> DeleteResult:
+        if filter is None:
+            filter = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
         return _collection.delete_one(filter, **kwargs)
 
     @classmethod
-    def delete_many(cls, filter: DICT_TYPE = {}, **kwargs: Any) -> DeleteResult:
+    def delete_many(
+        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+    ) -> DeleteResult:
+        if filter is None:
+            filter = {}
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -360,14 +404,17 @@ class Document(_BaseDocument):
     def load_related(
         cls,
         object_list: Union[Iterator[Self], Sequence[Self]],
-        fields: List[str] = [],
+        fields: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> Sequence[Self]:
+        if fields is None:
+            fields = []
+
         """Get model relational field from cache"""
         cached_field_info = cls.get_relational_field_info()
 
         """Match with user given fields"""
-        loadable_fields_info: DICT_TYPE = {}
+        loadable_fields_info: Optional[DICT_TYPE] = None
         if fields:
             loadable_fields_info = {}
             for field in fields:

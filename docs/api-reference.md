@@ -41,6 +41,14 @@ Other than these values, we use `BaseModel.Config` value as default from `pydant
 
 ## Types
 
+### Generic Dict Type
+
+We will use this `DICT_TYPE` in all of our generic dict type.
+
+```python
+DICT_TYPE = Dict[str, Any]
+```
+
 ### Sort Type
 
 We will use this `SORT_TYPE` in all of our sorting arguments.
@@ -76,7 +84,12 @@ The `create` method does not accept any **MongoDB-ODM** related argument. It's k
 
 ```python
 @classmethod
-def find_raw(cls, filter: dict = {}, projection: dict = {}, **kwargs) -> Cursor:
+def find_raw(
+    cls,
+    filter: Optional[DICT_TYPE] = None,
+    projection: Optional[DICT_TYPE] = None,
+    **kwargs: Any,
+) -> Cursor[Any]:
 ```
 
 The `find_raw` is a special function that returns **Pymongo** find the cursor.
@@ -87,12 +100,12 @@ The `find_raw` is a special function that returns **Pymongo** find the cursor.
 @classmethod
 def find(
     cls,
-    filter: dict = {},
+    filter: Optional[DICT_TYPE] = None,
+    projection: Optional[DICT_TYPE] = None,
     sort: Optional[SORT_TYPE] = None,
     skip: Optional[int] = None,
     limit: Optional[int] = None,
-    projection: dict = {},
-    **kwargs,
+    **kwargs: Any,
 ) -> Iterator[Self]:
 ```
 
@@ -117,10 +130,10 @@ It's `Iterator[Self]`, which is iterable. And we should get type support on each
 @classmethod
 def find_one(
     cls,
-    filter: dict = {},
-    projection: dict = {},
+    filter: Optional[DICT_TYPE] = None,
+    projection: Optional[DICT_TYPE] = None,
     sort: Optional[SORT_TYPE] = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> Optional[Self]:
 ```
 
@@ -137,7 +150,12 @@ The `find_one` classmethod accept 3 parameter.
 
 ```python
 @classmethod
-def get(cls, filter: dict, sort: Optional[SORT_TYPE] = None, **kwargs) -> Self:
+def get(
+    cls,
+    filter: DICT_TYPE,
+    sort: Optional[SORT_TYPE] = None,
+    **kwargs: Any,
+) -> Self:
 ```
 
 ### get_or_create
@@ -145,7 +163,10 @@ def get(cls, filter: dict, sort: Optional[SORT_TYPE] = None, **kwargs) -> Self:
 ```python
 @classmethod
 def get_or_create(
-    cls, filter: dict, sort: Optional[SORT_TYPE] = None, **kwargs
+    cls,
+    filter: DICT_TYPE,
+    sort: Optional[SORT_TYPE] = None,
+    **kwargs: Any,
 ) -> Tuple[Self, bool]:
 ```
 
@@ -153,14 +174,14 @@ def get_or_create(
 
 ```python
 @classmethod
-def count_documents(cls, filter: dict = {}, **kwargs) -> int:
+def count_documents(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> int:
 ```
 
 ### exists
 
 ```python
 @classmethod
-def exists(cls, filter: dict = {}, **kwargs) -> bool:
+def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
 ```
 
 ### aggregate
@@ -168,44 +189,61 @@ def exists(cls, filter: dict = {}, **kwargs) -> bool:
 ```python
 @classmethod
 def aggregate(
-    cls, pipeline: List[Any], get_raw=False, inheritance_filter=True, **kwargs
-) -> Iterator[Union[dict, ODMObj]]:
+    cls,
+    pipeline: List[Any],
+    get_raw: bool = False,
+    inheritance_filter: bool = True,
+    **kwargs: Any,
+) -> Iterator[Any]:
 ```
 
 ### get_random_one
 
 ```python
 @classmethod
-def get_random_one(cls, filter: dict = {}, **kwargs) -> Self:
+def get_random_one(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> Self:
 ```
 
 ### update_one
 
 ```python
-def update_one(cls, filter: dict = {}, data: dict = {}, **kwargs) -> UpdateResult:
+@classmethod
+def update_one(
+    cls,
+    filter: Optional[DICT_TYPE] = None,
+    data: Optional[DICT_TYPE] = None,
+    **kwargs: Any,
+) -> UpdateResult:
 ```
 
 ### update_many
 
 ```python
-from pymongo.results import UpdateResult
-
 @classmethod
-def update_many(cls, filter: dict = {}, data: dict = {}, **kwargs) -> UpdateResult:
+def update_many(
+    cls,
+    filter: Optional[DICT_TYPE] = None,
+    data: Optional[DICT_TYPE] = None,
+    **kwargs: Any,
+) -> UpdateResult:
 ```
 
 ### delete_one
 
 ```python
 @classmethod
-def delete_one(cls, filter: dict = {}, **kwargs) -> DeleteResult:
+def delete_one(
+    cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+) -> DeleteResult:
 ```
 
 ### delete_many
 
 ```python
 @classmethod
-def delete_many(cls, filter: dict = {}, **kwargs) -> DeleteResult:
+def delete_many(
+    cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+) -> DeleteResult:
 ```
 
 ### bulk_write
@@ -213,7 +251,7 @@ def delete_many(cls, filter: dict = {}, **kwargs) -> DeleteResult:
 ```python
 @classmethod
 def bulk_write(
-    cls, requests: Sequence[_WriteOp[_DocumentType]], **kwargs
+    cls, requests: Sequence[_WriteOp[Any]], **kwargs: Any
 ) -> BulkWriteResult:
 ```
 
@@ -230,8 +268,8 @@ Data will be loaded immediately no leave loading will be applied.
 def load_related(
     cls,
     object_list: Union[Iterator[Self], Sequence[Self]],
-    fields: List[str] = [],
-    **kwargs,
+    fields: Optional[List[str]] = None,
+    **kwargs: Any,
 ) -> Sequence[Self]:
 ```
 
@@ -242,11 +280,11 @@ In this section we will explain every **Method** that are callable after creatin
 ### update
 
 ```python
-def update(self, raw: dict = {}, **kwargs) -> UpdateResult:
+def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
 ```
 
 ### delete
 
 ```python
-def delete(self, **kwargs) -> DeleteResult:
+def delete(self, **kwargs: Any) -> DeleteResult:
 ```
