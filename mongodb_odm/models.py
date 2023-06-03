@@ -172,8 +172,6 @@ class Document(_BaseDocument):
     ) -> Cursor[Any]:
         if filter is None:
             filter = {}
-        if projection is None:
-            projection = {}
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -194,8 +192,6 @@ class Document(_BaseDocument):
     ) -> Iterator[Self]:
         if filter is None:
             filter = {}
-        if projection is None:
-            projection = {}
 
         qs = cls.find_raw(filter, projection, **kwargs)
         if sort:
@@ -231,8 +227,6 @@ class Document(_BaseDocument):
     ) -> Optional[Self]:
         if filter is None:
             filter = {}
-        if projection is None:
-            projection = {}
 
         qs = cls.find_raw(filter, projection=projection, **kwargs)
         if sort:
@@ -324,9 +318,6 @@ class Document(_BaseDocument):
         raise ObjectDoesNotExist("Object not found.")
 
     def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
-        if raw is None:
-            raw = {}
-
         filter = {"_id": self._id}
         if raw:
             updated_data = raw
