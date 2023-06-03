@@ -41,6 +41,14 @@ Other than these values, we use `BaseModel.Config` value as default from `pydant
 
 ## Types
 
+### Generic Dict Type
+
+We will use this `DICT_TYPE` in all of our generic dict type.
+
+```python
+DICT_TYPE = Dict[str, Any]
+```
+
 ### Sort Type
 
 We will use this `SORT_TYPE` in all of our sorting arguments.
@@ -79,7 +87,7 @@ The `create` method does not accept any **MongoDB-ODM** related argument. It's k
 def find_raw(
     cls,
     filter: Optional[DICT_TYPE] = None,
-    projection: Optional[Dict[str, int]] = None,
+    projection: Optional[DICT_TYPE] = None,
     **kwargs: Any,
 ) -> Cursor[Any]:
 ```
@@ -93,7 +101,7 @@ The `find_raw` is a special function that returns **Pymongo** find the cursor.
 def find(
     cls,
     filter: Optional[DICT_TYPE] = None,
-    projection: Optional[Dict[str, int]] = None,
+    projection: Optional[DICT_TYPE] = None,
     sort: Optional[SORT_TYPE] = None,
     skip: Optional[int] = None,
     limit: Optional[int] = None,
@@ -123,7 +131,7 @@ It's `Iterator[Self]`, which is iterable. And we should get type support on each
 def find_one(
     cls,
     filter: Optional[DICT_TYPE] = None,
-    projection: Optional[Dict[str, int]] = None,
+    projection: Optional[DICT_TYPE] = None,
     sort: Optional[SORT_TYPE] = None,
     **kwargs: Any,
 ) -> Optional[Self]:
