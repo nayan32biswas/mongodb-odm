@@ -1,29 +1,19 @@
 import logging
-import os
 from time import sleep
 from typing import Any
 from uuid import uuid4
 
-from mongodb_odm import connect, disconnect
 from mongodb_odm.models import Document
 from pymongo.errors import OperationFailure
 
+from .conftest import init_config  # noqa
 from .models.course import Course
 from .models.user import get_user
 
 logger = logging.getLogger(__name__)
 
 
-def setup_remote_connection():
-    disconnect()  # disconnect existing connection
-    # NOTE: Remote connection used to test DB transaction
-    # MongoDB does not support transaction without replica-set
-    connect(os.environ.get("RS_MONGO_URL", ""))
-
-
 def test_create_with_transaction():
-    setup_remote_connection()
-
     user = get_user()
 
     course: Any = None
@@ -44,8 +34,6 @@ def test_create_with_transaction():
 
 
 def test_create_with_transaction_rollback():
-    setup_remote_connection()
-
     user = get_user()
 
     course: Any = None
@@ -72,8 +60,6 @@ def test_create_with_transaction_rollback():
 
 
 def test_update_with_transaction_rollback():
-    setup_remote_connection()
-
     user = get_user()
 
     # Use uuid4 to make the title unique for async testing.

@@ -52,15 +52,15 @@ jobs:
       - run: mkdir coverage
       - name: Test
         run: |
-          docker run -d --rm --name mongo -p 27017:27017 mongo
+          docker-compose up -d mongodb
+          docker-compose up mongo-init
           python -m poetry run bash scripts/test.sh
-          docker stop mongo
+          docker-compose stop mongodb
 
         env:
           MONGO_URL: mongodb://localhost:27017/testdb
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
-          RS_MONGO_URL: ${{ secrets.RS_MONGO_URL }}
       - name: Store coverage files
         uses: actions/upload-artifact@v3
         with:

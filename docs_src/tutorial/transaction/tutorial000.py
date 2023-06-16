@@ -56,7 +56,7 @@ def delete_documents():
 
 def main():
     # Use a database that has a replica set.
-    connect(os.environ.get("RS_MONGO_URL", ""))
+    connect(os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb"))
 
     create_documents()
     update_documents()
