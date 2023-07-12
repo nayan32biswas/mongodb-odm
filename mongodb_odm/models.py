@@ -172,6 +172,8 @@ class Document(_BaseDocument):
     ) -> Cursor[Any]:
         if filter is None:
             filter = {}
+        if projection is None:
+            projection = {}
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -334,16 +336,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def update_one(
-        cls,
-        filter: Optional[DICT_TYPE] = None,
-        data: Optional[DICT_TYPE] = None,
-        **kwargs: Any,
+        cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        if filter is None:
-            filter = {}
-        if data is None:
-            data = {}
-
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -351,16 +345,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def update_many(
-        cls,
-        filter: Optional[DICT_TYPE] = None,
-        data: Optional[DICT_TYPE] = None,
-        **kwargs: Any,
+        cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        if filter is None:
-            filter = {}
-        if data is None:
-            data = {}
-
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -370,24 +356,14 @@ class Document(_BaseDocument):
         return self.delete_one({"_id": self._id}, **kwargs)
 
     @classmethod
-    def delete_one(
-        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
-    ) -> DeleteResult:
-        if filter is None:
-            filter = {}
-
+    def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
         return _collection.delete_one(filter, **kwargs)
 
     @classmethod
-    def delete_many(
-        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
-    ) -> DeleteResult:
-        if filter is None:
-            filter = {}
-
+    def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}

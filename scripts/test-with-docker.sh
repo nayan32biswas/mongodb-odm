@@ -2,8 +2,13 @@
 
 set -x
 
-docker run -d --rm --name mongo -p 27017:27017 mongo
+# docker run -d --rm --name mongo -p 27017:27017 mongo
+# poetry run scripts/test.sh
+# docker stop mongo
 
-poetry run scripts/test.sh
+docker-compose up -d mongodb
+docker-compose up mongo-init
 
-docker stop mongo
+python -m poetry run bash scripts/test.sh
+
+docker-compose stop mongodb

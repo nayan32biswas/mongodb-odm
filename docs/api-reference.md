@@ -209,10 +209,7 @@ def get_random_one(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> Se
 ```python
 @classmethod
 def update_one(
-    cls,
-    filter: Optional[DICT_TYPE] = None,
-    data: Optional[DICT_TYPE] = None,
-    **kwargs: Any,
+    cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
 ) -> UpdateResult:
 ```
 
@@ -221,10 +218,7 @@ def update_one(
 ```python
 @classmethod
 def update_many(
-    cls,
-    filter: Optional[DICT_TYPE] = None,
-    data: Optional[DICT_TYPE] = None,
-    **kwargs: Any,
+    cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
 ) -> UpdateResult:
 ```
 
@@ -232,18 +226,14 @@ def update_many(
 
 ```python
 @classmethod
-def delete_one(
-    cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
-) -> DeleteResult:
+def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
 ```
 
 ### delete_many
 
 ```python
 @classmethod
-def delete_many(
-    cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
-) -> DeleteResult:
+def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
 ```
 
 ### bulk_write
