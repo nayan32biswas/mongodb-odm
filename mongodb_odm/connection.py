@@ -1,10 +1,10 @@
 import logging
-from typing import Any
+from typing import Any, Optional, Set
 
 from pymongo import MongoClient
 from pymongo.database import Database
 
-from .exceptions import ConnectionExist
+from .exceptions import ConnectionExist, InvalidConnection
 from .utils._internal_models import Connection
 
 logger = logging.getLogger(__name__)
@@ -17,11 +17,12 @@ def _get_connection_client(url: str) -> MongoClient[Any]:
     return MongoClient(url)
 
 
-def connect(url: str) -> MongoClient[Any]:
+def connect(url: str, databases: Optional[Set[str]] = None) -> MongoClient[Any]:
     if __connection_obj.client is not None:
         logger.warning("Already have an connection.")
         return __connection_obj.client
     __connection_obj.url = url
+    __connection_obj.databases = databases
     __connection_obj.client = _get_connection_client(url)
     logger.info("Connection established successfully")
     return __connection_obj.client
@@ -55,5 +56,10 @@ def get_client() -> MongoClient[Any]:
         return __connection_obj.client
 
 
-def db() -> Database[Any]:
-    return get_client().get_database()
+def db(database: Optional[str] = None) -> Database[Any]:
+    if database:
+        if not __connection_obj.databases or database not in __connection_obj.databases:
+            raise InvalidConnection(f'Invalid database key was passed "{database}"')
+        return get_client()[database]
+    else:
+        return get_client().get_database()

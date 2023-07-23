@@ -15,15 +15,19 @@ from .data_conversion import dict2obj
 from .exceptions import ObjectDoesNotExist
 from .fields import Field
 from .types import DICT_TYPE, SORT_TYPE, ODMObjectId
-from .utils._internal_models import RelationalFieldInfo
-from .utils.utils import convert_model_to_collection, get_relationship_fields_info
+from .utils._internal_models import CollectionConfig, RelationalFieldInfo
+from .utils.utils import (
+    convert_model_to_collection,
+    get_database_name,
+    get_relationship_fields_info,
+)
 
 logger = logging.getLogger(__name__)
 INHERITANCE_FIELD_NAME = "_cls"
 
 RELATION_TYPE = Dict[str, RelationalFieldInfo]
 
-_cashed_collection: Dict[Any, Tuple[str, Optional[str]]] = {}
+_cashed_collection: Dict[Any, CollectionConfig] = {}
 _cashed_field_info: Dict[str, RELATION_TYPE] = {}
 
 
@@ -45,6 +49,7 @@ class _BaseDocument(BaseModel):
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
         indexes: List[IndexModel] = []
+        database: Optional[str] = None
 
     def __setattr__(self, key: str, value: Any) -> None:
         """
@@ -76,29 +81,33 @@ class _BaseDocument(BaseModel):
             return model, None
 
     @classmethod
-    def __get_collection_config(cls) -> Tuple[str, Optional[str]]:
+    def __get_collection_config(cls) -> CollectionConfig:
         global _cashed_collection
         if cls in _cashed_collection:
             return _cashed_collection[cls]
 
         model, child_model = cls.__get_collection_class()
-        _cashed_collection[cls] = (
-            convert_model_to_collection(model),
-            convert_model_to_collection(child_model) if child_model else None,
+        _cashed_collection[cls] = CollectionConfig(
+            parent_collection_name=convert_model_to_collection(model),
+            child_collection_name=convert_model_to_collection(child_model)
+            if child_model
+            else None,
+            database=get_database_name(model),
         )
         return _cashed_collection[cls]
 
     @classmethod
     def _get_collection_name(cls) -> str:
-        return cls.__get_collection_config()[0]
+        return cls.__get_collection_config().parent_collection_name
 
     @classmethod
     def _get_child(cls) -> Optional[str]:
-        return cls.__get_collection_config()[1]
+        return cls.__get_collection_config().child_collection_name
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
-        return db()[cls._get_collection_name()]
+        config = cls.__get_collection_config()
+        return db(config.database)[cls._get_collection_name()]
 
     @classmethod
     def _db(cls) -> str:

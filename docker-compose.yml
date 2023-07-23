@@ -1,10 +1,14 @@
 version: "3.9"
+
+x-volumes: &env-volume
+  MONGO_URL: "mongodb://mongodb:27017/testdb"
+
 services:
   mongodb:
     image: mongo:5
     command: --replSet rs0
     ports:
-      - '27017:27017'
+      - "27017:27017"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/admin --quiet
       interval: 2s
