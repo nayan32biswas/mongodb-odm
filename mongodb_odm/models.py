@@ -88,17 +88,22 @@ class _BaseDocument(BaseModel):
 
         model, child_model = cls.__get_collection_class()
         _cashed_collection[cls] = CollectionConfig(
-            parent_collection_name=convert_model_to_collection(model),
+            collection_name=convert_model_to_collection(model),
             child_collection_name=convert_model_to_collection(child_model)
             if child_model
             else None,
-            database=get_database_name(model),
+            database_name=get_database_name(model),
         )
         return _cashed_collection[cls]
 
     @classmethod
+    def _database_name(cls) -> Optional[str]:
+        config = cls.__get_collection_config()
+        return config.database_name
+
+    @classmethod
     def _get_collection_name(cls) -> str:
-        return cls.__get_collection_config().parent_collection_name
+        return cls.__get_collection_config().collection_name
 
     @classmethod
     def _get_child(cls) -> Optional[str]:
@@ -106,8 +111,7 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
-        config = cls.__get_collection_config()
-        return db(config.database)[cls._get_collection_name()]
+        return db(cls._database_name())[cls._get_collection_name()]
 
     @classmethod
     def _db(cls) -> str:

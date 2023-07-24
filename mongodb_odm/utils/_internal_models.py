@@ -17,6 +17,6 @@ class RelationalFieldInfo(BaseModel):
 
 
 class CollectionConfig(BaseModel):
-    parent_collection_name: str
+    collection_name: str
     child_collection_name: Optional[str] = None
-    database: Optional[str] = None
+    database_name: Optional[str] = None
