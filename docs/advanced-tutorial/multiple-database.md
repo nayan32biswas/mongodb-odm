@@ -20,6 +20,13 @@ The first argument `url` string should have a **default database**. The second a
 # Code omitted below
 ```
 
+<details>
+<summary>Full file preview</summary>
+```Python
+{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py!}
+```
+</details>
+
 ## Mode Definition
 
 The no need for any modification of your model which will use the default database.
@@ -35,5 +42,12 @@ Here we define the `Log` model that has a field `database = "logging"` inside th
 
 # Code omitted below
 ```
+
+<details>
+<summary>Full file preview</summary>
+```Python
+{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py!}
+```
+</details>
 
 **Note**: MongoDB does not support **$lookup** with different databases that are also applicable here. We are not permitted to perform **$lookup** with the **default** and **logging** database.
