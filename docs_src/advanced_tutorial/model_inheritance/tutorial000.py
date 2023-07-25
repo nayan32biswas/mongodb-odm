@@ -77,7 +77,7 @@ def retrieve_video():
 def main():
     configuration()
 
-    # create_data()
+    create_data()
 
     retrieve_content()
     retrieve_text()

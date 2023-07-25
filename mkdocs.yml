@@ -52,6 +52,7 @@ nav:
   - Advanced User Guide:
       - advanced-tutorial/index.md
       - advanced-tutorial/model-inheritance.md
+      - advanced-tutorial/multiple-database.md
   - help-get-help.md
   - release-notes.md
 

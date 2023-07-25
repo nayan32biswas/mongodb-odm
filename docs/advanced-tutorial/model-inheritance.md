@@ -23,7 +23,7 @@ First look at all models in a single block for better understanding.
 ```python hl_lines="12 18 21-22"
 # Code omitted above
 
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:14-40]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:14-40]!}
 
 # Code omitted below
 ```
@@ -31,7 +31,7 @@ First look at all models in a single block for better understanding.
 <details>
 <summary>Full file preview</summary>
 ```Python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py!}
 ```
 </details>
 
@@ -44,7 +44,7 @@ We define the `Content` model. We want to inherit the content model from the `Te
 In the `Config` class for the `Content` model, we define `allow_inheritance = True` for model Content. To make a Model inheritable we need to make this field `True`.
 
 ```python hl_lines="6"
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:18-26]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:18-26]!}
 ```
 
 ### Text
@@ -54,7 +54,7 @@ After defining the `Content` model we will define the `Text` model that inherits
 And set `allow_inheritance = False` for the `Text` model. Otherwise, **MongoDB-ODM** will throw an error.
 
 ```python hl_lines="5"
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:29-33]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:29-33]!}
 ```
 
 ### Video
@@ -62,7 +62,7 @@ And set `allow_inheritance = False` for the `Text` model. Otherwise, **MongoDB-O
 As like `Text` functionality and declaration structure for the `Video` will be the same.
 
 ```python hl_lines="5"
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:36-40]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:36-40]!}
 ```
 
 ## Insert Data
@@ -74,13 +74,13 @@ First, we create a course document.
 Then we create two `Content`. One `Text` content and the other one video content.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:48-56]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:48-56]!}
 ```
 
 <details>
 <summary>Full file preview</summary>
 ```Python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py!}
 ```
 </details>
 
@@ -89,7 +89,7 @@ Then we create two `Content`. One `Text` content and the other one video content
 For model inheritance, we do not create a separate collection for each model. Instead, we create a single collection for all models. And the collection name will be according to the parent class. We add an extra field `_cls` with each document to distinguish the different models.
 
 !!!tip
-    By default, we define the `_cls` field as an `index` field. We can un indexes this field by defining `index_inheritance_field = False` in the parent class.
+By default, we define the `_cls` field as an `index` field. We can un indexes this field by defining `index_inheritance_field = False` in the parent class.
 
 ## Retrieve Collection
 
@@ -100,13 +100,13 @@ We can use all our retrieval methods to retrieve data for the inherited model. W
 To get all content we can filter data with parent class `Content`.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:59-62]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:59-62]!}
 ```
 
 <details>
 <summary>Full file preview</summary>
 ```Python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py!}
 ```
 </details>
 
@@ -122,13 +122,13 @@ Video(id=ObjectId('id'), course_id=ObjectId('id'), title='Environment Setup', vi
 We can retrieve data using the `Text` and `Video` models.
 
 ```python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py[ln:65-74]!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:65-74]!}
 ```
 
 <details>
 <summary>Full file preview</summary>
 ```Python
-{!./docs_src/advanced-tutorial/model-inheritance/tutorial000.py!}
+{!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py!}
 ```
 </details>
 

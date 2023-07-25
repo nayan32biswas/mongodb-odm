@@ -21,9 +21,16 @@ def connect(url: str, databases: Optional[Set[str]] = None) -> MongoClient[Any]:
     if __connection_obj.client is not None:
         logger.warning("Already have an connection.")
         return __connection_obj.client
+
+    if databases is None:
+        databases = set()
+    client = _get_connection_client(url)
+    default_database = client.get_default_database().name
+    databases.add(default_database)
+
     __connection_obj.url = url
     __connection_obj.databases = databases
-    __connection_obj.client = _get_connection_client(url)
+    __connection_obj.client = client
     logger.info("Connection established successfully")
     return __connection_obj.client
 

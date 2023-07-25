@@ -14,6 +14,26 @@ In this section, we will try to create a cheat sheet for quick checkups.
 {!./docs_src/reference/tutorial000.py!}
 ```
 
+## Connection
+
+### connect
+
+```python
+def connect(url: str, databases: Optional[Set[str]] = None) -> MongoClient[Any]:
+```
+
+### disconnect
+
+```python
+def disconnect() -> bool:
+```
+
+### get_client
+
+```python
+def get_client() -> MongoClient[Any]:
+```
+
 ## Definition of Model Class
 
 ### Class
