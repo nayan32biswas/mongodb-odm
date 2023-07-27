@@ -4,3 +4,7 @@ class ObjectDoesNotExist(Exception):
 
 class ConnectionExist(Exception):
     pass
+
+
+class InvalidConnection(Exception):
+    pass

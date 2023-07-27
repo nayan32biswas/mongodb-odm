@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Type
+from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
@@ -11,6 +11,12 @@ pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 def camel_to_snake(string: str) -> str:
     return pattern.sub("_", string).lower()
+
+
+def get_database_name(model: Any) -> Optional[str]:
+    if hasattr(model.Config, "database"):
+        return model.Config.database
+    return None
 
 
 def convert_model_to_collection(model: Any) -> str:

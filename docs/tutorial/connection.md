@@ -1,4 +1,3 @@
-
 # Manage Database Connection
 
 ## Set db connection
@@ -26,3 +25,7 @@ disconnect()
 ```
 
 The `disconnect` function will close the existing connection client. And remove provided **connection URL**.
+
+## Multiple Database
+
+Visit the [Multiple Database Chapter](../advanced-tutorial/multiple-database.md) to learn how to implement multiple database features.

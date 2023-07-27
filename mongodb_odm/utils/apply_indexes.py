@@ -1,8 +1,8 @@
 import logging
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Optional, Tuple, Type
 
 from bson import SON
-from mongodb_odm.types import DICT_TYPE
+from pydantic import BaseModel
 from pymongo import ASCENDING, IndexModel
 
 from ..connection import db
@@ -11,7 +11,13 @@ from ..models import INHERITANCE_FIELD_NAME, Document
 logger = logging.getLogger(__name__)
 
 
-def index_for_a_collection(operation: DICT_TYPE) -> Tuple[int, int]:
+class IndexOperation(BaseModel):
+    collection_name: str
+    create_indexes: List[Any]
+    database_name: Optional[str] = None
+
+
+def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     """
     First get all indexes for a collection and match with operation.
     Remove full match object.
@@ -22,8 +28,8 @@ def index_for_a_collection(operation: DICT_TYPE) -> Tuple[int, int]:
     For db_indexes unmatched with new_indexes drop indexes.
     """
     try:
-        collection = db()[operation["collection_name"]]
-        indexes = operation["create_indexes"]
+        collection = db(operation.database_name)[operation.collection_name]
+        indexes = operation.create_indexes
     except Exception:
         raise Exception("Invalid index object")
 
@@ -87,7 +93,7 @@ def index_for_a_collection(operation: DICT_TYPE) -> Tuple[int, int]:
         try:
             collection.create_indexes(new_indexes)
         except Exception as e:
-            logger.error(f'\nProblem arise at "{operation["collection_name"]}": {e}\n')
+            logger.error(f'\nProblem arise at "{operation.collection_name}": {e}\n')
             raise e
 
     # TODO: apply action for update_indexes
@@ -95,7 +101,7 @@ def index_for_a_collection(operation: DICT_TYPE) -> Tuple[int, int]:
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
         logger.info(
-            f'Applied for "{operation["collection_name"]}": {de} deleted, {ne} added'
+            f'Applied for "{operation.collection_name}": {de} deleted, {ne} added'
         )
     return ne, de
 
@@ -106,20 +112,20 @@ def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
     return []
 
 
-def get_all_indexes() -> List[DICT_TYPE]:
+def get_all_indexes() -> List[IndexOperation]:
     """
     First imports all child models of Document since it's the abstract parent model.
     Then retrieve all the child modules and will try to get indexes inside the Config class.
     """
-    operations: List[DICT_TYPE] = []
+    operations: List[IndexOperation] = []
     for model in Document.__subclasses__():
         indexes = get_model_indexes(model)
         if indexes:
-            collection_name = model._get_collection_name()
-            obj = {
-                "collection_name": collection_name,
-                "create_indexes": indexes,
-            }
+            obj = IndexOperation(
+                collection_name=model._get_collection_name(),
+                create_indexes=indexes,
+                database_name=model._database_name(),
+            )
             if (
                 hasattr(model.Config, "allow_inheritance")
                 and model.Config.allow_inheritance is True
@@ -129,10 +135,12 @@ def get_all_indexes() -> List[DICT_TYPE]:
                     """
                     No _cls indexes will apply if index_inheritance_field = False
                     """
-                    indexes.append(IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)]))
+                    obj.create_indexes.append(
+                        IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)])
+                    )
                 for child_model in model.__subclasses__():
                     """Get all indexes that are defined in child model"""
-                    indexes += get_model_indexes(child_model)
+                    obj.create_indexes += get_model_indexes(child_model)
             operations.append(obj)
     return operations
 
