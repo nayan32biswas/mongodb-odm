@@ -6,7 +6,7 @@ from mongodb_odm import DESCENDING
 from mongodb_odm.data_conversion import ODMObj
 
 from .conftest import init_config  # noqa
-from .models.course import Content, Course
+from .models.course import Comment, Content, Course
 from .models.user import User
 from .utils import populate_data
 
@@ -46,6 +46,25 @@ def test_find():
             course, Course
         ), "find method should return Course type object"
         assert isinstance(course._id, ObjectId), "Invalid data return"
+
+
+def test_embedded_filter():
+    populate_data()
+    user = User.get({})
+    for _ in Comment.find(filter={"children.user_id": user.id}):
+        pass
+
+
+def test_filter_validation():
+    populate_data()
+    user = User.get({})
+    try:
+        for _ in Comment.find(filter={"children.user_id": user.id, "invalid_key": 1}):
+            pass
+        assert False
+    except Exception as e:
+        print(e)
+        assert str(e) != "assert False"
 
 
 def test_get_or_create():
