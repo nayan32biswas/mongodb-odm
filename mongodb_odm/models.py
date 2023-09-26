@@ -10,6 +10,8 @@ from pymongo.cursor import Cursor
 from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
 from typing_extensions import Self
 
+from mongodb_odm.utils.validation import validate_filter_dict
+
 from .connection import db, get_client
 from .data_conversion import dict2obj
 from .exceptions import ObjectDoesNotExist
@@ -188,6 +190,8 @@ class Document(_BaseDocument):
         if projection is None:
             projection = {}
 
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -280,6 +284,8 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -289,6 +295,8 @@ class Document(_BaseDocument):
     def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
         if filter is None:
             filter = {}
+
+        validate_filter_dict(cls, filter)
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -325,6 +333,8 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
+        validate_filter_dict(cls, filter)
+
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
         pipeline = [{"$match": filter}, {"$sample": {"size": 1}}]
@@ -351,6 +361,8 @@ class Document(_BaseDocument):
     def update_one(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -360,6 +372,8 @@ class Document(_BaseDocument):
     def update_many(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -370,6 +384,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -377,6 +393,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
+        validate_filter_dict(cls, filter)
+
         _collection = cls._get_collection()
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
