@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
+from pymongo import TEXT
+
 from mongodb_odm import (
     ASCENDING,
     BaseModel,
@@ -32,6 +34,7 @@ class Course(Document):
     class Config(Document.Config):
         indexes = [
             IndexModel([("author_id", ASCENDING)]),
+            IndexModel([("title", TEXT), ("short_description", TEXT)]),
         ]
 
 

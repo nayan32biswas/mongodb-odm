@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple, Type
 
 from bson import SON
 from pydantic import BaseModel
-from pymongo import ASCENDING, IndexModel
+from pymongo import ASCENDING, TEXT, IndexModel
 
 from ..connection import db
 from ..models import INHERITANCE_FIELD_NAME, Document
@@ -46,7 +46,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     new_indexes_store = {}
 
     for index in indexes:
-        new_index: Any = index.document  # type: ignore
+        new_index: Any = index.document
         # Replace SON object with dict
         if type(new_index["key"]) == SON:
             new_index["key"] = new_index["key"].to_dict()
@@ -57,6 +57,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         new_indexes_store[new_index["name"]] = index
 
     update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
+
     for i in range(len(db_indexes)):
         partial_match = None
         for j in range(len(new_indexes)):
@@ -66,6 +67,35 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
                 db_indexes[i], new_indexes[j] = None, None
                 partial_match = None
                 break
+            if db_indexes[i].get("name") == new_indexes[j].get("name"):
+                db_value, new_value = db_indexes[i], new_indexes[j]
+                if (
+                    TEXT in db_value["key"].values()
+                    and TEXT in new_value["key"].values()
+                ):
+                    """
+                    based on condition this is a text-based index.
+                    Check that if value is changed.
+                    If not changed then assign null otherwise not.
+                    NOTE:
+                    The data check may not be sufficient enough.
+                    Add conditions based on the issue.
+                    """
+
+                    new_keys = new_value["key"].keys()
+                    default_language = new_value.get("default_language", "english")
+                    new_weight = new_value.get("weights") or {
+                        key: 1 for key in new_keys
+                    }
+
+                    if (
+                        db_value["weights"].keys() == new_keys
+                        and new_weight == db_value["weights"]
+                        and db_value["default_language"] == default_language
+                    ):
+                        """All key match with existing values"""
+                        db_indexes[i], new_indexes[j] = None, None
+                        partial_match = None
 
             """
             # TODO: make a list for partial match
@@ -95,8 +125,6 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         except Exception as e:
             logger.error(f'\nProblem arise at "{operation.collection_name}": {e}\n')
             raise e
-
-    # TODO: apply action for update_indexes
 
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
