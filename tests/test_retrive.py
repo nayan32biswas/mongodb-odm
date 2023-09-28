@@ -55,15 +55,29 @@ def test_embedded_filter():
         pass
 
 
-def test_filter_validation():
+def test_filter_invalid_field_validation():
     populate_data()
     user = User.get({})
+
+    """Check that validation function can validate valid nested field"""
+    for _ in Comment.find(filter={"children.user_id": user.id}):
+        pass
+
     try:
+        """Check that validation function can validate invalid field"""
         for _ in Comment.find(filter={"children.user_id": user.id, "invalid_key": 1}):
+            pass
+
+        assert False
+    except Exception as e:
+        assert str(e) != "assert False"
+
+    try:
+        """Check that validation function can validate invalid nested field"""
+        for _ in Comment.find(filter={"children.invalid_nested_key": user.id}):
             pass
         assert False
     except Exception as e:
-        print(e)
         assert str(e) != "assert False"
 
 

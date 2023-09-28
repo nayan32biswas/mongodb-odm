@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class TestIndexes(Document):
-    username: str = Field(...)
     title: str = Field(max_length=255)
+    slug: str = Field(...)
     short_description: Optional[str] = Field(max_length=512, default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config(Document.Config):
         collection_name = "test_indexes"
         indexes = [
-            IndexModel([("username", ASCENDING)], unique=True),
+            IndexModel([("slug", ASCENDING)], unique=True),
             IndexModel([("title", TEXT), ("short_description", TEXT)]),
         ]
 
@@ -75,35 +75,31 @@ def test_indexes_create_add_update_remove():
 
     """Initially create all indexes"""
     TestIndexes.Config.indexes = [
-        IndexModel([("username", ASCENDING)], unique=True),
+        IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["username"], ["title", "short_description"]])
+    check_indexes([["_id"], ["slug"], ["title", "short_description"]])
 
     """Add new indexes"""
     TestIndexes.Config.indexes = [
-        IndexModel([("username", ASCENDING)], unique=True),
+        IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    check_indexes(
-        [["_id"], ["username"], ["created_at"], ["title", "short_description"]]
-    )
+    check_indexes([["_id"], ["slug"], ["created_at"], ["title", "short_description"]])
 
     """Update existing indexes values"""
     TestIndexes.Config.indexes = [
-        IndexModel([("username", ASCENDING)], unique=True),
+        IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)]),
         IndexModel(
             [("title", TEXT), ("short_description", TEXT)], default_language="english"
         ),
     ]
     apply_indexes()
-    check_indexes(
-        [["_id"], ["created_at"], ["username"], ["title", "short_description"]]
-    )
+    check_indexes([["_id"], ["created_at"], ["slug"], ["title", "short_description"]])
 
     """Remove some of indexes"""
     TestIndexes.Config.indexes = [
@@ -118,6 +114,19 @@ def test_indexes_create_add_update_remove():
     ]
     apply_indexes()
     check_indexes([["_id"], ["created_at"]])
+
+
+def test_text_filter():
+    TestIndexes.Config.indexes = [
+        IndexModel([("slug", ASCENDING)], unique=True),
+        IndexModel([("title", TEXT), ("short_description", TEXT)]),
+    ]
+    apply_indexes()
+    text_data = TestIndexes(
+        title="How to connection Mongodb in Mongodb-ODM", slug="one"
+    ).create()
+    text_data = TestIndexes.find_one(filter={"$text": {"$search": "mongodb"}})
+    assert text_data is not None
 
 
 def test_indexes_for_all_db():
