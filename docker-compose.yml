@@ -1,8 +1,5 @@
 version: "3.9"
 
-x-volumes: &env-volume
-  MONGO_URL: "mongodb://mongodb:27017/testdb"
-
 services:
   mongodb:
     image: mongo:5

@@ -52,10 +52,10 @@ jobs:
       - run: mkdir coverage
       - name: Test
         run: |
-          docker-compose up -d mongodb
-          docker-compose up mongo-init
+          docker compose up -d mongodb
+          docker compose up mongo-init
           python -m poetry run bash scripts/test.sh
-          docker-compose stop mongodb
+          docker compose stop mongodb
 
         env:
           MONGO_URL: mongodb://localhost:27017/testdb
