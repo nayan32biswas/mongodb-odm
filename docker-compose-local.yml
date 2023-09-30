@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  db:
+    image: mongo:5
+    container_name: mongodb_odm_db
+    command: --replSet rs0
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/admin --quiet
+      interval: 2s
+      timeout: 3s
+      retries: 5
+    networks:
+      - mongodb_odm_tier
+
+  mongo-init:
+    image: mongo:5
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      mongo --host db:27017 --eval
+      '
+      rs.initiate( {
+        _id : "rs0",
+        members: [
+          { _id: 0, host: "db:27017" }
+        ]
+      })
+      '
+    networks:
+      - mongodb_odm_tier
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: mongodb_odm_app
+    command: python -m poetry run bash scripts/test.sh
+    environment:
+      MONGO_URL: mongodb://db:27017/testdb
+    depends_on:
+      - mongo-init
+    volumes:
+      - ./:/code
+    networks:
+      - mongodb_odm_tier
+
+networks:
+  mongodb_odm_tier:
+    driver: bridge

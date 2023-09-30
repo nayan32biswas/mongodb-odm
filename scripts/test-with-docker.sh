@@ -6,10 +6,9 @@ set -x
 # poetry run scripts/test.sh
 # docker stop mongo
 
-# docker compose up -d db
-# docker compose up mongo-init
+# docker compose up -d mongodb && docker compose up mongo-init
 # python -m poetry run bash scripts/test.sh
-# docker compose stop db
+# docker compose stop mongodb
 
-docker-compose run --build --rm app \
+docker-compose -f docker-compose-local.yml run --build --rm app \
     python -m poetry run bash scripts/test.sh
