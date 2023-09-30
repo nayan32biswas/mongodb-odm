@@ -1,5 +1,16 @@
 # Release Notes
 
+## 0.2.4
+
+### Features
+
+- Validation on Filter dict. PR [#13](https://github.com/nayan32biswas/mongodb-odm/pull/13) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Docker compose configuration and pydantic version change . PR [#15](https://github.com/nayan32biswas/mongodb-odm/pull/15) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Fixes
+
+- Resolve apply-indexes for Text base index. PR [#14](https://github.com/nayan32biswas/mongodb-odm/pull/14) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 0.2.3
 
 ### Features
@@ -19,7 +30,7 @@
 
 ## 0.2.1
 
-Refactors:
+### Refactors
 
 - Type checking according to the mypy. PR [#5](https://github.com/nayan32biswas/mongodb-odm/pull/5) by [@nayan32biswas](https://github.com/nayan32biswas).
 
