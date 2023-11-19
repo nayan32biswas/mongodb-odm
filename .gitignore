@@ -1,6 +1,7 @@
 # Python
 *.pyc
 .mypy_cache
+.ruff_cache
 *.py[cod]
 
 # Unit test / coverage reports

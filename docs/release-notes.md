@@ -1,5 +1,7 @@
 # Release Notes
 
+## Latest Changes
+
 ## 0.2.4
 
 ### Features
