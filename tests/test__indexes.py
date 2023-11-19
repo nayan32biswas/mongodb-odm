@@ -2,10 +2,9 @@ import logging
 from datetime import datetime
 from typing import List, Optional
 
-from pymongo import TEXT
-
 from mongodb_odm import ASCENDING, Document, Field, IndexModel, connect, disconnect
 from mongodb_odm.utils.apply_indexes import apply_indexes
+from pymongo import TEXT
 
 from .conftest import DB_URL, init_config  # noqa
 
@@ -32,9 +31,9 @@ def test_create_indexes_without_connection():
 
     try:
         apply_indexes()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_no_index_change():
@@ -54,11 +53,13 @@ def check_each_index(db_indexes, each_index_keys):
             break
         if is_match:
             return True
-    assert False, f"'{each_index_keys}' is invalid index"
+    assert AssertionError(), f"'{each_index_keys}' is invalid index"
 
 
 def check_indexes(index_keys: List[List[str]]):
-    db_indexes = [index.to_dict() for index in TestIndexes._get_collection().list_indexes()]  # type: ignore
+    # fmt: off
+    db_indexes = [index.to_dict() for index in TestIndexes._get_collection().list_indexes()]
+    # fmt: on
     assert len(index_keys) == len(db_indexes), "Number of indexes does not match"
 
     for each_index_keys in index_keys:

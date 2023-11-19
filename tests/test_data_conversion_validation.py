@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 mongodb_data = {
     "list": [1, 2],
-    "bytes": bytes(b"ABC"),
+    "bytes": b"ABC",
     "dict_data": {"a": 1, "b": 2},
     "code": {},
     "ObjectId": ObjectId(),

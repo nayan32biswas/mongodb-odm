@@ -68,17 +68,17 @@ def test_filter_invalid_field_validation():
         for _ in Comment.find(filter={"children.user_id": user.id, "invalid_key": 1}):
             pass
 
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
     try:
         """Check that validation function can validate invalid nested field"""
         for _ in Comment.find(filter={"children.invalid_nested_key": user.id}):
             pass
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_get_or_create():

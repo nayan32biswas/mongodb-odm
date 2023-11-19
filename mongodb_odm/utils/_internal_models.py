@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 
 
-class Connection(object):
+class Connection:
     url: Optional[str] = None
     client: Optional[MongoClient[Any]] = None
     databases: Optional[Set[str]] = None

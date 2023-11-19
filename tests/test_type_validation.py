@@ -20,14 +20,14 @@ def test_validate_pydantic_object_id():
 
     try:
         _ = ODMObjectId.validate("invalid-object-id")
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_invalid_object_id():
     try:
         _ = ODMObjectId.validate("invalid ObjectId")
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""

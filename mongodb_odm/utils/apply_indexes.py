@@ -31,7 +31,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         collection = db(operation.database_name)[operation.collection_name]
         indexes = operation.create_indexes
     except Exception:
-        raise Exception("Invalid index object")
+        raise Exception("Invalid index object")  # noqa: B904
 
     db_indexes = []
     for index in collection.list_indexes():
@@ -46,9 +46,9 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     new_indexes_store = {}
 
     for index in indexes:
-        new_index: Any = index.document
+        new_index: Any = index.document  # type: ignore
         # Replace SON object with dict
-        if type(new_index["key"]) == SON:
+        if type(new_index["key"]) is SON:
             new_index["key"] = new_index["key"].to_dict()
         else:
             continue
@@ -61,7 +61,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     for i in range(len(db_indexes)):
         partial_match = None
         for j in range(len(new_indexes)):
-            if type(new_indexes[j]) is not dict:
+            if not isinstance(type(new_indexes[j]), dict):
                 continue
             if db_indexes[i] == new_indexes[j]:
                 db_indexes[i], new_indexes[j] = None, None

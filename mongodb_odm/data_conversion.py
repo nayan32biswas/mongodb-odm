@@ -1,9 +1,9 @@
 from typing import Any, Dict, Generator, List, Tuple, Union
 
 
-class ODMObj(object):
+class ODMObj:
     def __repr__(self) -> str:
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in self.__dict__)
+        items = (f"{k}={self.__dict__[k]}" for k in self.__dict__)
         return "{}({})".format(type(self).__name__, ", ".join(items))
 
     def __str__(self) -> str:
