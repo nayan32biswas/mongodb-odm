@@ -13,7 +13,7 @@ def camel_to_snake(string: str) -> str:
     return pattern.sub("_", string).lower()
 
 
-def get_database_name(model: Any) -> Optional[str]:
+def get_database_name(model: Any) -> Optional[Any]:
     if hasattr(model.Config, "database"):
         return model.Config.database
     return None
@@ -53,6 +53,6 @@ def get_relationship_fields_info(
 ) -> Dict[str, RelationalFieldInfo]:
     fields_name = []
     for field_name, field_info in cls.__fields__.items():
-        if type(field_info.default) == _RelationshipInfo:
+        if type(field_info.default) is _RelationshipInfo:
             fields_name.append(field_name)
     return _get_fields_info(cls, fields_name)

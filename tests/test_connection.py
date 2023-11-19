@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
-from mongodb_odm import Document
 
+from mongodb_odm import Document
 from mongodb_odm.connection import connect, disconnect, get_client
 from pymongo import MongoClient
 
@@ -30,9 +30,9 @@ def test_disconnect():
 
     try:
         _ = get_client()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_get_client():
@@ -40,9 +40,9 @@ def test_get_client():
 
     try:
         print(get_client())
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def clean_all_database(client):
@@ -88,6 +88,6 @@ def test_multiple_database_invalid_database_name():
         clean_all_database(client)
 
         Log(message="testing multiple database").create()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""

@@ -2,8 +2,6 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pymongo import TEXT
-
 from mongodb_odm import (
     ASCENDING,
     BaseModel,
@@ -13,6 +11,7 @@ from mongodb_odm import (
     ODMObjectId,
     Relationship,
 )
+from pymongo import TEXT
 
 from .user import User
 

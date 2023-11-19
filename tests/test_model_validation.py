@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 def test_document_as_model_error():
     try:
         _ = Document().create()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_invalid_allow_inheritance():
@@ -27,9 +27,9 @@ def test_invalid_allow_inheritance():
 
     try:
         _ = Child().create()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_allow_inheritance_true_for_child_and_parent():
@@ -47,9 +47,9 @@ def test_allow_inheritance_true_for_child_and_parent():
 
     try:
         _ = Child().create()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_invalid_Config():
@@ -65,23 +65,23 @@ def test_invalid_Config():
 
     try:
         _ = Child().create()
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_get_error_on_null_obj():
     populate_data()
     try:
         _ = Course.get({"_id": -1})
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_get_random_one_none():
     try:
         _ = ContentDescription.get_random_one({"_id": -1})
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""

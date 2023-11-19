@@ -17,7 +17,7 @@ def test_load_related_data():
     course_qs = Course.find()
     courses = Course.load_related(course_qs)
     for course in courses:
-        assert type(course.author) == User
+        assert type(course.author) is User
         assert course.author.id == course.author_id
 
 
@@ -27,10 +27,10 @@ def test_load_related_multiple_data():
     comment_qs = Comment.find()
     comments = Comment.load_related(comment_qs)
     for comment in comments:
-        assert type(comment.user) == User
+        assert type(comment.user) is User
         assert comment.user.id == comment.user_id
 
-        assert type(comment.course) == Course
+        assert type(comment.course) is Course
         assert comment.course.id == comment.course_id
 
 
@@ -40,10 +40,10 @@ def test_related_data_load_with_field():
     comment_qs = Comment.find()
     comments = Comment.load_related(comment_qs, fields=["user"])
     for comment in comments:
-        assert type(comment.user) == User
+        assert type(comment.user) is User
         assert comment.user.id == comment.user_id
 
-        assert type(comment.course) != Course
+        assert type(comment.course) is not Course
 
 
 def test_load_related_data_with_invalid_field():
@@ -52,9 +52,9 @@ def test_load_related_data_with_invalid_field():
     try:
         comment_qs = Comment.find()
         _ = Comment.load_related(comment_qs, fields=["invalid"])
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_load_related_data_with_invalid_model():
@@ -72,9 +72,9 @@ def test_load_related_data_with_invalid_model():
         ModelB(a_id=a.id, other_field="Other").create()
         b_qs = ModelB.find()
         _ = ModelB.load_related(b_qs, fields=["a"])
-        assert False
+        raise AssertionError()  # Should raise error before this line
     except Exception as e:
-        assert str(e) != "assert False"
+        assert str(e) != ""
 
 
 def test_load_related_data_with_optional_object():

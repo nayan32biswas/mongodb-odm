@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from mongodb_odm import ASCENDING, Document, IndexModel, apply_indexes, connect
 
@@ -43,8 +43,8 @@ def configuration():
 
 
 def general_process():
-    filter = {"name": "Pelé", "country_code": "example@test.com"}
-    player = Player.find_one()
+    filter: Dict[str, Any] = {"name": "Pelé", "country_code": "example@test.com"}
+    player = Player.find_one(filter)
     created = False
     if not player:
         player = Player(**filter).create()

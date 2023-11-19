@@ -10,8 +10,6 @@ from pymongo.cursor import Cursor
 from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
 from typing_extensions import Self
 
-from mongodb_odm.utils.validation import validate_filter_dict
-
 from .connection import db, get_client
 from .data_conversion import dict2obj
 from .exceptions import ObjectDoesNotExist
@@ -23,6 +21,7 @@ from .utils.utils import (
     get_database_name,
     get_relationship_fields_info,
 )
+from .utils.validation import validate_filter_dict
 
 logger = logging.getLogger(__name__)
 INHERITANCE_FIELD_NAME = "_cls"
@@ -35,10 +34,10 @@ _cashed_field_info: Dict[str, RELATION_TYPE] = {}
 
 def _clear_cache() -> None:
     global _cashed_collection, _cashed_field_info
-    for key in [key for key in _cashed_collection.keys()]:
+    for key in list(_cashed_collection.keys()):
         del _cashed_collection[key]
 
-    for key in [key for key in _cashed_field_info.keys()]:
+    for key in list(_cashed_field_info.keys()):
         del _cashed_field_info[key]
 
 
