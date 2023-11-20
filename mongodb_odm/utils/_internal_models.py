@@ -5,6 +5,7 @@ from pymongo import MongoClient
 
 
 class Connection:
+    # Use this model to maintain database connection object structure.
     url: Optional[str] = None
     client: Optional[MongoClient[Any]] = None
     databases: Optional[Set[str]] = None
