@@ -2,7 +2,7 @@ class ObjectDoesNotExist(Exception):
     pass
 
 
-class ConnectionExist(Exception):
+class ConnectionError(Exception):
     pass
 
 
