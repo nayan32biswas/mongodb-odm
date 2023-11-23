@@ -12,12 +12,14 @@ class Connection:
 
 
 class RelationalFieldInfo(BaseModel):
+    # We use this model to work with model relation field
     model: Any
     local_field: str
     related_field: Optional[str]
 
 
 class CollectionConfig(BaseModel):
+    # Connection configuration model for each model.
     collection_name: str
     child_collection_name: Optional[str] = None
     database_name: Optional[str] = None
