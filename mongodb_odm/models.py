@@ -547,7 +547,7 @@ class Document(_BaseDocument):
         cached_field_info = cls.get_relational_field_info()
 
         """Match with user given fields"""
-        loadable_fields_info: Optional[DICT_TYPE] = None
+        loadable_fields_info: Optional[RELATION_TYPE] = None
         if fields:
             loadable_fields_info = {}
             for field in fields:
