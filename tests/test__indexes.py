@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from mongodb_odm import ASCENDING, Document, Field, IndexModel, connect, disconnect
 from mongodb_odm.utils.apply_indexes import apply_indexes
@@ -56,9 +56,9 @@ def check_each_index(db_indexes, each_index_keys):
     assert AssertionError(), f"'{each_index_keys}' is invalid index"
 
 
-def check_indexes(index_keys: List[List[str]]):
+def check_indexes(model: Any, index_keys: List[List[str]]):
     # fmt: off
-    db_indexes = [index.to_dict() for index in TestIndexes._get_collection().list_indexes()]
+    db_indexes = [index.to_dict() for index in model._get_collection().list_indexes()]
     # fmt: on
     assert len(index_keys) == len(db_indexes), "Number of indexes does not match"
 
@@ -80,7 +80,7 @@ def test_indexes_create_add_update_remove():
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["slug"], ["title", "short_description"]])
+    check_indexes(TestIndexes, [["_id"], ["slug"], ["title", "short_description"]])
 
     """Add new indexes"""
     TestIndexes.Config.indexes = [
@@ -89,7 +89,9 @@ def test_indexes_create_add_update_remove():
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["slug"], ["created_at"], ["title", "short_description"]])
+    check_indexes(
+        TestIndexes, [["_id"], ["slug"], ["created_at"], ["title", "short_description"]]
+    )
 
     """Update existing indexes values"""
     TestIndexes.Config.indexes = [
@@ -100,21 +102,23 @@ def test_indexes_create_add_update_remove():
         ),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["created_at"], ["slug"], ["title", "short_description"]])
+    check_indexes(
+        TestIndexes, [["_id"], ["created_at"], ["slug"], ["title", "short_description"]]
+    )
 
     """Remove some of indexes"""
     TestIndexes.Config.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["created_at"]])
+    check_indexes(TestIndexes, [["_id"], ["created_at"]])
 
     """No index was changed"""
     TestIndexes.Config.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
-    check_indexes([["_id"], ["created_at"]])
+    check_indexes(TestIndexes, [["_id"], ["created_at"]])
 
 
 def test_text_filter():
@@ -128,6 +132,45 @@ def test_text_filter():
     ).create()
     text_data = TestIndexes.find_one(filter={"$text": {"$search": "mongodb"}})
     assert text_data is not None
+
+
+def test_child_indexes_only():
+    class ParentModel(Document):
+        title: str = Field(...)
+
+        class Config(Document.Config):
+            allow_inheritance = True
+
+    class ChildModel(ParentModel):
+        child_title: str = Field(...)
+
+        class Config(Document.Config):
+            indexes = [
+                IndexModel([("child_title", ASCENDING)]),
+            ]
+
+    apply_indexes()
+    check_indexes(ParentModel, [["_id"], ["_cls"], ["child_title"]])
+
+
+def test_child_indexes_without_cls_index():
+    class ParentModel(Document):
+        title: str = Field(...)
+
+        class Config(Document.Config):
+            allow_inheritance = True
+            index_inheritance_field = False
+
+    class ChildModel(ParentModel):
+        child_title: str = Field(...)
+
+        class Config(Document.Config):
+            indexes = [
+                IndexModel([("child_title", ASCENDING)]),
+            ]
+
+    apply_indexes()
+    check_indexes(ParentModel, [["_id"], ["child_title"]])
 
 
 def test_indexes_for_all_db():

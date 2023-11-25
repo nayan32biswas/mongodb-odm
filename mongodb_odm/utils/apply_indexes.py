@@ -154,30 +154,33 @@ def get_all_indexes() -> List[IndexOperation]:
     Then retrieve all the child modules and will try to get indexes inside the Config class.
     """
     operations: List[IndexOperation] = []
+
+    def get_operation_obj(model: Type[Document]) -> IndexOperation:
+        return IndexOperation(
+            collection_name=model._get_collection_name(),
+            create_indexes=get_model_indexes(model),
+            database_name=model._database_name(),
+        )
+
     for model in Document.__subclasses__():
-        indexes = get_model_indexes(model)
-        if indexes:
-            obj = IndexOperation(
-                collection_name=model._get_collection_name(),
-                create_indexes=indexes,
-                database_name=model._database_name(),
-            )
-            if (
-                hasattr(model.Config, "allow_inheritance")
-                and model.Config.allow_inheritance is True
-            ):
-                """If a model has child model"""
-                if model.Config.index_inheritance_field is True:
-                    """
-                    If index_inheritance_field is true then create an index '_cls'
-                        that will store the name of the child collection name.
-                    """
-                    obj.create_indexes.append(
-                        IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)])
-                    )
-                for child_model in model.__subclasses__():
-                    """Get all indexes that are defined in child model"""
-                    obj.create_indexes += get_model_indexes(child_model)
+        obj = get_operation_obj(model)
+        if (
+            hasattr(model.Config, "allow_inheritance")
+            and model.Config.allow_inheritance is True
+        ):
+            """If a model has child model"""
+            if model.Config.index_inheritance_field is True:
+                """
+                If index_inheritance_field is true then create an index '_cls'
+                    that will store the name of the child collection name.
+                """
+                obj.create_indexes.append(
+                    IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)])
+                )
+            for child_model in model.__subclasses__():
+                """Get all indexes that are defined in child model"""
+                obj.create_indexes += get_model_indexes(child_model)
+        if obj and obj.create_indexes:
             operations.append(obj)
     return operations
 
