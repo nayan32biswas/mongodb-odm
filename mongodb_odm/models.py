@@ -42,6 +42,10 @@ def _clear_cache() -> None:
 
 
 class _BaseDocument(BaseModel):
+    """
+    This class will handle all database and model-related configuration.
+    """
+
     class Config:
         # Those fields will work as the default value of any child class.
         orm_mode: bool = True
@@ -52,6 +56,30 @@ class _BaseDocument(BaseModel):
         indexes: List[IndexModel] = []
         database: Optional[str] = None
 
+        """
+        Definition of Config fields:
+
+        orm_mode: This is a Pydantic field to enable orm mode.
+
+        allow_population_by_field_name: This is a Pydantic field to allow the model to
+        collect another field like we are converting '_id' to 'id' field.
+
+        collection_name: This field will overwrite collection name.
+
+        allow_inheritance: It enables a model to have a child.
+        We will manage a single field for parent and child collection.
+        The collection name will be according to the parent model configuration.
+        Child collection data will be separated by field name '_cls'.
+
+        index_inheritance_field: By default, we create an index for '_cls'
+        if the model has a child. Users may control that by using this field.
+
+        indexes: Define list of IndexModel to manage indexes for a model
+
+        database: Handle multiple database configurations using this field.
+        The default database will be None.
+        """
+
     def __setattr__(self, key: str, value: Any) -> None:
         """
         Add '# type: ignore' as a comment if get type error while getting this value
@@ -60,6 +88,13 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def __get_collection_class(cls) -> Tuple[str, Optional[str]]:
+        """
+        Get model class.
+        if called from a child class:
+            return (parent-class, child-class)
+        else:
+            return (class, None)
+        """
         model: Any = cls
         if model.__base__ != Document:
             base_model = model.__base__
@@ -83,6 +118,10 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def __get_collection_config(cls) -> CollectionConfig:
+        """
+        Get collection configuration for a model.
+        Get data from the cache if it is already calculated.
+        """
         global _cashed_collection
         if cls in _cashed_collection:
             return _cashed_collection[cls]
@@ -108,24 +147,40 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def _get_child(cls) -> Optional[str]:
+        """
+        Get the child collection name if it has a parent class.
+        """
         return cls.__get_collection_config().child_collection_name
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
+        """
+        Get db connection for a model.
+        """
         return db(cls._database_name())[cls._get_collection_name()]
 
     @classmethod
     def _db(cls) -> str:
+        """
+        Get collection name
+        """
         return cls._get_collection_name()
 
     @classmethod
     def get_inheritance_key(cls) -> Dict[str, Optional[str]]:
+        """
+        Get child filter keys
+        """
         return {INHERITANCE_FIELD_NAME: cls._get_child()}
 
     @classmethod
     def get_relational_field_info(cls) -> RELATION_TYPE:
+        """
+        Get all relational field information.
+        Get data from from cache if it's already calculated.
+        """
         global _cashed_field_info
-        field_info_key = f"{hash(cls)}-field_info"
+        field_info_key = f"{hash(cls)}-field_info"  # unique key for each model
 
         cached_field_info = _cashed_field_info.get(field_info_key)
         if not cached_field_info:
@@ -135,6 +190,9 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def get_exclude_fields(cls) -> Set[str]:
+        """
+        Get all fields that should not pass while creating an object.
+        """
         relational_fields = cls.get_relational_field_info().keys()
         return {"_id", "id", *relational_fields}
 
@@ -145,10 +203,22 @@ class _BaseDocument(BaseModel):
     #     )
 
     def to_mongo(self) -> DICT_TYPE:
+        """
+        relational-field: The relational field is only for representational use only.
+        Do not store those fields in the database.
+
+        id: For '_id' and 'id' fields will be excluded on the object creation.
+        So that 'id' creation happens on the database only.
+
+        None: Exclude null fields to improve database storage efficiency.
+        """
         return self.dict(exclude=self.get_exclude_fields(), exclude_none=True)
 
     @classmethod
     def start_session(cls, **kwargs: Any) -> client_session.ClientSession:
+        """
+        To manage database transactions.
+        """
         return get_client().start_session(**kwargs)
 
     def __str__(self) -> str:
@@ -156,6 +226,11 @@ class _BaseDocument(BaseModel):
 
 
 class Document(_BaseDocument):
+    """
+    id: For '_id' and 'id' fields will be excluded on the object creation.
+    So that 'id' creation happens on the database only.
+    """
+
     _id: ODMObjectId = Field(default_factory=ObjectId)
     id: ODMObjectId = Field(default_factory=ObjectId, alias="_id")
 
@@ -171,6 +246,7 @@ class Document(_BaseDocument):
 
         data = self.to_mongo()
         if self._get_child() is not None:
+            # Assign the '_cls' field if the model is a child.
             data = {**self.get_inheritance_key(), **data}
 
         inserted_id = _collection.insert_one(data, **kwargs).inserted_id
@@ -283,7 +359,7 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
-        validate_filter_dict(cls, filter)
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -295,7 +371,7 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
-        validate_filter_dict(cls, filter)
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -312,7 +388,15 @@ class Document(_BaseDocument):
     ) -> Iterator[Any]:
         _collection = cls._get_collection()
         if inheritance_filter and cls._get_child() is not None:
+            """
+            If aggregate was called from the child model then add the "$match" stage
+            to separate the document from other child and parent.
+            """
             if len(pipeline) > 0 and "$match" in pipeline[0]:
+                """
+                If the first stage of the pipeline is "$match"
+                update it with the '_cls' field.
+                """
                 pipeline[0]["$match"] = {
                     f"{INHERITANCE_FIELD_NAME}": cls._get_child(),
                     **pipeline[0]["$match"],
@@ -325,6 +409,7 @@ class Document(_BaseDocument):
             if get_raw is True:
                 yield obj
             else:
+                # Convert dict to ODMObj
                 yield dict2obj(obj)
 
     @classmethod
@@ -332,7 +417,7 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
-        validate_filter_dict(cls, filter)
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         if cls._get_child() is not None:
             filter = {**cls.get_inheritance_key(), **filter}
@@ -348,6 +433,7 @@ class Document(_BaseDocument):
         else:
             updated_data = {"$set": self.to_mongo()}
         if hasattr(self, "updated_at"):
+            # Programmatically assign updated_at at the time of updating document.
             datetime_now = datetime.utcnow()
             if "$set" not in updated_data:
                 updated_data["$set"] = {}
@@ -360,7 +446,8 @@ class Document(_BaseDocument):
     def update_one(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        validate_filter_dict(cls, filter)
+        """Will perform as Pymongo update_one function."""
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -371,7 +458,11 @@ class Document(_BaseDocument):
     def update_many(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        validate_filter_dict(cls, filter)
+        """
+        Will perform as Pymongo update_many function.
+        Beware of using this method.
+        """
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -383,7 +474,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
-        validate_filter_dict(cls, filter)
+        """Will perform as Pymongo delete_one function."""
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -392,7 +484,8 @@ class Document(_BaseDocument):
 
     @classmethod
     def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
-        validate_filter_dict(cls, filter)
+        """Will perform as Pymongo delete_many function."""
+        validate_filter_dict(cls, filter)  # Validate filter with model fields
 
         _collection = cls._get_collection()
         if cls._get_child() is not None:
@@ -403,6 +496,10 @@ class Document(_BaseDocument):
     def bulk_write(
         cls, requests: Sequence[_WriteOp[Any]], **kwargs: Any
     ) -> BulkWriteResult:
+        """
+        Will perform as Pymongo bulk_write function.
+        Beware of using this method.
+        """
         _collection = cls._get_collection()
         return _collection.bulk_write(requests, **kwargs)
 
@@ -413,6 +510,10 @@ class Document(_BaseDocument):
         fields: Optional[List[str]] = None,
         **kwargs: Any,
     ) -> Sequence[Self]:
+        """
+        This method will load related documents from the database
+        according to the specified fields.
+        """
         if fields is None:
             fields = []
 
