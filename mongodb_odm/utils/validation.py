@@ -7,6 +7,13 @@ logger = logging.getLogger()
 
 
 def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
+    """
+    Field validation: Raise an error if a user passes a filter dict,
+    where the dict has some field that does not exist in the model.
+
+    This function will validate only the top level of the field.
+    It won't be looking into deep nested fields.
+    """
     fields = model.__fields__
     for key in filter.keys():
         if key[0] == "$":

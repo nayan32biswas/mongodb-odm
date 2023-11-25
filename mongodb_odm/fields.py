@@ -44,6 +44,7 @@ def Field(
     repr: bool = True,
     **extra: Any,
 ) -> Any:
+    # Extend Pydantic Field to have more control on the Field
     field_info = FieldInfo(
         default,
         default_factory=default_factory,
@@ -92,6 +93,10 @@ def Relationship(
     local_field: str,
     related_field: Optional[str] = None,
 ) -> Any:
+    """
+    This is a field of Representation.
+    That represents another model as the field type.
+    """
     relationship_info = _RelationshipInfo(
         local_field=local_field,
         related_field=related_field,

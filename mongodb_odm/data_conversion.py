@@ -2,6 +2,11 @@ from typing import Any, Dict, Generator, List, Tuple, Union
 
 
 class ODMObj:
+    """
+    We will convert the pymongo dict to this class
+    so that the user can use the '.' operation.
+    """
+
     def __repr__(self) -> str:
         items = (f"{k}={self.__dict__[k]}" for k in self.__dict__)
         return "{}({})".format(type(self).__name__, ", ".join(items))
@@ -20,6 +25,7 @@ class ODMObj:
 
 
 def _to_dict(obj: Any) -> Any:
+    # This function will convert the ODMObj obj to dict again
     if isinstance(obj, list):
         obj = [_to_dict(x) for x in obj]
     if not isinstance(obj, ODMObj):
