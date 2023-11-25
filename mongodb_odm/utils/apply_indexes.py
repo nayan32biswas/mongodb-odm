@@ -58,16 +58,20 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
     update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
 
+    # Iterate over indexes that are already created for a collection
     for i in range(len(db_indexes)):
         partial_match = None
+        # Iterate over the indexes that are currently assigned in the model
         for j in range(len(new_indexes)):
             if not isinstance(type(new_indexes[j]), dict):
                 continue
             if db_indexes[i] == new_indexes[j]:
+                # If an index already exists in DB remove it from new_indexes list.
                 db_indexes[i], new_indexes[j] = None, None
                 partial_match = None
                 break
             if db_indexes[i].get("name") == new_indexes[j].get("name"):
+                # This condition will handle some of the special indexes like text-based indexes.
                 db_value, new_value = db_indexes[i], new_indexes[j]
                 if (
                     TEXT in db_value["key"].values()
@@ -93,7 +97,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
                         and new_weight == db_value["weights"]
                         and db_value["default_language"] == default_language
                     ):
-                        """All key match with existing values"""
+                        """Check all key, weights, and default_language match with existing values"""
                         db_indexes[i], new_indexes[j] = None, None
                         partial_match = None
 
@@ -112,9 +116,11 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     new_indexes = [val for val in new_indexes if val]
 
     for db_index in delete_db_indexes:
+        # If the DB index does not exist in new_indexes then drop that index.
         if db_index is not None:
             collection.drop_index(db_index["name"])
     if len(new_indexes) > 0:
+        # Create indexes that are updated or newly added.
         new_indexes = [
             new_indexes_store[new_index["name"]]
             for new_index in new_indexes
@@ -126,6 +132,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
             logger.error(f'\nProblem arise at "{operation.collection_name}": {e}\n')
             raise e
 
+    # Count deleted and created indexes
     ne, de = len(new_indexes), len(delete_db_indexes)
     if ne > 0 or de > 0:
         logger.info(
@@ -135,6 +142,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
 
 def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
+    # Get define indexes for a model
     if hasattr(model.Config, "indexes"):
         return list(model.Config.indexes)
     return []
@@ -161,7 +169,8 @@ def get_all_indexes() -> List[IndexOperation]:
                 """If a model has child model"""
                 if model.Config.index_inheritance_field is True:
                     """
-                    No _cls indexes will apply if index_inheritance_field = False
+                    If index_inheritance_field is true then create an index '_cls'
+                        that will store the name of the child collection name.
                     """
                     obj.create_indexes.append(
                         IndexModel([(INHERITANCE_FIELD_NAME, ASCENDING)])
