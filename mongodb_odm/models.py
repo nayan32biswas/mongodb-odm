@@ -217,16 +217,10 @@ class _BaseDocument(BaseModel):
     @classmethod
     def get_exclude_fields(cls) -> Set[str]:
         """
-        Get all fields that should not pass while creating an object.
+        Get all fields that should not pass while creating or updating an object.
         """
         relational_fields = cls.get_relational_field_info().keys()
         return {"_id", "id", *relational_fields}
-
-    # @classmethod
-    # def to_mongo(cls, self_obj) -> dict:
-    #     return self_obj.dict(
-    #         exclude=cls.get_exclude_fields(), exclude_none=True
-    #     )
 
     def to_mongo(self) -> DICT_TYPE:
         """
@@ -238,7 +232,7 @@ class _BaseDocument(BaseModel):
 
         None: Exclude null fields to improve database storage efficiency.
         """
-        return self.dict(exclude=self.get_exclude_fields(), exclude_none=True)
+        return self.dict(exclude=self.get_exclude_fields())
 
     @classmethod
     def start_session(cls, **kwargs: Any) -> client_session.ClientSession:
