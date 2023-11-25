@@ -23,4 +23,4 @@ class CollectionConfig(BaseModel):
     collection_name: str
     child_collection_name: Optional[str] = None
     database_name: Optional[str] = None
-    has_child: bool = False
+    has_children: bool = False
