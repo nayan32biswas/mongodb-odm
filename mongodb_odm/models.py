@@ -127,12 +127,19 @@ class _BaseDocument(BaseModel):
             return _cashed_collection[cls]
 
         model, child_model = cls.__get_collection_class()
+        has_child = False
+        if (
+            hasattr(cls.Config, "allow_inheritance")
+            and cls.Config.allow_inheritance is True
+        ):
+            has_child = len(cls.__subclasses__()) > 0
         _cashed_collection[cls] = CollectionConfig(
             collection_name=convert_model_to_collection(model),
             child_collection_name=convert_model_to_collection(child_model)
             if child_model
             else None,
             database_name=get_database_name(model),
+            has_child=has_child,
         )
         return _cashed_collection[cls]
 
@@ -151,6 +158,13 @@ class _BaseDocument(BaseModel):
         Get the child collection name if it has a parent class.
         """
         return cls.__get_collection_config().child_collection_name
+
+    @classmethod
+    def _has_child(cls) -> bool:
+        """
+        Check if a model has child class
+        """
+        return cls.__get_collection_config().has_child
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
@@ -172,6 +186,14 @@ class _BaseDocument(BaseModel):
         Get child filter keys
         """
         return {INHERITANCE_FIELD_NAME: cls._get_child()}
+
+    @classmethod
+    def get_parent_child_fields(cls) -> Dict[str, Any]:
+        fields = cls.__fields__
+        if cls._has_child():
+            for model in cls.__subclasses__():
+                fields.update(model.__fields__)
+        return fields
 
     @classmethod
     def get_relational_field_info(cls) -> RELATION_TYPE:

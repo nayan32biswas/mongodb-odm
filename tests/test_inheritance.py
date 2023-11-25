@@ -3,7 +3,7 @@ import logging
 from bson import ObjectId
 
 from .conftest import init_config  # noqa
-from .models.course import Content, ContentDescription, Course
+from .models.course import Content, ContentDescription, Course, ImageStyle
 from .utils import populate_data
 
 logger = logging.getLogger(__name__)
@@ -11,7 +11,11 @@ logger = logging.getLogger(__name__)
 
 def test_parent_data_retrieve():
     populate_data()
+
     for obj in Content.find():
+        assert isinstance(obj._id, ObjectId)
+
+    for obj in Content.find({"style": ImageStyle.CENTER}):
         assert isinstance(obj._id, ObjectId)
 
 

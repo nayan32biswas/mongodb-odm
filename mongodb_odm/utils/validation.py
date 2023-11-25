@@ -14,7 +14,7 @@ def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
     This function will validate only the top level of the field.
     It won't be looking into deep nested fields.
     """
-    fields = model.__fields__
+    fields = model.get_parent_child_fields()
     for key in filter.keys():
         if key[0] == "$":
             # this is should be mongodb reserved keys like $or, $and, $text etc
@@ -23,8 +23,20 @@ def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
             # Valid single field
             continue
         if "." in key:
-            temp_obj = model
-            for nested_key in key.split("."):
+            key_list = key.split(".")
+            first_key = key_list[0]
+            """
+            Here the first_key is the field that is defined in the top level of the model.
+            Not embedded/nested. But this field may contain nested data.
+            """
+            if first_key not in fields:
+                raise ValueError(f"Invalid key '{key}'. '{key_list[0]}' not found")
+
+            """
+            In this section, we will only check the embedded field.
+            """
+            temp_obj = fields[first_key].type_
+            for nested_key in key_list[1:]:
                 if nested_key not in temp_obj.__fields__:
                     raise ValueError(f"Invalid key '{key}'. '{nested_key}' not found")
                 temp_obj = temp_obj.__fields__[nested_key].type_
