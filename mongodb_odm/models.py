@@ -127,12 +127,23 @@ class _BaseDocument(BaseModel):
             return _cashed_collection[cls]
 
         model, child_model = cls.__get_collection_class()
+
+        has_children = False
+        if (
+            hasattr(cls.Config, "allow_inheritance")
+            and cls.Config.allow_inheritance is True
+        ):
+            """Check if this is a model that allows inheritance and has a child model."""
+            has_children = len(cls.__subclasses__()) > 0
+
+        child_collection_name = (
+            convert_model_to_collection(child_model) if child_model else None
+        )
         _cashed_collection[cls] = CollectionConfig(
             collection_name=convert_model_to_collection(model),
-            child_collection_name=convert_model_to_collection(child_model)
-            if child_model
-            else None,
+            child_collection_name=child_collection_name,
             database_name=get_database_name(model),
+            has_children=has_children,
         )
         return _cashed_collection[cls]
 
@@ -151,6 +162,13 @@ class _BaseDocument(BaseModel):
         Get the child collection name if it has a parent class.
         """
         return cls.__get_collection_config().child_collection_name
+
+    @classmethod
+    def _has_children(cls) -> bool:
+        """
+        Check if a model has child class
+        """
+        return cls.__get_collection_config().has_children
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
@@ -172,6 +190,14 @@ class _BaseDocument(BaseModel):
         Get child filter keys
         """
         return {INHERITANCE_FIELD_NAME: cls._get_child()}
+
+    @classmethod
+    def get_parent_child_fields(cls) -> Dict[str, Any]:
+        fields = cls.__fields__
+        if cls._has_children():
+            for model in cls.__subclasses__():
+                fields.update(model.__fields__)
+        return fields
 
     @classmethod
     def get_relational_field_info(cls) -> RELATION_TYPE:
@@ -295,21 +321,21 @@ class Document(_BaseDocument):
         if limit:
             qs = qs.limit(limit)
 
-        model_children = {}
-        is_dynamic_model = False
-        if (
-            hasattr(cls.Config, "allow_inheritance")
-            and cls.Config.allow_inheritance is True
-        ):
-            is_dynamic_model = True
+        if cls._has_children():
+            model_children = {}
             for model in cls.__subclasses__():
                 model_children[model._get_child()] = model
 
+            for data in qs:
+                if data.get(INHERITANCE_FIELD_NAME) in model_children:
+                    """If this is a child model then convert it to that child model."""
+                    yield model_children[data[INHERITANCE_FIELD_NAME]](**data)
+                else:
+                    """Convert it to the parent model"""
+                    yield cls(**data)
+
         for data in qs:
-            if is_dynamic_model and data.get(INHERITANCE_FIELD_NAME) in model_children:
-                yield model_children[data[INHERITANCE_FIELD_NAME]](**data)
-            else:
-                yield cls(**data)
+            yield cls(**data)
 
     @classmethod
     def find_one(
@@ -521,7 +547,7 @@ class Document(_BaseDocument):
         cached_field_info = cls.get_relational_field_info()
 
         """Match with user given fields"""
-        loadable_fields_info: Optional[DICT_TYPE] = None
+        loadable_fields_info: Optional[RELATION_TYPE] = None
         if fields:
             loadable_fields_info = {}
             for field in fields:

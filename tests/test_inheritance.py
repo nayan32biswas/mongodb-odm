@@ -1,9 +1,11 @@
 import logging
+from typing import Optional
 
 from bson import ObjectId
+from mongodb_odm import Document, Field, ODMObjectId, Relationship
 
 from .conftest import init_config  # noqa
-from .models.course import Content, ContentDescription, Course
+from .models.course import Content, ContentDescription, Course, ImageStyle
 from .utils import populate_data
 
 logger = logging.getLogger(__name__)
@@ -11,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 def test_parent_data_retrieve():
     populate_data()
+
     for obj in Content.find():
+        assert isinstance(obj._id, ObjectId)
+
+    for obj in Content.find({"style": ImageStyle.CENTER}):
         assert isinstance(obj._id, ObjectId)
 
 
@@ -80,3 +86,43 @@ def test_child_get_random_one():
     ContentDescription(course_id=course._id, description="Demo Description").create()
     obj = ContentDescription.get_random_one()
     assert isinstance(obj._id, ObjectId)
+
+
+def test_inheritance_model_relation_load_related():
+    """
+    Test that odm can load data from child model even if .
+    """
+
+    class OtherModel(Document):
+        title: str = Field(...)
+
+    class ParentModel(Document):
+        title: str = Field(...)
+
+        class Config(Document.Config):
+            allow_inheritance = True
+
+    class ChildModel(ParentModel):
+        child_title: str = Field(...)
+        other_id: ODMObjectId = Field(...)
+
+        other: Optional[OtherModel] = Relationship(local_field="other_id")
+
+        class Config(Document.Config):
+            ...
+
+    other = OtherModel(title="demo").create()
+
+    ParentModel(title="demo").create()
+    ChildModel(title="demo", child_title="demo", other_id=other.id).create()
+
+    try:
+        parent_qs = ParentModel.find()
+        parents = ParentModel.load_related(parent_qs)  # should not raise error
+
+        for obj in parents:
+            if isinstance(obj, ChildModel):
+                assert obj.other is not None  # type: ignore
+        raise AssertionError()  # Should raise error before this line
+    except Exception as e:
+        assert str(e) != ""
