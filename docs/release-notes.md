@@ -1,6 +1,16 @@
 # Release Notes
 
-## Latest Changes
+## 0.2.5
+
+### Fixes
+
+- Configure Ruff for linting and formatting. PR [#17](https://github.com/nayan32biswas/mongodb-odm/pull/17) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Fix for model inheritance related issue. PR [#19](https://github.com/nayan32biswas/mongodb-odm/pull/19) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Drop exclude_none feature. PR [#20](https://github.com/nayan32biswas/mongodb-odm/pull/20) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Refactors
+
+- Add code comment. PR [#18](https://github.com/nayan32biswas/mongodb-odm/pull/18) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ## 0.2.4
 

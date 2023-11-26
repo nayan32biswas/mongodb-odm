@@ -20,7 +20,6 @@ Create a new folder with the command `mkdir new-project && cd new-project`
 
 You may also want to create a new virtual env to avoid package dependency collision with other packages.
 
-
 === "Linux, macOS, Linux in Windows"
 
     <div>
