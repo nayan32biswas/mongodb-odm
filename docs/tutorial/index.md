@@ -14,12 +14,11 @@ As a developer, it's very frustrating to get unhandled type errors on production
 
 ## Start new project
 
-To start a new project make sure you have the correct version of python `python3 --version`. Python version **3.8** to **3.11** was supported by this package.
+To start a new project make sure you have the correct version of python `python3 --version`. Python version **3.8** to **3.12** was supported by this package.
 
 Create a new folder with the command `mkdir new-project && cd new-project`
 
 You may also want to create a new virtual env to avoid package dependency collision with other packages.
-
 
 === "Linux, macOS, Linux in Windows"
 
