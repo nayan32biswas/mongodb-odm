@@ -52,8 +52,8 @@ def _get_fields_info(
     """
     field_data: Dict[str, RelationalFieldInfo] = {}
     for field in fields:
-        obj = cls.__fields__[field]
-        if obj.default.local_field not in cls.__fields__:
+        obj = cls.model_fields[field]
+        if obj.default.local_field not in cls.model_fields:
             # Check Relationship local_field exists in the model
             raise Exception(
                 f'Invalid field "{obj.default.local_field}" in Relationship'
@@ -69,7 +69,7 @@ def _get_fields_info(
             author: Optional[User] = Relationship(local_field="author_id")
         """
         field_data[field] = RelationalFieldInfo(
-            model=obj.type_,  # User
+            model=obj.annotation,  # User
             local_field=obj.default.local_field,  # author_id
             related_field=obj.default.related_field,  # author
         )
@@ -85,7 +85,7 @@ def get_relationship_fields_info(
     cls: Document
     """
     fields_name = []
-    for field_name, field_info in cls.__fields__.items():
+    for field_name, field_info in cls.model_fields.items():
         """Get all fields that are related to a specific model."""
         if type(field_info.default) is _RelationshipInfo:
             fields_name.append(field_name)

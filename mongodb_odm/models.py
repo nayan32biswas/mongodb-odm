@@ -48,8 +48,8 @@ class _BaseDocument(BaseModel):
 
     class Config:
         # Those fields will work as the default value of any child class.
-        orm_mode: bool = True
-        allow_population_by_field_name: bool = True
+        from_attributes: bool = True
+        populate_by_name: bool = True
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
@@ -85,6 +85,9 @@ class _BaseDocument(BaseModel):
         Add '# type: ignore' as a comment if get type error while getting this value
         """
         self.__dict__[key] = value
+
+    def dict(self, *args, **kwargs):
+        return self.model_dump(*args, **kwargs)
 
     @classmethod
     def __get_collection_class(cls) -> Tuple[str, Optional[str]]:
@@ -193,10 +196,10 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def get_parent_child_fields(cls) -> Dict[str, Any]:
-        fields = cls.__fields__
+        fields = cls.model_fields
         if cls._has_children():
             for model in cls.__subclasses__():
-                fields.update(model.__fields__)
+                fields.update(model.model_fields)
         return fields
 
     @classmethod
@@ -251,15 +254,15 @@ class Document(_BaseDocument):
     So that 'id' creation happens on the database only.
     """
 
-    _id: ODMObjectId = Field(default_factory=ObjectId)
+    # _id: ODMObjectId = Field(default_factory=ObjectId)
     id: ODMObjectId = Field(default_factory=ObjectId, alias="_id")
 
     def __init__(self, *args: List[Any], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        if "_id" in kwargs:
-            object.__setattr__(self, "_id", kwargs["_id"])
-        else:
-            object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
+        # if "_id" in kwargs:
+        #     object.__setattr__(self, "_id", kwargs["_id"])
+        # else:
+        #     object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
 
     def create(self, **kwargs: Any) -> Self:
         _collection = self._get_collection()
@@ -447,7 +450,7 @@ class Document(_BaseDocument):
         raise ObjectDoesNotExist("Object not found.")
 
     def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
-        filter = {"_id": self._id}
+        filter = {"_id": self.id}
         if raw:
             updated_data = raw
         else:
@@ -490,7 +493,7 @@ class Document(_BaseDocument):
         return _collection.update_many(filter, data, **kwargs)
 
     def delete(self, **kwargs: Any) -> DeleteResult:
-        return self.delete_one({"_id": self._id}, **kwargs)
+        return self.delete_one({"_id": self.id}, **kwargs)
 
     @classmethod
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:

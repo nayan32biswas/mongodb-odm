@@ -37,9 +37,9 @@ def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
             """
             temp_obj = fields[first_key].type_
             for nested_key in key_list[1:]:
-                if nested_key not in temp_obj.__fields__:
+                if nested_key not in temp_obj.model_fields:
                     raise ValueError(f"Invalid key '{key}'. '{nested_key}' not found")
-                temp_obj = temp_obj.__fields__[nested_key].type_
+                temp_obj = temp_obj.model_fields[nested_key].type_
             continue
         raise ValueError(f"Invalid key {key}")
 

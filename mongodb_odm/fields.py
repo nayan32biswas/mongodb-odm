@@ -1,13 +1,13 @@
-from typing import AbstractSet, Any, Mapping, Optional, Union
+from typing import AbstractSet, Any, Callable, Mapping, Optional, Union
 
+from pydantic._internal._repr import Representation as Representation
 from pydantic.fields import FieldInfo as PydanticFieldInfo
-from pydantic.fields import Undefined
-from pydantic.typing import NoArgAnyCallable
-from pydantic.utils import Representation
+from pydantic_core import PydanticUndefined as Undefined
 
 IntStr = Union[int, str]
 AbstractSetIntStr = AbstractSet[IntStr]
 MappingIntStrAny = Mapping[IntStr, Any]
+NoArgAnyCallable = Callable[[], Any]
 
 
 class FieldInfo(PydanticFieldInfo):
@@ -33,13 +33,11 @@ def Field(
     allow_inf_nan: Optional[bool] = None,
     max_digits: Optional[int] = None,
     decimal_places: Optional[int] = None,
-    min_items: Optional[int] = None,
-    max_items: Optional[int] = None,
     unique_items: Optional[bool] = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
-    allow_mutation: bool = True,
-    regex: Optional[str] = None,
+    frozen: bool = True,
+    pattern: Optional[str] = None,
     discriminator: Optional[str] = None,
     repr: bool = True,
     **extra: Any,
@@ -62,18 +60,15 @@ def Field(
         allow_inf_nan=allow_inf_nan,
         max_digits=max_digits,
         decimal_places=decimal_places,
-        min_items=min_items,
-        max_items=max_items,
         unique_items=unique_items,
         min_length=min_length,
         max_length=max_length,
-        allow_mutation=allow_mutation,
-        regex=regex,
+        frozen=frozen,
+        pattern=pattern,
         discriminator=discriminator,
         repr=repr,
         **extra,
     )
-    field_info._validate()
     return field_info
 
 
