@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
-from bson import ObjectId
 from pydantic import BaseModel
 from pymongo import IndexModel, client_session
 from pymongo.collection import Collection, _WriteOp
@@ -46,10 +45,8 @@ class _BaseDocument(BaseModel):
     This class will handle all database and model-related configuration.
     """
 
-    class Config:
+    class ODMConfig:
         # Those fields will work as the default value of any child class.
-        from_attributes: bool = True
-        populate_by_name: bool = True
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
@@ -57,7 +54,7 @@ class _BaseDocument(BaseModel):
         database: Optional[str] = None
 
         """
-        Definition of Config fields:
+        Definition of ODMConfig fields:
 
         orm_mode: This is a Pydantic field to enable orm mode.
 
@@ -84,7 +81,11 @@ class _BaseDocument(BaseModel):
         """
         Add '# type: ignore' as a comment if get type error while getting this value
         """
-        self.__dict__[key] = value
+        if key == "_id" or key == "id":
+            self.__dict__["id"] = value
+            self.__dict__["_id"] = value
+        else:
+            self.__dict__[key] = value
 
     def dict(self, *args, **kwargs):
         return self.model_dump(*args, **kwargs)
@@ -102,18 +103,18 @@ class _BaseDocument(BaseModel):
         if model.__base__ != Document:
             base_model = model.__base__
             if (
-                not hasattr(base_model.Config, "allow_inheritance")
-                or base_model.Config.allow_inheritance is not True
+                not hasattr(base_model.ODMConfig, "allow_inheritance")
+                or base_model.ODMConfig.allow_inheritance is not True
             ):
                 raise Exception(
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
             if (
-                base_model.Config.allow_inheritance is True
-                and model.Config.allow_inheritance is True
+                base_model.ODMConfig.allow_inheritance is True
+                and model.ODMConfig.allow_inheritance is True
             ):
                 raise Exception(
-                    f"Child Model{model.__name__} should declare a separate Config class."
+                    f"Child Model{model.__name__} should declare a separate ODMConfig class."
                 )
             return base_model, model
         else:
@@ -133,8 +134,8 @@ class _BaseDocument(BaseModel):
 
         has_children = False
         if (
-            hasattr(cls.Config, "allow_inheritance")
-            and cls.Config.allow_inheritance is True
+            hasattr(cls.ODMConfig, "allow_inheritance")
+            and cls.ODMConfig.allow_inheritance is True
         ):
             """Check if this is a model that allows inheritance and has a child model."""
             has_children = len(cls.__subclasses__()) > 0
@@ -254,18 +255,21 @@ class Document(_BaseDocument):
     So that 'id' creation happens on the database only.
     """
 
-    # _id: ODMObjectId = Field(default_factory=ObjectId)
-    id: ODMObjectId = Field(default_factory=ObjectId, alias="_id")
+    # _id: ODMObjectId = Field(default_factory=ODMObjectId)
+    id: ODMObjectId = Field(default_factory=ODMObjectId)
 
     def __init__(self, *args: List[Any], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        if "_id" in kwargs:
-            object.__setattr__(self, "id", kwargs["_id"])
 
-        # if "_id" in kwargs:
-        #     object.__setattr__(self, "_id", kwargs["_id"])
-        # else:
-        #     object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
+        if "_id" in kwargs:
+            id = ODMObjectId(kwargs["_id"])
+        elif "id" in kwargs:
+            id = ODMObjectId(kwargs["id"])
+        else:
+            id = ODMObjectId()
+
+        object.__setattr__(self, "id", id)
+        object.__setattr__(self, "_id", id)
 
     def create(self, **kwargs: Any) -> Self:
         _collection = self._get_collection()

@@ -1,17 +1,13 @@
 import os
 from typing import Optional
 
-from mongodb_odm import (
-    Document,
-    apply_indexes,
-    connect,
-)
+from mongodb_odm import Document, apply_indexes, connect
 
 
 class Log(Document):
     message: Optional[str] = None
 
-    class Config:
+    class ODMConfig:
         database = "logging"
 
 

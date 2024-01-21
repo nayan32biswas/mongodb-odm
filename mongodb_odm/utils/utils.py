@@ -17,19 +17,19 @@ def camel_to_snake(string: str) -> str:
 
 def get_database_name(model: Any) -> Optional[Any]:
     """
-    Get the database name if the model Config has a user-defined database name.
+    Get the database name if the model ODMConfig has a user-defined database name.
 
     model: Document type
     """
-    if hasattr(model.Config, "database"):
-        return model.Config.database
+    if hasattr(model.ODMConfig, "database"):
+        return model.ODMConfig.database
     return None
 
 
 def convert_model_to_collection(model: Any) -> str:
     """
     Get the collection name from the model.
-    Users could define collection names in model Config.
+    Users could define collection names in model ODMConfig.
     Otherwise, we will convert the model name to a snake case collection name.
 
     The user defines collection_name as a higher priority here.
@@ -37,11 +37,11 @@ def convert_model_to_collection(model: Any) -> str:
     model: Document type
     """
     if (
-        hasattr(model.Config, "collection_name")
-        and model.Config.collection_name is not None
+        hasattr(model.ODMConfig, "collection_name")
+        and model.ODMConfig.collection_name is not None
     ):
-        """By default model has Config in BaseModel"""
-        return str(model.Config.collection_name)
+        """By default model has ODMConfig in BaseModel"""
+        return str(model.ODMConfig.collection_name)
     else:
         return camel_to_snake(model.__name__)
 

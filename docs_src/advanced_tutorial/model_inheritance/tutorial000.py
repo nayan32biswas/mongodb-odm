@@ -19,7 +19,7 @@ class Content(Document):
     course_id: ODMObjectId
     title: str = Field(max_length=255)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         allow_inheritance = True
         indexes = [
             IndexModel([("course_id", ASCENDING)]),
@@ -29,14 +29,14 @@ class Content(Document):
 class Text(Content):
     text: str
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         allow_inheritance = False
 
 
 class Video(Content):
     video_path: str = Field(max_length=512)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         allow_inheritance = False
 
 

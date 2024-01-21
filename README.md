@@ -75,7 +75,7 @@ class Player(Document):
     country_code: str
     rating: Optional[int] = None
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("rating", ASCENDING)]),
         ]
@@ -141,13 +141,13 @@ class Player(Document):
     country_code: str
     rating: Optional[int] = None
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("rating", ASCENDING)]),
         ]
 ```
 
-- To create indexes in the database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in Config class. **IndexModel** modules that are directly imported from **pymongo**.
+- To create indexes in the database declare [IndexModel](https://pymongo.readthedocs.io/en/stable/tutorial.html#indexing) and assign in indexes array in ODMConfig class. **IndexModel** modules that are directly imported from **pymongo**.
 - Import the `apply_indexes` from `mongodb_odm`. Call the `apply_indexes` function from your CLI. You can use <a href="https://typer.tiangolo.com" class="external-link" target="_blank">Typer</a> to implement CLI.
 
 ## Example Code
@@ -166,7 +166,7 @@ class Player(Document):
     country_code: str
     rating: Optional[int] = None
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("rating", ASCENDING)]),
         ]

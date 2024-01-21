@@ -18,7 +18,7 @@ class TestIndexes(Document):
     short_description: Optional[str] = Field(max_length=512, default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         collection_name = "test_indexes"
         indexes = [
             IndexModel([("slug", ASCENDING)], unique=True),
@@ -75,7 +75,7 @@ def test_indexes_create_add_update_remove():
     """
 
     """Initially create all indexes"""
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
@@ -83,7 +83,7 @@ def test_indexes_create_add_update_remove():
     check_indexes(TestIndexes, [["_id"], ["slug"], ["title", "short_description"]])
 
     """Add new indexes"""
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
@@ -94,7 +94,7 @@ def test_indexes_create_add_update_remove():
     )
 
     """Update existing indexes values"""
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)]),
         IndexModel(
@@ -107,14 +107,14 @@ def test_indexes_create_add_update_remove():
     )
 
     """Remove some of indexes"""
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
     check_indexes(TestIndexes, [["_id"], ["created_at"]])
 
     """No index was changed"""
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
@@ -122,7 +122,7 @@ def test_indexes_create_add_update_remove():
 
 
 def test_text_filter():
-    TestIndexes.Config.indexes = [
+    TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
@@ -138,13 +138,13 @@ def test_child_indexes_only():
     class ParentModel(Document):
         title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
 
     class ChildModel(ParentModel):
         child_title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             indexes = [
                 IndexModel([("child_title", ASCENDING)]),
             ]
@@ -157,14 +157,14 @@ def test_child_indexes_without_cls_index():
     class ParentModel(Document):
         title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
             index_inheritance_field = False
 
     class ChildModel(ParentModel):
         child_title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             indexes = [
                 IndexModel([("child_title", ASCENDING)]),
             ]
@@ -187,7 +187,7 @@ def test_indexes_for_multiple_database():
         message: Optional[str] = None
         created_at: datetime = Field(default_factory=datetime.utcnow)
 
-        class Config:
+        class ODMConfig:
             database = "logging"
             indexes = [IndexModel([("created_at", ASCENDING)])]
 

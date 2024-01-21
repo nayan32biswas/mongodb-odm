@@ -30,7 +30,7 @@ class Course(Document):
 
     author: Optional[User] = Relationship(local_field="author_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("author_id", ASCENDING)]),
             IndexModel([("title", TEXT), ("short_description", TEXT)]),
@@ -46,7 +46,7 @@ class Content(Document):
 
     course: Optional[Course] = Relationship(local_field="course_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         collection_name = "content"
         allow_inheritance = True
         indexes = [
@@ -57,7 +57,7 @@ class Content(Document):
 class ContentDescription(Content):
     description: str = Field(...)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         allow_inheritance = False
 
 
@@ -73,7 +73,7 @@ class ContentImage(Content):
     style: ImageStyle = Field(default=ImageStyle.CENTER)
     image_path: str = Field(...)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         allow_inheritance = False
 
 
@@ -98,7 +98,7 @@ class Comment(Document):
     course: Optional[Course] = Relationship(local_field="course_id")
     user: Optional[User] = Relationship(local_field="user_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         collection_name = "comment"
         indexes = [
             IndexModel([("course_id", ASCENDING)]),

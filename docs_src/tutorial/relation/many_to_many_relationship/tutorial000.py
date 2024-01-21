@@ -27,7 +27,7 @@ class Player(Document):
 
     country: Optional[Country] = Relationship(local_field="country_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("country_id", ASCENDING)]),
         ]
@@ -41,7 +41,7 @@ class PlayerSkill(Document):
     player: Optional[Player] = Relationship(local_field="player_id")
     skill: Optional[Skill] = Relationship(local_field="skill_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel(
                 [("player_id", ASCENDING), ("skill_id", ASCENDING)],

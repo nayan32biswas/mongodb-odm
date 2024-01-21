@@ -101,7 +101,7 @@ def test_inheritance_model_relation_load_related():
     class ParentModel(Document):
         title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
 
     class ChildModel(ParentModel):
@@ -110,7 +110,7 @@ def test_inheritance_model_relation_load_related():
 
         other: Optional[OtherModel] = Relationship(local_field="other_id")
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             ...
 
     other = OtherModel(title="demo").create()

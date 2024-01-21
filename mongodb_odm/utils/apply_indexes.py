@@ -143,15 +143,15 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
 def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
     # Get define indexes for a model
-    if hasattr(model.Config, "indexes"):
-        return list(model.Config.indexes)
+    if hasattr(model.ODMConfig, "indexes"):
+        return list(model.ODMConfig.indexes)
     return []
 
 
 def get_all_indexes() -> List[IndexOperation]:
     """
     First imports all child models of Document since it's the abstract parent model.
-    Then retrieve all the child modules and will try to get indexes inside the Config class.
+    Then retrieve all the child modules and will try to get indexes inside the ODMConfig class.
     """
     operations: List[IndexOperation] = []
 
@@ -165,11 +165,11 @@ def get_all_indexes() -> List[IndexOperation]:
     for model in Document.__subclasses__():
         obj = get_operation_obj(model)
         if (
-            hasattr(model.Config, "allow_inheritance")
-            and model.Config.allow_inheritance is True
+            hasattr(model.ODMConfig, "allow_inheritance")
+            and model.ODMConfig.allow_inheritance is True
         ):
             """If a model has child model"""
-            if model.Config.index_inheritance_field is True:
+            if model.ODMConfig.index_inheritance_field is True:
                 """
                 If index_inheritance_field is true then create an index '_cls'
                     that will store the name of the child collection name.

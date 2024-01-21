@@ -9,7 +9,7 @@ class Player(Document):
     country_code: str
     rating: Optional[int] = None
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("rating", ASCENDING)]),
         ]
