@@ -12,14 +12,14 @@ def test_validate_pydantic_object_id():
     obj = ODMObjectId()
     assert isinstance(obj, ObjectId)
 
-    obj = ODMObjectId.validate(obj)
+    obj = ODMObjectId(obj)
     assert isinstance(obj, ObjectId)
 
-    obj = ODMObjectId.validate(str(obj))
+    obj = ODMObjectId(str(obj))
     assert isinstance(obj, ObjectId)
 
     try:
-        _ = ODMObjectId.validate("invalid-object-id")
+        _ = ODMObjectId("invalid-object-id")
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""
@@ -27,7 +27,7 @@ def test_validate_pydantic_object_id():
 
 def test_invalid_object_id():
     try:
-        _ = ODMObjectId.validate("invalid ObjectId")
+        _ = ODMObjectId("invalid ObjectId")
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""

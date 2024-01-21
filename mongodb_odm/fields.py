@@ -1,6 +1,6 @@
 from typing import AbstractSet, Any, Callable, Mapping, Optional, Union
 
-from pydantic._internal._repr import Representation as Representation
+from pydantic._internal._repr import Representation as PydanticRepresentation
 from pydantic.fields import FieldInfo as PydanticFieldInfo
 from pydantic_core import PydanticUndefined as Undefined
 
@@ -72,7 +72,7 @@ def Field(
     return field_info
 
 
-class _RelationshipInfo(Representation):
+class RelationshipInfo(PydanticRepresentation):
     def __init__(
         self,
         *,
@@ -92,7 +92,7 @@ def Relationship(
     This is a field of Representation.
     That represents another model as the field type.
     """
-    relationship_info = _RelationshipInfo(
+    relationship_info = RelationshipInfo(
         local_field=local_field,
         related_field=related_field,
     )

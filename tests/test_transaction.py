@@ -20,7 +20,7 @@ def test_create_with_transaction():
     with Document.start_session() as session:
         with session.start_transaction():
             course = Course(
-                author_id=user._id,
+                author_id=user.id,
                 title="Course Title",
             ).create(session=session)
             session.commit_transaction()  # This will automatically apply if not called explicitly.
@@ -41,7 +41,7 @@ def test_create_with_transaction_rollback():
         with session.start_transaction():
             try:
                 course = Course(
-                    author_id=user._id,
+                    author_id=user.id,
                     title="Course Title",
                 ).create(session=session)
                 raise Exception("Custom error on transaction")
@@ -65,7 +65,7 @@ def test_update_with_transaction_rollback():
     # Use uuid4 to make the title unique for async testing.
     course_title = f"Course Title {uuid4()}"
     course: Course = Course(
-        author_id=user._id,
+        author_id=user.id,
         title=course_title,
     ).create()
 

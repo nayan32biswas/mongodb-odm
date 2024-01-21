@@ -16,7 +16,7 @@ def test_update_model():
     course.title = UPDATE_TITLE
     course.update()
 
-    updated_course = Course.get({"_id": course._id})
+    updated_course = Course.get({"_id": course.id})
     assert updated_course.title == UPDATE_TITLE, "Update Model has no impact on DB."
 
     course.delete()
@@ -27,11 +27,11 @@ def test_update_model_raw():
 
     course = Course.get({})
     course.update({"$set": {"title": UPDATE_TITLE}})
-    updated_course = Course.get({"_id": course._id})
+    updated_course = Course.get({"_id": course.id})
     assert updated_course.title == UPDATE_TITLE, "Update Model has no impact on DB."
 
     course.update({"$unset": {"title": 1}})
-    for obj in Course.find_raw({"_id": course._id}):
+    for obj in Course.find_raw({"_id": course.id}):
         assert obj.get("title") is None
 
     course.delete()
@@ -43,9 +43,9 @@ def test_update_one():
     course = Course.get({})
 
     updated_course = Course.update_one(
-        filter={"_id": course._id}, data={"$set": {"title": UPDATE_TITLE}}
+        filter={"_id": course.id}, data={"$set": {"title": UPDATE_TITLE}}
     )
-    updated_course = Course.get({"_id": course._id})
+    updated_course = Course.get({"_id": course.id})
     assert updated_course.title == UPDATE_TITLE, "Update One has no impact on DB."
 
     course.delete()
@@ -58,7 +58,7 @@ def test_update_many():
     course2 = Course.get({"title": "two"})
 
     updated_course = Course.update_many(
-        filter={"_id": {"$in": [course1._id, course2._id]}},
+        filter={"_id": {"$in": [course1.id, course2.id]}},
         data={"$set": {"title": UPDATE_TITLE}},
     )
 
@@ -66,7 +66,7 @@ def test_update_many():
 
     total_update = Course.count_documents(
         filter={
-            "_id": {"$in": [course1._id, course2._id]},
+            "_id": {"$in": [course1.id, course2.id]},
             "title": UPDATE_TITLE,
         },
     )

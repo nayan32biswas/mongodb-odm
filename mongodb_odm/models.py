@@ -259,6 +259,9 @@ class Document(_BaseDocument):
 
     def __init__(self, *args: List[Any], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+        if "_id" in kwargs:
+            object.__setattr__(self, "id", kwargs["_id"])
+
         # if "_id" in kwargs:
         #     object.__setattr__(self, "_id", kwargs["_id"])
         # else:

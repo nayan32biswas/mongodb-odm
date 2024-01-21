@@ -1,6 +1,7 @@
 from typing import Any, Optional, Set
 
 from pydantic import BaseModel
+from pydantic._internal._repr import Representation as PydanticRepresentation
 from pymongo import MongoClient
 
 
@@ -11,11 +12,13 @@ class Connection:
     databases: Optional[Set[str]] = None
 
 
-class RelationalFieldInfo(BaseModel):
-    # We use this model to work with model relation field
-    model: Any
-    local_field: str
-    related_field: Optional[str]
+class RelationalFieldInfo(PydanticRepresentation):
+    def __init__(
+        self, *, model: Any, local_field: str, related_field: Optional[str] = None
+    ) -> None:
+        self.model = model
+        self.local_field = local_field
+        self.related_field = related_field
 
 
 class CollectionConfig(BaseModel):

@@ -1,9 +1,11 @@
 import re
-from typing import Any, Dict, List, Optional, Type
+from types import NoneType, UnionType
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
+from typing_extensions import get_args, get_origin
 
-from ..fields import _RelationshipInfo
+from ..fields import RelationshipInfo
 from ._internal_models import RelationalFieldInfo
 
 pattern = re.compile(r"(?<!^)(?=[A-Z])")
@@ -44,6 +46,33 @@ def convert_model_to_collection(model: Any) -> str:
         return camel_to_snake(model.__name__)
 
 
+def _is_union_type(t: Any) -> bool:
+    return t is UnionType or t is Union
+
+
+def get_type_from_field(field: Any) -> Any:
+    type_: Any = field.annotation
+    # Resolve Optional fields
+    if type_ is None:
+        raise ValueError("Missing field type")
+    origin = get_origin(type_)
+    if origin is None:
+        return type_
+    if _is_union_type(origin):
+        bases = get_args(type_)
+        if len(bases) > 2:
+            raise ValueError("Cannot have a (non-optional) union as a ODM field")
+        # Non optional unions are not allowed
+        if bases[0] is not NoneType and bases[1] is not NoneType:
+            raise ValueError("Cannot have a (non-optional) union as a ODM field")
+        # Optional unions are allowed
+        return bases[0] if bases[0] is not NoneType else bases[1]
+    elif origin is list:
+        inner_type_ = get_args(type_)[0]
+        return inner_type_
+    return origin
+
+
 def _get_fields_info(
     cls: Type[BaseModel], fields: List[str]
 ) -> Dict[str, RelationalFieldInfo]:
@@ -52,11 +81,11 @@ def _get_fields_info(
     """
     field_data: Dict[str, RelationalFieldInfo] = {}
     for field in fields:
-        obj = cls.model_fields[field]
-        if obj.default.local_field not in cls.model_fields:
+        field_type_obj = cls.model_fields[field]
+        if field_type_obj.default.local_field not in cls.model_fields:
             # Check Relationship local_field exists in the model
             raise Exception(
-                f'Invalid field "{obj.default.local_field}" in Relationship'
+                f'Invalid field "{field_type_obj.default.local_field}" in Relationship'
             )
         """
         Example relationship
@@ -68,10 +97,11 @@ def _get_fields_info(
             author_id: ODMObjectId = Field(...)
             author: Optional[User] = Relationship(local_field="author_id")
         """
+        field_type = get_type_from_field(field_type_obj)
         field_data[field] = RelationalFieldInfo(
-            model=obj.annotation,  # User
-            local_field=obj.default.local_field,  # author_id
-            related_field=obj.default.related_field,  # author
+            model=field_type,  # User
+            local_field=field_type_obj.default.local_field,  # author_id
+            related_field=field_type_obj.default.related_field,  # author
         )
     return field_data
 
@@ -87,6 +117,6 @@ def get_relationship_fields_info(
     fields_name = []
     for field_name, field_info in cls.model_fields.items():
         """Get all fields that are related to a specific model."""
-        if type(field_info.default) is _RelationshipInfo:
+        if type(field_info.default) is RelationshipInfo:
             fields_name.append(field_name)
     return _get_fields_info(cls, fields_name)

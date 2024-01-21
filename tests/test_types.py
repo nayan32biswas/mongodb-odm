@@ -17,7 +17,7 @@ def test_odm_object_id_str():
 def test_odm_object_id_error():
     try:
         # request with invalid data
-        _ = ODMObjectId().validate(1)  # type: ignore
+        _ = ODMObjectId(1)  # type: ignore
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""
