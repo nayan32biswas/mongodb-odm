@@ -30,8 +30,8 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     try:
         collection = db(operation.database_name)[operation.collection_name]
         indexes = operation.create_indexes
-    except Exception:
-        raise Exception("Invalid index object")  # noqa: B904
+    except Exception as e:
+        raise Exception("Invalid index object") from e
 
     db_indexes = []
     for index in collection.list_indexes():
