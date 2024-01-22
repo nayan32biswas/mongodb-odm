@@ -56,11 +56,6 @@ class _BaseDocument(BaseModel):
         """
         Definition of ODMConfig fields:
 
-        orm_mode: This is a Pydantic field to enable orm mode.
-
-        allow_population_by_field_name: This is a Pydantic field to allow the model to
-        collect another field like we are converting '_id' to 'id' field.
-
         collection_name: This field will overwrite collection name.
 
         allow_inheritance: It enables a model to have a child.
@@ -87,8 +82,8 @@ class _BaseDocument(BaseModel):
         else:
             self.__dict__[key] = value
 
-    def dict(self, *args, **kwargs):
-        return self.model_dump(*args, **kwargs)
+    def dict(self, **kwargs: Any) -> DICT_TYPE:
+        return self.model_dump(**kwargs)
 
     @classmethod
     def __get_collection_class(cls) -> Tuple[str, Optional[str]]:

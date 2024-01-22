@@ -90,7 +90,7 @@ def get_client() -> MongoClient[Any]:
         return __connection_obj.client
 
 
-def drop_database(database: Optional[str] = None):
+def drop_database(database: Optional[str] = None) -> None:
     db(database).command("dropDatabase")
 
 

@@ -30,7 +30,7 @@ class ODMObjectId(ObjectId):
         )
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v: Union[str, ObjectId]) -> ObjectId:
         if isinstance(v, ObjectId):
             """No conversion needed if type are already ObjectId"""
             return v

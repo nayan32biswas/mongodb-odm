@@ -44,17 +44,11 @@ In the ODMConfig class, we already set some default values to change class behav
 
 ```python
     class ODMConfig(BaseModel.ODMConfig):
-        orm_mode: bool = True
-        allow_population_by_field_name: bool = True
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
 ```
 
-Other than these values, we use `BaseModel.ODMConfig` value as default from `pydantic`.
-
-- `orm_mode` type `bool` default `True`
-- `allow_population_by_field_name` type `bool` default `True`
 - `collection_name` type optional `Optional[str]` default `None`
 - `allow_inheritance` type `bool` default `False`
 - `index_inheritance_field` type `bool` default `True`
