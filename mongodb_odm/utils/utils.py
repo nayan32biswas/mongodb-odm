@@ -1,5 +1,5 @@
 import re
-from types import NoneType, UnionType
+import types
 from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
@@ -8,6 +8,8 @@ from typing_extensions import get_args, get_origin
 from ..fields import RelationshipInfo
 from ._internal_models import RelationalFieldInfo
 
+UnionType = getattr(types, "UnionType", Union)
+NoneType = type(None)
 pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 

@@ -1,7 +1,6 @@
-from typing import Annotated, Any, Dict, Mapping, Sequence, Tuple, Union
+from typing import Any, Dict, Mapping, Sequence, Tuple, Union
 
 from bson import ObjectId
-from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
 
 # Common types
@@ -9,29 +8,29 @@ DICT_TYPE = Dict[str, Any]
 SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
 
 
-class _ODMObjectIdAnnotation:
-    """
-    Since ObjectId has not validation and raise error as pydantic type
-    we extend ObjectId for type support.
-    """
-
+class ODMObjectId(ObjectId):
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, source_type, _handler
+        cls, _source_type: Any, _handler: Any
     ) -> core_schema.CoreSchema:
-        assert source_type is ObjectId
-        return core_schema.no_info_wrap_validator_function(
-            cls.validate_object_id,
-            core_schema.str_schema(),
-            serialization=core_schema.to_string_ser_schema(),
+        object_id_schema = core_schema.chain_schema(
+            [
+                core_schema.str_schema(),
+                core_schema.no_info_plain_validator_function(cls.validate),
+            ]
+        )
+        return core_schema.json_or_python_schema(
+            json_schema=object_id_schema,
+            python_schema=core_schema.union_schema(
+                [core_schema.is_instance_schema(ObjectId), object_id_schema]
+            ),
+            serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda x: ObjectId(x)
+            ),
         )
 
     @classmethod
-    def __get_pydantic_json_schema__(cls, _core_schema, handler) -> JsonSchemaValue:
-        return handler(core_schema.str_schema())
-
-    @classmethod
-    def validate_object_id(cls, v: Any, handler) -> ObjectId:
+    def validate(cls, v):
         if isinstance(v, ObjectId):
             """No conversion needed if type are already ObjectId"""
             return v
@@ -40,10 +39,6 @@ class _ODMObjectIdAnnotation:
             If value is valid string for ObjectId then convert it ObjectId
             or it will raise error from ObjectId validation
             """
-            s = handler(v)
-            return ObjectId(s)
+            return ObjectId(v)
         except Exception as e:
             raise ValueError("Invalid data. ObjectId required") from e
-
-
-ODMObjectId = Annotated[ObjectId, _ODMObjectIdAnnotation]

@@ -3,7 +3,6 @@ from datetime import datetime
 
 from bson import ObjectId
 from mongodb_odm import DESCENDING
-from mongodb_odm.connection import get_client
 from mongodb_odm.data_conversion import ODMObj
 
 from .conftest import init_config  # noqa
@@ -15,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 def test_find_one():
-    get_client().get_database().command("dropDatabase")
     populate_data()
     course = Course.find_one()
     assert isinstance(

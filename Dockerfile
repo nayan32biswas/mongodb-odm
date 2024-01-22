@@ -1,6 +1,4 @@
-FROM python:3.11
-
-ENV PIP_DEFAULT_TIMEOUT=100
+FROM python:3.8
 
 RUN pip install "poetry==1.7.1"
 
