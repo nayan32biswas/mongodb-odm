@@ -1,6 +1,6 @@
 FROM python:3.8
 
-RUN pip install "poetry==1.7.1"
+RUN pip install "poetry"
 
 WORKDIR /code
 COPY pyproject.toml *.lock /code/
