@@ -5,6 +5,7 @@
 ### Migration
 
 - Add support for Pydantic V2. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Add support for Python 3.12. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ### Breaking Change
 
