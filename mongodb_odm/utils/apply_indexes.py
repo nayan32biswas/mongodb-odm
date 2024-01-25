@@ -31,6 +31,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         collection = db(operation.database_name)[operation.collection_name]
         indexes = operation.create_indexes
     except Exception as e:
+        logger.debug(f"\t\tTest Error:{e}")
         raise Exception("Invalid index object") from e
 
     db_indexes = []

@@ -24,7 +24,7 @@ def test_inheritance_model_create():
     ).create()
 
     content_description = ContentDescription(
-        course_id=course.id, description="Long Description...."
+        course_id=course._id, description="Long Description...."
     ).create()
 
     content_image = ContentImage(

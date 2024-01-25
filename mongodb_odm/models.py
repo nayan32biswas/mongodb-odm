@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 from pymongo import IndexModel, client_session
 from pymongo.collection import Collection, _WriteOp
 from pymongo.cursor import Cursor
@@ -250,7 +250,7 @@ class Document(_BaseDocument):
     So that 'id' creation happens on the database only.
     """
 
-    # _id: ODMObjectId = Field(default_factory=ODMObjectId)
+    _id: ODMObjectId = PrivateAttr(default_factory=ODMObjectId)
     id: ODMObjectId = Field(default_factory=ODMObjectId)
 
     def __init__(self, *args: List[Any], **kwargs: Any) -> None:

@@ -1,5 +1,6 @@
-from ..conftest import init_config  # noqa
+from mongodb_odm.connection import disconnect
 
 
 def test_overview():
+    disconnect()
     from docs_src import overview  # noqa
