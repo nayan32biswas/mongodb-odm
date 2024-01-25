@@ -1,5 +1,5 @@
-from pydantic import BaseConfig as BaseConfig
 from pydantic import BaseModel as BaseModel
+from pydantic import ConfigDict as ConfigDict
 from pymongo import ASCENDING as ASCENDING
 from pymongo import DESCENDING as DESCENDING
 from pymongo.operations import DeleteMany as DeleteMany

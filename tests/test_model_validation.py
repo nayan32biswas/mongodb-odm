@@ -36,13 +36,13 @@ def test_allow_inheritance_true_for_child_and_parent():
     class Parent(Document):
         field: Optional[int] = None
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
 
     class Child(Parent):
         other_field: Optional[int] = None
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
 
     try:
@@ -56,7 +56,7 @@ def test_invalid_Config():
     class Parent(Document):
         field: Optional[int] = None
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             collection_name = "course"
             allow_inheritance = False
 

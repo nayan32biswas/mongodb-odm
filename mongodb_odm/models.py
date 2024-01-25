@@ -2,8 +2,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
-from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 from pymongo import IndexModel, client_session
 from pymongo.collection import Collection, _WriteOp
 from pymongo.cursor import Cursor
@@ -46,10 +45,8 @@ class _BaseDocument(BaseModel):
     This class will handle all database and model-related configuration.
     """
 
-    class Config:
+    class ODMConfig:
         # Those fields will work as the default value of any child class.
-        orm_mode: bool = True
-        allow_population_by_field_name: bool = True
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
@@ -57,12 +54,7 @@ class _BaseDocument(BaseModel):
         database: Optional[str] = None
 
         """
-        Definition of Config fields:
-
-        orm_mode: This is a Pydantic field to enable orm mode.
-
-        allow_population_by_field_name: This is a Pydantic field to allow the model to
-        collect another field like we are converting '_id' to 'id' field.
+        Definition of ODMConfig fields:
 
         collection_name: This field will overwrite collection name.
 
@@ -84,7 +76,14 @@ class _BaseDocument(BaseModel):
         """
         Add '# type: ignore' as a comment if get type error while getting this value
         """
-        self.__dict__[key] = value
+        if key == "_id" or key == "id":
+            self.__dict__["id"] = value
+            self.__dict__["_id"] = value
+        else:
+            self.__dict__[key] = value
+
+    def dict(self, **kwargs: Any) -> DICT_TYPE:
+        return self.model_dump(**kwargs)
 
     @classmethod
     def __get_collection_class(cls) -> Tuple[str, Optional[str]]:
@@ -99,18 +98,18 @@ class _BaseDocument(BaseModel):
         if model.__base__ != Document:
             base_model = model.__base__
             if (
-                not hasattr(base_model.Config, "allow_inheritance")
-                or base_model.Config.allow_inheritance is not True
+                not hasattr(base_model.ODMConfig, "allow_inheritance")
+                or base_model.ODMConfig.allow_inheritance is not True
             ):
                 raise Exception(
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
             if (
-                base_model.Config.allow_inheritance is True
-                and model.Config.allow_inheritance is True
+                base_model.ODMConfig.allow_inheritance is True
+                and model.ODMConfig.allow_inheritance is True
             ):
                 raise Exception(
-                    f"Child Model{model.__name__} should declare a separate Config class."
+                    f"Child Model{model.__name__} should declare a separate ODMConfig class."
                 )
             return base_model, model
         else:
@@ -130,8 +129,8 @@ class _BaseDocument(BaseModel):
 
         has_children = False
         if (
-            hasattr(cls.Config, "allow_inheritance")
-            and cls.Config.allow_inheritance is True
+            hasattr(cls.ODMConfig, "allow_inheritance")
+            and cls.ODMConfig.allow_inheritance is True
         ):
             """Check if this is a model that allows inheritance and has a child model."""
             has_children = len(cls.__subclasses__()) > 0
@@ -193,10 +192,10 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def get_parent_child_fields(cls) -> Dict[str, Any]:
-        fields = cls.__fields__
+        fields = cls.model_fields
         if cls._has_children():
             for model in cls.__subclasses__():
-                fields.update(model.__fields__)
+                fields.update(model.model_fields)
         return fields
 
     @classmethod
@@ -251,15 +250,21 @@ class Document(_BaseDocument):
     So that 'id' creation happens on the database only.
     """
 
-    _id: ODMObjectId = Field(default_factory=ObjectId)
-    id: ODMObjectId = Field(default_factory=ObjectId, alias="_id")
+    _id: ODMObjectId = PrivateAttr(default_factory=ODMObjectId)
+    id: ODMObjectId = Field(default_factory=ODMObjectId)
 
     def __init__(self, *args: List[Any], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
         if "_id" in kwargs:
-            object.__setattr__(self, "_id", kwargs["_id"])
+            id = ODMObjectId(kwargs["_id"])
+        elif "id" in kwargs:
+            id = ODMObjectId(kwargs["id"])
         else:
-            object.__setattr__(self, "_id", self._id.default_factory())  # type: ignore
+            id = ODMObjectId()
+
+        object.__setattr__(self, "id", id)
+        object.__setattr__(self, "_id", id)
 
     def create(self, **kwargs: Any) -> Self:
         _collection = self._get_collection()
@@ -447,7 +452,7 @@ class Document(_BaseDocument):
         raise ObjectDoesNotExist("Object not found.")
 
     def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
-        filter = {"_id": self._id}
+        filter = {"_id": self.id}
         if raw:
             updated_data = raw
         else:
@@ -490,7 +495,7 @@ class Document(_BaseDocument):
         return _collection.update_many(filter, data, **kwargs)
 
     def delete(self, **kwargs: Any) -> DeleteResult:
-        return self.delete_one({"_id": self._id}, **kwargs)
+        return self.delete_one({"_id": self.id}, **kwargs)
 
     @classmethod
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:

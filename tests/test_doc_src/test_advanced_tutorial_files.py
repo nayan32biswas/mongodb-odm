@@ -1,7 +1,5 @@
 from mongodb_odm import disconnect
 
-from ..conftest import init_config  # noqa
-
 
 def test_model_inheritance():
     disconnect()

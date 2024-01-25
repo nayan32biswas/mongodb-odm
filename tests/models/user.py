@@ -21,7 +21,7 @@ class User(Document):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         collection_name = "user"
         indexes = [
             IndexModel([("username", ASCENDING)], unique=True),

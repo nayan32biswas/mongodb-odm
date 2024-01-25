@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from mongodb_odm.types import DICT_TYPE
+from mongodb_odm.utils.utils import get_type_from_field
 
 logger = logging.getLogger()
 
@@ -35,11 +36,11 @@ def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
             """
             In this section, we will only check the embedded field.
             """
-            temp_obj = fields[first_key].type_
+            temp_obj = get_type_from_field(fields[first_key])
             for nested_key in key_list[1:]:
-                if nested_key not in temp_obj.__fields__:
+                if nested_key not in temp_obj.model_fields:
                     raise ValueError(f"Invalid key '{key}'. '{nested_key}' not found")
-                temp_obj = temp_obj.__fields__[nested_key].type_
+                temp_obj = get_type_from_field(temp_obj.model_fields[nested_key])
             continue
         raise ValueError(f"Invalid key {key}")
 

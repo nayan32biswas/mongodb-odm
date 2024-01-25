@@ -3,6 +3,7 @@ from typing import Optional
 
 from bson import ObjectId
 from mongodb_odm import Document, Field, ODMObjectId, Relationship
+from mongodb_odm.fields import RelationshipInfo
 
 from .conftest import init_config  # noqa
 from .models.course import Content, ContentDescription, Course, ImageStyle
@@ -15,16 +16,16 @@ def test_parent_data_retrieve():
     populate_data()
 
     for obj in Content.find():
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
     for obj in Content.find({"style": ImageStyle.CENTER}):
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_child_data_retrieve():
     populate_data()
     for obj in ContentDescription.find():
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_child_count():
@@ -77,15 +78,16 @@ def test_delete_many():
 def test_child_aggregation():
     populate_data()
     for obj in ContentDescription.aggregate(pipeline=[]):
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_child_get_random_one():
     populate_data()
     course = Course.get(filter={})
-    ContentDescription(course_id=course._id, description="Demo Description").create()
+    ContentDescription(course_id=course.id, description="Demo Description").create()
     obj = ContentDescription.get_random_one()
-    assert isinstance(obj._id, ObjectId)
+
+    assert isinstance(obj.id, ObjectId)
 
 
 def test_inheritance_model_relation_load_related():
@@ -99,7 +101,7 @@ def test_inheritance_model_relation_load_related():
     class ParentModel(Document):
         title: str = Field(...)
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             allow_inheritance = True
 
     class ChildModel(ParentModel):
@@ -108,7 +110,7 @@ def test_inheritance_model_relation_load_related():
 
         other: Optional[OtherModel] = Relationship(local_field="other_id")
 
-        class Config(Document.Config):
+        class ODMConfig(Document.ODMConfig):
             ...
 
     other = OtherModel(title="demo").create()
@@ -122,7 +124,9 @@ def test_inheritance_model_relation_load_related():
 
         for obj in parents:
             if isinstance(obj, ChildModel):
-                assert obj.other is not None  # type: ignore
+                assert not isinstance(
+                    obj.other, RelationshipInfo
+                ), "other should have value"
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""

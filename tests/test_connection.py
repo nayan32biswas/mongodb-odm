@@ -57,7 +57,7 @@ def test_multiple_database():
     class Log(Document):
         message: Optional[str] = None
 
-        class Config:
+        class ODMConfig:
             database = "logging"
 
     connect(DB_URL, databases=databases)
@@ -79,7 +79,7 @@ def test_multiple_database_invalid_database_name():
     class Log(Document):
         message: Optional[str] = None
 
-        class Config:
+        class ODMConfig:
             database = "log"
 
     try:

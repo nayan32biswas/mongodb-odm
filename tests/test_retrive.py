@@ -19,7 +19,7 @@ def test_find_one():
     assert isinstance(
         course, Course
     ), "Each object should carry all characteristic of model"
-    assert isinstance(course._id, ObjectId), "Invalid data return"
+    assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
 def test_count():
@@ -45,7 +45,7 @@ def test_find():
         assert isinstance(
             course, Course
         ), "find method should return Course type object"
-        assert isinstance(course._id, ObjectId), "Invalid data return"
+        assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
 def test_embedded_filter():
@@ -88,13 +88,13 @@ def test_get_or_create():
     created_at = datetime.utcnow().replace(microsecond=0)
 
     course, created = Course.get_or_create(
-        {"author_id": user._id, "title": title, "created_at": created_at}
+        {"author_id": user.id, "title": title, "created_at": created_at}
     )
     assert created is True, "New course should be created"
     assert isinstance(course, Course), "Type should be Course"
 
     course, created = Course.get_or_create(
-        {"author_id": user._id, "title": title, "created_at": created_at}
+        {"author_id": user.id, "title": title, "created_at": created_at}
     )
     assert created is False, "Old course should get from DB"
     assert isinstance(course, Course), "Type should be Course"
@@ -114,12 +114,12 @@ def test_get_random_one():
 
     user = User.get({})
 
-    course = Course.get_random_one(filter={"author_id": user._id})
+    course = Course.get_random_one(filter={"author_id": user.id})
     assert isinstance(
         course, Course
     ), "get_random_one method should return Course type object"
 
-    assert course.author_id == user._id, "Random course author_id should match"
+    assert course.author_id == user.id, "Random course author_id should match"
 
 
 def test_find_inheritance_object():
@@ -128,7 +128,7 @@ def test_find_inheritance_object():
         assert isinstance(
             content, Content
         ), "Each object should carry all characteristic of model"
-        assert isinstance(content._id, ObjectId), "Invalid data return"
+        assert isinstance(content.id, ObjectId), "Invalid data return"
 
 
 def test_get_db_name():
@@ -167,18 +167,18 @@ def test_sort():
     populate_data()
 
     for obj in Course.find(sort=[("_id", DESCENDING)]):
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_skip():
     populate_data()
 
     for obj in Course.find(skip=2):
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)
 
 
 def test_limit():
     populate_data()
 
     for obj in Course.find(limit=10):
-        assert isinstance(obj._id, ObjectId)
+        assert isinstance(obj.id, ObjectId)

@@ -38,23 +38,17 @@ def get_client() -> MongoClient[Any]:
 
 ### Class
 
-## Config
+## ODMConfig
 
-In the Config class, we already set some default values to change class behavior.
+In the ODMConfig class, we already set some default values to change class behavior.
 
 ```python
-    class Config(BaseModel.Config):
-        orm_mode: bool = True
-        allow_population_by_field_name: bool = True
+    class ODMConfig(BaseModel.ODMConfig):
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
 ```
 
-Other than these values, we use `BaseModel.Config` value as default from `pydantic`.
-
-- `orm_mode` type `bool` default `True`
-- `allow_population_by_field_name` type `bool` default `True`
 - `collection_name` type optional `Optional[str]` default `None`
 - `allow_inheritance` type `bool` default `False`
 - `index_inheritance_field` type `bool` default `True`

@@ -23,7 +23,7 @@ class Player(Document):
 
     country: Optional[Country] = Relationship(local_field="country_id")
 
-    class Config(Document.Config):
+    class ODMConfig(Document.ODMConfig):
         indexes = [
             IndexModel([("country_id", ASCENDING)]),
         ]

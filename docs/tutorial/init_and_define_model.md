@@ -85,9 +85,9 @@ The name of each of these variables will be the name of the field in the collect
 - You may notice we did not define the primary key.
 - We use MongoDB default primary key `_id` as our primary key.
 
-### Model Config
+### Model ODMConfig
 
-`Config` class inside the `Player` was a special class.
+`ODMConfig` class inside the `Player` was a special class.
 
 We will use this class to change the configuration of the `Player` class.
 
