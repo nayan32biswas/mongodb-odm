@@ -212,3 +212,5 @@ def test_indexes_for_multiple_database():
     Log(message="testing multiple database").create()
 
     apply_indexes()
+
+    Log.ODMConfig.database = None  # type: ignore
