@@ -72,6 +72,9 @@ def test_multiple_database():
     log_from_default_db = client.get_database().log.count_documents({})
     assert log_from_default_db == 0
 
+    # To fix test we have make the Log db name to None instead of "logging"
+    Log.ODMConfig.database = None  # type: ignore
+
 
 def test_multiple_database_invalid_database_name():
     disconnect()  # first disconnect init_config connection
@@ -91,3 +94,6 @@ def test_multiple_database_invalid_database_name():
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""
+
+    # To fix test we have make the Log db name to None instead of "log"
+    Log.ODMConfig.database = None  # type: ignore
