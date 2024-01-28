@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from bson import SON
+from mongodb_odm.exceptions import InvalidConnection
 from pydantic import BaseModel
 from pymongo import ASCENDING, TEXT, IndexModel
 
@@ -32,7 +33,9 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         indexes = operation.create_indexes
     except Exception as e:
         logger.debug(f"\t\tTest Error:{e}")
-        raise Exception("Invalid index object") from e
+        raise InvalidConnection(
+            f"Invalid index object for database:'{operation.database_name}' and collection:{operation.collection_name}"
+        ) from e
 
     db_indexes = []
     for index in collection.list_indexes():

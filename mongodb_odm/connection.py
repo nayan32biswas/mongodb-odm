@@ -30,10 +30,14 @@ def connect(url: str, databases: Optional[Set[str]] = None) -> MongoClient[Any]:
         if a model has a value of "database" but it's not present in databases
         then the user should get an error.
     """
+    global __connection_obj
+
     if __connection_obj.client is not None:
         """Log a warning if a user tries to connect multiple times."""
         logger.warning("Already have an connection.")
         return __connection_obj.client
+
+    __connection_obj = Connection()
 
     if databases is None:
         """Assign empty set as default value"""
@@ -59,6 +63,8 @@ def disconnect() -> bool:
     Assign null to url to make sure after disconnect call
     no other database execution happens.
     """
+    global __connection_obj
+
     if __connection_obj.client:
         __connection_obj.client.close()
         __connection_obj.client = None
@@ -73,6 +79,7 @@ def disconnect() -> bool:
     from .models import _clear_cache
 
     _clear_cache()
+    __connection_obj = Connection()
     return True
 
 
@@ -81,17 +88,16 @@ def get_client() -> MongoClient[Any]:
     Function should return MongoClient if url exists.
     Otherwise raise ConnectionError error
     """
+    global __connection_obj
+
     if __connection_obj.client is None:
         if __connection_obj.url is not None:
-            return connect(__connection_obj.url)
+            databases = __connection_obj.databases
+            return connect(__connection_obj.url, databases=databases)
         else:
             raise ConnectionError("DB connection is not provided")
     else:
         return __connection_obj.client
-
-
-def drop_database(database: Optional[str] = None) -> None:
-    db(database).command("dropDatabase")
 
 
 def db(database: Optional[str] = None) -> Database[Any]:
@@ -100,6 +106,7 @@ def db(database: Optional[str] = None) -> Database[Any]:
         If a database string was passed that could be
         a default database or custom for a model
         """
+        global __connection_obj
         if not __connection_obj.databases or database not in __connection_obj.databases:
             """
             Make sure valid database strings are passed
@@ -114,3 +121,7 @@ def db(database: Optional[str] = None) -> Database[Any]:
         that is provided in connection url.
         """
         return get_client().get_database()
+
+
+def drop_database(database: Optional[str] = None) -> None:
+    db(database).command("dropDatabase")
