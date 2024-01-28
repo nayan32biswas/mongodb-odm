@@ -121,6 +121,23 @@ def test_indexes_create_add_update_remove():
     check_indexes(TestIndexes, [["_id"], ["created_at"]])
 
 
+def test_text_indexes():
+    """Make sure text index created properly"""
+
+    TestIndexes.ODMConfig.indexes = [
+        IndexModel([("slug", ASCENDING)], unique=True),
+    ]
+    apply_indexes()
+    check_indexes(TestIndexes, [["_id"], ["slug"]])
+
+    TestIndexes.ODMConfig.indexes = [
+        IndexModel([("slug", ASCENDING)], unique=True),
+        IndexModel([("title", TEXT)]),
+    ]
+    apply_indexes()
+    check_indexes(TestIndexes, [["_id"], ["slug"], ["title"]])
+
+
 def test_text_filter():
     TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
