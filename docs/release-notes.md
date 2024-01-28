@@ -12,6 +12,10 @@
 - Rename the model inner config class from `Config` to `ODMConfig`. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
 - Now `_id` field was a `PrivateAttr`. It will behave as private attr as Pydantic define. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
 
+### Fixes
+
+- Fix connection issue of the database. PR [#23](https://github.com/nayan32biswas/mongodb-odm/pull/23) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 0.2.5
 
 ### Fixes
