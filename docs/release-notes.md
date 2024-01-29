@@ -1,6 +1,6 @@
 # Release Notes
 
-## Latest Changes
+## 1.0.0
 
 ### Migration
 
@@ -15,6 +15,10 @@
 ### Fixes
 
 - Fix connection issue of the database. PR [#23](https://github.com/nayan32biswas/mongodb-odm/pull/23) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Docs
+
+- Update docs according to Pydantic V2 migration and others. PR [#24](https://github.com/nayan32biswas/mongodb-odm/pull/24) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ## 0.2.5
 

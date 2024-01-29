@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from mongodb_odm import (
     ASCENDING,
+    TEXT,
     BaseModel,
     Document,
     Field,
@@ -11,7 +12,6 @@ from mongodb_odm import (
     ODMObjectId,
     Relationship,
 )
-from pymongo import TEXT
 
 from .user import User
 

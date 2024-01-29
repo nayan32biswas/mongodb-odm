@@ -20,7 +20,7 @@ To create relation with `Player` model we need to use `ODMObjectId` as data type
 </details>
 
 !!! tip
-MongoDB does not manage or validate relation between collection. We have to manage that data by ourself. We are assigning foreign key with **ODMObjectId**.
+    MongoDB does not manage or validate relation between collection. We have to manage that data by ourself. We are assigning foreign key with **ODMObjectId**.
 
 First import `ODMObjectId` from `mongodb_odm`.
 
@@ -54,7 +54,7 @@ In this example, we will create some player that has a relation with the country
 ```Python
 # Code omitted above
 
-{!./docs_src/tutorial/relation/foreignkey_relationship/tutorial000.py[ln:34-38]!}
+{!./docs_src/tutorial/relation/foreignkey_relationship/tutorial000.py[ln:37-41]!}
 
 # Code omitted below
 ```

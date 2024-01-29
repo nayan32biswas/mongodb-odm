@@ -45,9 +45,9 @@ The data will look like
 ...
 ```
 
-The `country_code` field should be unique as we set is as a unique index in `Config`.
+The `rating` field should be set as the index in db as we set it as an index in `ODMConfig`.
 
-We will continue from the last code we used to create some data.
+We will continue from the last code that we used to create some data.
 
 ## Find data
 
@@ -154,7 +154,7 @@ The `find` method accepts several arguments like a `filter`, `sort`, `limit`, et
 </details>
 
 !!!warning
-    There is no validation of **JSON** objects. So make sure every keyword is correct. And double-check spelling mistakes.
+There is no validation of **JSON** objects. So make sure every keyword is correct. And double-check spelling mistakes.
 
 The `find` class method will return an iterator.
 
@@ -204,7 +204,7 @@ Player(id=ObjectId('id'), name='Lionel Messi', country_code='ARG', rating=None, 
 ```
 
 !!!warning
-    We need to pull all fields that are required. We can only eliminate only `optional` or `nullable` fields. If we did not pull a field then the field value will be the default value.
+We need to pull all fields that are required. We can only eliminate only `optional` or `nullable` fields. If we did not pull a field then the field value will be the default value.
 
 ## Learning Curve
 

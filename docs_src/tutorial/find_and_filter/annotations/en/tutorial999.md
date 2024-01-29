@@ -10,7 +10,7 @@
 
 6. Create the `rating` nullable int field. In the database, the default value will be `null`, the python equivalent of `None`. As this field could be `None` (and `null` in the database), we declare it with `Optional[int]`.
 
-7. Define `Config` class to change certain behavior for `Player` class.
+7. Define `ODMConfig` class to change certain behavior for `Player` class.
 
 8. Create a index for `country_code` field with the help of `IndexModel` imported from `Pymongo`
 
