@@ -2,11 +2,11 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 from bson import SON
-from mongodb_odm.exceptions import InvalidConnection
 from pydantic import BaseModel
 from pymongo import ASCENDING, TEXT, IndexModel
 
 from ..connection import db
+from ..exceptions import InvalidConnection
 from ..models import INHERITANCE_FIELD_NAME, Document
 
 logger = logging.getLogger(__name__)
@@ -32,9 +32,8 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         collection = db(operation.database_name)[operation.collection_name]
         indexes = operation.create_indexes
     except Exception as e:
-        logger.debug(f"\t\tTest Error:{e}")
         raise InvalidConnection(
-            f"Invalid index object for database:'{operation.database_name}' and collection:{operation.collection_name}"
+            f"Invalid database:'{operation.database_name}' and collection:{operation.collection_name}"
         ) from e
 
     db_indexes = []
@@ -62,12 +61,15 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
     update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
 
+    match_type = type(dict)
     # Iterate over indexes that are already created for a collection
     for i in range(len(db_indexes)):
         partial_match = None
         # Iterate over the indexes that are currently assigned in the model
         for j in range(len(new_indexes)):
-            if not isinstance(type(new_indexes[j]), dict):
+            if not new_indexes[j]:
+                continue
+            if not isinstance(type(new_indexes[j]), match_type):
                 continue
             if db_indexes[i] == new_indexes[j]:
                 # If an index already exists in DB remove it from new_indexes list.
