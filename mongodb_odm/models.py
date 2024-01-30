@@ -459,7 +459,7 @@ class Document(_BaseDocument):
             updated_data = {"$set": self.to_mongo()}
         if hasattr(self, "updated_at"):
             # Programmatically assign updated_at at the time of updating document.
-            datetime_now = datetime.utcnow()
+            datetime_now = datetime.now()
             if "$set" not in updated_data:
                 updated_data["$set"] = {}
             updated_data["$set"]["updated_at"] = datetime_now

@@ -12,14 +12,14 @@ class User(Document):
     full_name: str = Field(...)
 
     is_active: bool = True
-    date_joined: datetime = Field(default_factory=datetime.utcnow)
+    date_joined: datetime = Field(default_factory=datetime.now)
 
-    last_login: datetime = Field(default_factory=datetime.utcnow)
+    last_login: datetime = Field(default_factory=datetime.now)
     password: Optional[str] = Field(default=None)
     image: Optional[str] = Field(default=None)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     class ODMConfig(Document.ODMConfig):
         collection_name = "user"

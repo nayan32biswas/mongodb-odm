@@ -16,5 +16,6 @@ from .connection import disconnect as disconnect
 from .fields import Field as Field
 from .fields import Relationship as Relationship
 from .models import Document as Document
+from .types import ObjectIdStr as ObjectIdStr
 from .types import ODMObjectId as ODMObjectId
 from .utils.apply_indexes import apply_indexes as apply_indexes

@@ -25,8 +25,8 @@ class Course(Document):
 
     publish_at: Optional[datetime] = None
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     author: Optional[User] = Relationship(local_field="author_id")
 
@@ -41,8 +41,8 @@ class Content(Document):
     course_id: ODMObjectId = Field(...)
     order: Optional[int] = None
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     course: Optional[Course] = Relationship(local_field="course_id")
 
@@ -81,8 +81,8 @@ class EmbeddedComment(BaseModel):
     user_id: ODMObjectId = Field(...)
     description: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
 
 class Comment(Document):
@@ -92,8 +92,8 @@ class Comment(Document):
     children: List[EmbeddedComment] = []
     description: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
 
     course: Optional[Course] = Relationship(local_field="course_id")
     user: Optional[User] = Relationship(local_field="user_id")

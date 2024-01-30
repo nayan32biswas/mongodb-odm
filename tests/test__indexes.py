@@ -23,7 +23,7 @@ class TestIndexes(Document):
     title: str = Field(max_length=255)
     slug: str = Field(...)
     short_description: Optional[str] = Field(max_length=512, default=None)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
 
     class ODMConfig(Document.ODMConfig):
         collection_name = "test_indexes"
@@ -198,7 +198,8 @@ def test_child_indexes_without_cls_index():
 
 
 def test_indexes_for_all_db():
-    from .models.course import Comment, ContentDescription, ContentImage, Course  # noqa
+    from .models.course import ContentDescription  # noqa
+    from .models.course import Comment, ContentImage, Course  # noqa
     from .models.user import User  # noqa
 
     apply_indexes()
@@ -209,7 +210,7 @@ def test_indexes_for_multiple_database():
 
     class Log(Document):
         message: Optional[str] = None
-        created_at: datetime = Field(default_factory=datetime.utcnow)
+        created_at: datetime = Field(default_factory=datetime.now)
 
         class ODMConfig:
             database = "logging"

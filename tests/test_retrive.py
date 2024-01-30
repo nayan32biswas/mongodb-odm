@@ -85,7 +85,7 @@ def test_get_or_create():
     populate_data()
     user = User.get({})
     title = "Title"
-    created_at = datetime.utcnow().replace(microsecond=0)
+    created_at = datetime.now().replace(microsecond=0)
 
     course, created = Course.get_or_create(
         {"author_id": user.id, "title": title, "created_at": created_at}
