@@ -6,6 +6,7 @@
 
 - Add support for Pydantic V2. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
 - Add support for Python 3.12. PR [#22](https://github.com/nayan32biswas/mongodb-odm/pull/22) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Update all utcnow to now for 3.12 support. PR [#26](https://github.com/nayan32biswas/mongodb-odm/pull/26) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ### Breaking Change
 
@@ -15,10 +16,15 @@
 ### Fixes
 
 - Fix connection issue of the database. PR [#23](https://github.com/nayan32biswas/mongodb-odm/pull/23) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Resolve apply_indexes issue. PR [#24](https://github.com/nayan32biswas/mongodb-odm/pull/24) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Feature
+
+- Add ObjectId serializer `ObjectIdStr` for json response. PR [#25](https://github.com/nayan32biswas/mongodb-odm/pull/25) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ### Docs
 
-- Update docs according to Pydantic V2 migration and others. PR [#24](https://github.com/nayan32biswas/mongodb-odm/pull/24) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Update docs according to Pydantic V2 migration and others.
 
 ## 0.2.5
 
