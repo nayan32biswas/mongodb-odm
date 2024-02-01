@@ -41,7 +41,7 @@ We want everything simple. First, we define the course. Where courses only have 
 
 We define the `Content` model. We want to inherit the content model from the `Text` and `Video` model.
 
-In the `Config` class for the `Content` model, we define `allow_inheritance = True` for model Content. To make a Model inheritable we need to make this field `True`.
+In the `ODMConfig` class for the `Content` model, we define `allow_inheritance = True` for model Content. To make a Model inheritable we need to make this field `True`.
 
 ```python hl_lines="6"
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:18-26]!}

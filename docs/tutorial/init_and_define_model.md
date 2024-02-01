@@ -59,7 +59,7 @@ Import `Document` from `mongodb_odm`. Define the `Player` model that should use 
 
 The next step is to define the fields of the class by using standard Python type annotations.
 
-The name of each of these variables will be the name of the field in the collection. And the type of each of them will also be the type of table field.
+The name of each of these variables will be the name of the field in the collection. And the type of each of them will also be the type of collection field.
 
 ```Python hl_lines="1-3 7-9"
 {!./docs_src/tutorial/init_and_define_model/tutorial000.py[ln:1-9]!}
@@ -84,12 +84,13 @@ The name of each of these variables will be the name of the field in the collect
 
 - You may notice we did not define the primary key.
 - We use MongoDB default primary key `_id` as our primary key.
+- You can access `id` and `_id (PrivateAttr)` both should share same value.
 
 ### Model ODMConfig
 
 `ODMConfig` class inside the `Player` was a special class.
 
-We will use this class to change the configuration of the `Player` class.
+We will use this `ODMConfig` class to change the configuration of the `Player` class.
 
 ```Python hl_lines="11"
 {!./docs_src/tutorial/init_and_define_model/tutorial000.py!}
@@ -97,10 +98,10 @@ We will use this class to change the configuration of the `Player` class.
 
 ## Custom Collection Name
 
-By default collection name of the `Player`, the class will be player. The class name will be converted to **snake case**.
+By default collection name of the `Player` model, will be **player**. The model name will be converted to a **snake case**.
 
-But we can customize the default behavior by defining `collection_name` in the `Config` class.
+But we can customize the default behavior by defining `collection_name` in the `ODMConfig` class.
 
-```Python hl_lines="11"
+```Python hl_lines="12"
 {!./docs_src/tutorial/init_and_define_model/tutorial000.py!}
 ```

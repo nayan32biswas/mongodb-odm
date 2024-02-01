@@ -15,7 +15,7 @@ The first argument `url` string should have a **default database**. The second a
 ```python hl_lines="4-7"
 # Code omitted above
 
-{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py[ln:18-23]!}
+{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py[ln:14-19]!}
 
 # Code omitted below
 ```
@@ -33,12 +33,12 @@ The no need for any modification of your model which will use the default databa
 
 We will use a **logging** database to store all documents for `Log`. For the `Log` model, we always will use the **logging** database. Modification or document retrieval should have happened in the **logging** database.
 
-Here we define the `Log` model that has a field `database = "logging"` inside the `Config` of the model.
+Here we define the `Log` model that has a field `database = "logging"` inside the `ODMConfig` of the model.
 
 ```python hl_lines="7"
 # Code omitted above
 
-{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py[ln:11-15]!}
+{!./docs_src/advanced_tutorial/multiple_database/tutorial000.py[ln:7-11]!}
 
 # Code omitted below
 ```

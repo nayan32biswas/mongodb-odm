@@ -10,7 +10,7 @@ Please visit the <a href="https://www.mongodb.com/docs/manual/indexes/" class="e
 
 ## Define indexes in MongoDB-ODM
 
-To create indexes we will define the `indexes` field in the `Config` class.
+To create indexes we will define the `indexes` field in the `ODMConfig` class.
 
 We declare `indexes` field with class `IndexModel` that are imported from `mongodb_odm`. But `IndexModel` was directly imported from <a href="https://pymongo.readthedocs.io/en/stable/" class="external-link" target="_blank">PyMongo</a>. Visit the PyMongo <a href="https://pymongo.readthedocs.io/en/stable/api/pymongo/collection.html?highlight=IndexModel#pymongo.collection.Collection.create_indexes" class="external-link" target="_blank">create_indexes doc</a> for details.
 
@@ -27,7 +27,7 @@ We declare `indexes` field with class `IndexModel` that are imported from `mongo
 ```
 </details>
 
-We define indexes in our model in the `Config` class.
+We define indexes in our model in the `ODMConfig` class.
 
 ## Create indexes
 
@@ -59,7 +59,7 @@ We should see two indexes. `_id` is the default index created by MongoDB and `co
 
 <img class="shadow" src="/img/tutorial/indexes/image000.png">
 
-The `country_code_1` is created as an index field in the `player` collection and the field should be unique as we define in `Config` and also effected in index property as **UNIQUE**.
+The `country_code_1` is created as an index field in the `player` collection and the field should be unique as we define in `ODMConfig` and also effected in index property as **UNIQUE**.
 
 ## Configure CLI
 

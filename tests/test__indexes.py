@@ -2,9 +2,16 @@ import logging
 from datetime import datetime
 from typing import Any, List, Optional
 
-from mongodb_odm import ASCENDING, Document, Field, IndexModel, connect, disconnect
+from mongodb_odm import (
+    ASCENDING,
+    TEXT,
+    Document,
+    Field,
+    IndexModel,
+    connect,
+    disconnect,
+)
 from mongodb_odm.utils.apply_indexes import apply_indexes
-from pymongo import TEXT
 
 from .conftest import DB_URL, init_config  # noqa
 

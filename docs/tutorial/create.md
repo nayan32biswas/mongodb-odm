@@ -1,6 +1,6 @@
 # Create
 
-Here's a reminder of how the table would look like, this is the data we want to add:
+Here's a reminder of how the collection would look like, this is the data we want to add:
 
 ```js
 {

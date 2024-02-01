@@ -2,6 +2,7 @@ from pydantic import BaseModel as BaseModel
 from pydantic import ConfigDict as ConfigDict
 from pymongo import ASCENDING as ASCENDING
 from pymongo import DESCENDING as DESCENDING
+from pymongo import TEXT as TEXT
 from pymongo.operations import DeleteMany as DeleteMany
 from pymongo.operations import DeleteOne as DeleteOne
 from pymongo.operations import IndexModel as IndexModel

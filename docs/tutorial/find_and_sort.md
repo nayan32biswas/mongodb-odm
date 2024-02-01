@@ -41,4 +41,4 @@ We will start from the same database structure and the same number of data as pr
 </details>
 
 !!! warning
-    Sorting on the none indexes field(`rating`) is not efficient.
+    Sorting on the none indexes field(`country_code`) is not efficient.
