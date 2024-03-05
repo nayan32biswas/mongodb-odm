@@ -188,7 +188,7 @@ if player:
 
 player = Player.find_one({"name": "Pelé"})
 if player:
-    player.delete()
+    player.delete()  # RIP
 ```
 
 ### Supported Framework
