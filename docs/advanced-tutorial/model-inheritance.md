@@ -10,7 +10,8 @@ The course can have multiple types of content like `text`, `video`, `image`, `fi
 
 We can this functionality relational manner but it will be expensive to query because we need multiple lookups.
 
-In this scenario, we can implement **Model Inheritance** provided by **MongoDB-ODM**.
+In this scenario, we can implement **Model Inheritance** provided by **MongoDB-ODM**.  
+(Note: Currently, only **one level** of inheritance is supported.)
 
 ## Define Model
 
