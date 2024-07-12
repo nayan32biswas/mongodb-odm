@@ -51,8 +51,10 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     for index in indexes:
         new_index: Any = index.document  # type: ignore
         # Replace SON object with dict
-        if type(new_index["key"]) is SON:
+        if isinstance(new_index["key"], SON):
             new_index["key"] = new_index["key"].to_dict()
+        if isinstance(new_index["key"], dict):
+            new_index["key"] = new_index["key"]
         else:
             continue
         new_indexes.append(new_index)
@@ -61,7 +63,6 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
     update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
 
-    match_type = type(dict)
     # Iterate over indexes that are already created for a collection
     for i in range(len(db_indexes)):
         partial_match = None
@@ -69,7 +70,8 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         for j in range(len(new_indexes)):
             if not new_indexes[j]:
                 continue
-            if not isinstance(type(new_indexes[j]), match_type):
+            print("match", db_indexes[i] == new_indexes[j])
+            if not isinstance(new_indexes[j], dict):
                 continue
             if db_indexes[i] == new_indexes[j]:
                 # If an index already exists in DB remove it from new_indexes list.
