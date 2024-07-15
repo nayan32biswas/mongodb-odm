@@ -70,7 +70,6 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         for j in range(len(new_indexes)):
             if not new_indexes[j]:
                 continue
-            print("match", db_indexes[i] == new_indexes[j])
             if not isinstance(new_indexes[j], dict):
                 continue
             if db_indexes[i] == new_indexes[j]:
