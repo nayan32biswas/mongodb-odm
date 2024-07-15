@@ -2,20 +2,20 @@
 
 We can implement model inheritance at the collection level.
 
-### Scenario
+## Scenario
 
 Let's imagine we want to implement a course system.
 
 The course can have multiple types of content like `text`, `video`, `image`, `file`, etc. But all share some of the common fields `course_id`, `created_at`, etc. And content should be as listed.
 
-We can this functionality relational manner but it will be expensive to query because we need multiple lookups.
+We can relationally use this functionality but it will be expensive to query because we need multiple lookups.
 
-In this scenario, we can implement **Model Inheritance** provided by **MongoDB-ODM**.  
+In this scenario, we can implement **Model Inheritance** provided by **MongoDB-ODM**.
 (Note: Currently, only **one level** of inheritance is supported.)
 
 ## Define Model
 
-In this section, we will multiple models to implement **model inheritance**.
+In this section, we will use multiple models to implement **model inheritance**.
 
 ### Overview
 

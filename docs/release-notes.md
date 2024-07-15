@@ -1,5 +1,15 @@
 # Release Notes
 
+## 1.0.1
+
+### Fixes
+
+- Fix the apply-indexes issue for new version of pymongo.  PR [#35](https://github.com/nayan32biswas/mongodb-odm/pull/35) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Docs
+
+- Update docs of model-inheritance. PR [#34](https://github.com/nayan32biswas/mongodb-odm/pull/34) by [@Magnati](https://github.com/Magnati).
+
 ## 1.0.0
 
 ### Migration
