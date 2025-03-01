@@ -4,7 +4,7 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Un
 
 from pydantic import BaseModel, PrivateAttr
 from pymongo import IndexModel, client_session
-from pymongo.collection import Collection, _WriteOp
+from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
 from typing_extensions import Self
@@ -13,7 +13,7 @@ from .connection import db, get_client
 from .data_conversion import dict2obj
 from .exceptions import ObjectDoesNotExist
 from .fields import Field
-from .types import DICT_TYPE, SORT_TYPE, ODMObjectId
+from .types import DICT_TYPE, SORT_TYPE, ODMObjectId, WriteOp
 from .utils._internal_models import CollectionConfig, RelationalFieldInfo
 from .utils.utils import (
     convert_model_to_collection,
@@ -519,7 +519,7 @@ class Document(_BaseDocument):
 
     @classmethod
     def bulk_write(
-        cls, requests: Sequence[_WriteOp[Any]], **kwargs: Any
+        cls, requests: Sequence[WriteOp[Any]], **kwargs: Any
     ) -> BulkWriteResult:
         """
         Will perform as Pymongo bulk_write function.

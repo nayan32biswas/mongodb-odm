@@ -255,11 +255,11 @@ def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
 ```python
 @classmethod
 def bulk_write(
-    cls, requests: Sequence[_WriteOp[Any]], **kwargs: Any
+    cls, requests: Sequence[WriteOp[Any]], **kwargs: Any
 ) -> BulkWriteResult:
 ```
 
-Here `_WriteOp` are `DeleteMany, DeleteOne, IndexModel, InsertOne, ReplaceOne, UpdateMany, UpdateOne` imported from `pymongo.operations`.
+Here `WriteOp` is one of the type of `DeleteMany, DeleteOne, IndexModel, InsertOne, ReplaceOne, UpdateMany, UpdateOne` from `pymongo`
 
 ### load_related
 

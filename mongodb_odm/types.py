@@ -1,11 +1,30 @@
-from typing import Any, Dict, Mapping, Sequence, Tuple, Union
+from typing import Any, Dict, Mapping, Sequence, Tuple, TypeVar, Union
 
 from bson import ObjectId
 from pydantic_core import core_schema
+from pymongo.operations import (
+    DeleteMany,
+    DeleteOne,
+    InsertOne,
+    ReplaceOne,
+    UpdateMany,
+    UpdateOne,
+)
 
 # Common types
 DICT_TYPE = Dict[str, Any]
 SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
+
+DocumentType = TypeVar("DocumentType", bound=Mapping[str, Any])
+
+WriteOp = Union[
+    InsertOne[DocumentType],
+    DeleteOne,
+    DeleteMany,
+    ReplaceOne[DocumentType],
+    UpdateOne,
+    UpdateMany,
+]
 
 
 class ODMObjectId(ObjectId):
