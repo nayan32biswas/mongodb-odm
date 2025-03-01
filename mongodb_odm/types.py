@@ -15,7 +15,7 @@ from pymongo.operations import (
 DICT_TYPE = Dict[str, Any]
 SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
 
-DocumentType = TypeVar("_DocumentType", bound=Mapping[str, Any])
+DocumentType = TypeVar("DocumentType", bound=Mapping[str, Any])
 
 WriteOp = Union[
     InsertOne[DocumentType],
