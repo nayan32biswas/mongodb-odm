@@ -1,10 +1,16 @@
 # Release Notes
 
+## 1.0.2
+
+### Fixes
+
+- Define custom WriteOp type to fix import issue of \_WriteOp. PR [#36](https://github.com/nayan32biswas/mongodb-odm/pull/36) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.0.1
 
 ### Fixes
 
-- Fix the apply-indexes issue for new version of pymongo.  PR [#35](https://github.com/nayan32biswas/mongodb-odm/pull/35) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Fix the apply-indexes issue for new version of pymongo. PR [#35](https://github.com/nayan32biswas/mongodb-odm/pull/35) by [@nayan32biswas](https://github.com/nayan32biswas).
 
 ### Docs
 
