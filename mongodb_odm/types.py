@@ -38,8 +38,9 @@ class ODMObjectId(ObjectId):
                 core_schema.no_info_plain_validator_function(cls.validate),
             ]
         )
+
         return core_schema.json_or_python_schema(
-            json_schema=object_id_schema,
+            json_schema=core_schema.str_schema(),
             python_schema=core_schema.union_schema(
                 [core_schema.is_instance_schema(ObjectId), object_id_schema]
             ),
@@ -70,13 +71,15 @@ class ObjectIdStr(str):
     ) -> core_schema.CoreSchema:
         object_id_schema = core_schema.chain_schema(
             [
+                core_schema.str_schema(),
                 core_schema.no_info_plain_validator_function(cls.validate),
             ]
         )
+
         return core_schema.json_or_python_schema(
-            json_schema=object_id_schema,
+            json_schema=core_schema.str_schema(),
             python_schema=core_schema.union_schema(
-                [core_schema.is_instance_schema(str), object_id_schema]
+                [core_schema.is_instance_schema(ObjectId), object_id_schema]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda x: str(x)
