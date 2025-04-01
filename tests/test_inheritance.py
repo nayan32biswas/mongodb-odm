@@ -110,8 +110,7 @@ def test_inheritance_model_relation_load_related():
 
         other: Optional[OtherModel] = Relationship(local_field="other_id")
 
-        class ODMConfig(Document.ODMConfig):
-            ...
+        class ODMConfig(Document.ODMConfig): ...
 
     other = OtherModel(title="demo").create()
 
@@ -124,9 +123,9 @@ def test_inheritance_model_relation_load_related():
 
         for obj in parents:
             if isinstance(obj, ChildModel):
-                assert not isinstance(
-                    obj.other, RelationshipInfo
-                ), "other should have value"
+                assert not isinstance(obj.other, RelationshipInfo), (
+                    "other should have value"
+                )
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""

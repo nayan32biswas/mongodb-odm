@@ -1,11 +1,9 @@
 FROM python:3.8
 
-RUN pip install "poetry==1.8"
+ENV PYTHONUNBUFFERED=1 \
+    PIP_DEFAULT_TIMEOUT=100
 
 WORKDIR /code
-COPY pyproject.toml *.lock /code/
 
-RUN poetry config virtualenvs.create false \
-    &&  poetry install --no-interaction --no-ansi --no-root
-
-COPY . .
+COPY requirements.txt /code/
+RUN pip install --no-cache-dir -r requirements.txt

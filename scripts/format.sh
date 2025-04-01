@@ -2,5 +2,5 @@
 
 set -x
 
-ruff mongodb_odm tests docs_src scripts --fix
+ruff check mongodb_odm tests docs_src scripts --fix
 ruff format mongodb_odm tests docs_src scripts
