@@ -1,10 +1,10 @@
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["uv_build>=0.7.8,<0.8.0"]
+build-backend = "uv_build"
 
 [project]
 name = "mongodb-odm"
-dynamic = ["version"]
+version = "1.0.0"
 description = "MongoDB-ODM, NOSQL databases in Python, designed for simplicity, compatibility, and robustness."
 readme = "README.md"
 requires-python = ">=3.8,<4.0"
@@ -44,7 +44,7 @@ Changelog = "https://mongodb-odm.readthedocs.io/en/latest/release-notes/"
 dev = [
     "black>=23.9.0",
     "mypy==1.5.0",
-    "ruff>=0.11.2",
+    "ruff>=0.11.10",
     "coverage[toml]>=7.2.2",
     "pytest>=7.2.2",
     "mdx-include>=1.4.2",
@@ -53,12 +53,10 @@ dev = [
     "pre-commit>=3.3.3",
 ]
 
-[tool.pdm]
-version = { source = "file", path = "mongodb_odm/__init__.py" }
-distribution = true
-
-[tool.pdm.build]
-source-includes = ["tests/", "docs_src/", "requirements*.txt", "scripts/"]
+[tool.uv.build-backend]
+module-name = "mongodb_odm"
+module-root = ""
+source-include = ["tests/**", "docs_src/**", "requirements*.txt", "scripts/**"]
 
 [tool.coverage.run]
 parallel = true
@@ -88,6 +86,9 @@ module = "docs_src.*"
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
 disallow_untyped_calls = false
+
+[tool.ruff]
+line-length = 90
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B", "UP"]

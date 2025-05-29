@@ -1,9 +1,14 @@
 FROM python:3.8
 
 ENV PYTHONUNBUFFERED=1 \
-    PIP_DEFAULT_TIMEOUT=100
+    UV_REQUESTS_TIMEOUT=100 \
+    UV_SYSTEM_PYTHON=1
+
+RUN curl -LsSf https://astral.sh/uv/0.6.10/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv
 
 WORKDIR /code
 
-COPY requirements.txt /code/
-RUN pip install --no-cache-dir -r requirements.txt
+ADD . /code
+
+RUN uv sync --extra dev

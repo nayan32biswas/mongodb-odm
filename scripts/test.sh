@@ -3,7 +3,7 @@
 set -e
 set -x
 
-coverage run -m pytest tests
-coverage combine
-coverage report --show-missing
-coverage html
+uv run --extra dev coverage run -m pytest tests
+uv run --extra dev coverage combine
+uv run --extra dev coverage report --show-missing
+uv run --extra dev coverage html
