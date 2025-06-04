@@ -88,7 +88,7 @@ disallow_untyped_defs = false
 disallow_untyped_calls = false
 
 [tool.ruff]
-line-length = 90
+line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "C", "B", "UP"]
