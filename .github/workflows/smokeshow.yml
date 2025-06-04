@@ -46,7 +46,7 @@ jobs:
       - name: Upload coverage to Smokeshow
         run: |
           for i in 1 2 3; do
-            if smokeshow upload htmlcov; then
+            if uv run --extra dev smokeshow upload htmlcov; then
                 echo "Smokeshow upload success!"
                 break
             fi

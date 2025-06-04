@@ -31,7 +31,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-dependencies = ["pymongo[srv]>=4.3.3", "pydantic>=2.4.2"]
+dependencies = ["pydantic>=2.4.2", "pymongo[srv]>=4.3.3"]
 
 [project.urls]
 Documentation = "https://mongodb-odm.readthedocs.io"
@@ -43,14 +43,15 @@ Changelog = "https://mongodb-odm.readthedocs.io/en/latest/release-notes/"
 [project.optional-dependencies]
 dev = [
     "black>=23.9.0",
-    "mypy==1.5.0",
-    "ruff>=0.11.10",
     "coverage[toml]>=7.2.2",
     "pytest>=7.2.2",
     "mdx-include>=1.4.2",
     "mkdocs>=1.4.2",
     "mkdocs-material>=9.1.4",
+    "mypy==1.5.0",
     "pre-commit>=3.3.3",
+    "smokeshow>=0.5.0",
+    "ruff>=0.11.10",
 ]
 
 [tool.uv.build-backend]
