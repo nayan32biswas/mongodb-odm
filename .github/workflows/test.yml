@@ -122,9 +122,3 @@ jobs:
           name: coverage-html
           path: htmlcov
           include-hidden-files: true
-
-      - name: Store coverage HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: htmlcov
