@@ -31,12 +31,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Debug - List downloaded files
-        run: |
-          echo "Current directory contents:"
-          ls -la
-          echo "htmlcov directory contents:"
-          ls -la htmlcov
+      - name: Display structure of downloaded files
+        run: ls -R htmlcov
 
       - name: Upload coverage to Smokeshow
         run: |
