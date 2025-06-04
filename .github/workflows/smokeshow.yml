@@ -8,24 +8,51 @@ on:
 permissions:
   statuses: write
 
+env:
+  UV_SYSTEM_PYTHON: 1
+
 jobs:
   smokeshow:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.12"
 
-      - run: pip install smokeshow
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.6.10"
+          enable-cache: true
+          cache-dependency-glob: |
+            requirements**.txt
+            pyproject.toml
+            *.lock
+
+      - name: Install Dependencies
+        run: uv sync --extra dev
 
       - uses: actions/download-artifact@v4
         with:
-          workflow: test.yml
-          commit: ${{ github.event.workflow_run.head_sha }}
+          name: coverage-html
+          path: htmlcov
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
-      - run: smokeshow upload coverage-html
+      - name: Upload coverage to Smokeshow
+        run: |
+          for i in 1 2 3; do
+            if smokeshow upload htmlcov; then
+                echo "Smokeshow upload success!"
+                break
+            fi
+            echo "Smokeshow upload error, sleep 1 sec and try again."
+            sleep 1
+          done
         env:
           SMOKESHOW_GITHUB_STATUS_DESCRIPTION: Coverage {coverage-percentage}
           SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 95
