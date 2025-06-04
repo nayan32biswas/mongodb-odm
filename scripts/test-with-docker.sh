@@ -4,21 +4,26 @@ set -x
 
 <<comment
 docker run -d --rm --name mongo -p 27017:27017 mongo
-poetry run scripts/test.sh
+./scripts/test.sh
 docker stop mongo
 comment
 
 <<comment
+# Up mongodb container
 docker compose up -d mongodb && docker compose up mongo-init
-python -m poetry run bash scripts/test.sh
+export MONGO_URL="mongodb://localhost:27017/testdb"
+
+# Run the test locally with uv
+./scripts/test.sh
 docker compose stop mongodb
 comment
 
 <<comment
-# Run test for single file
-docker-compose -f docker-compose-local.yml run --rm app \
-    python -m poetry run coverage run -m pytest tests/test__indexes.py
+# Run test for single file with docker
+docker compose -f docker-compose-local.yml run --rm app \
+    uv run --extra dev coverage run -m pytest tests/test__indexes.py
 comment
 
-docker-compose -f docker-compose-local.yml run --build --rm app \
-    python -m poetry run bash scripts/test.sh
+# Run test for all files with docker
+docker compose -f docker-compose-local.yml run --rm app \
+    ./scripts/test.sh

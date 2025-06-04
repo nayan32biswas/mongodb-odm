@@ -35,6 +35,6 @@ def test_inheritance_model_create():
         {"_id": {"$in": [content_description.id, content_image.id]}}
     )
 
-    assert (
-        content_count == 2
-    ), "Content count should be 2 as ContentDescription and ContentImage belong to Content collection"
+    assert content_count == 2, (
+        "Content count should be 2 as ContentDescription and ContentImage belong to Content collection"
+    )

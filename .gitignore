@@ -14,7 +14,8 @@ htmlcov/
 coverage.xml
 
 # Distribution / packaging / files
-poetry.lock
+uv.lock
+.venv
 env*
 .env
 env/

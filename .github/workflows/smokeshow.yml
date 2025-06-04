@@ -14,18 +14,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
-      - run: pip install smokeshow
+      - name: Install Dependencies
+        run: pip install smokeshow==0.5.0
 
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          workflow: test.yml
-          commit: ${{ github.event.workflow_run.head_sha }}
+          name: coverage-html
+          path: htmlcov
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
-      - run: smokeshow upload coverage-html
+      - name: Display structure of downloaded files
+        run: ls -R htmlcov
+
+      - name: Upload coverage to Smokeshow
+        run: |
+          for i in 1 2 3; do
+            if smokeshow upload htmlcov; then
+                echo "Smokeshow upload success!"
+                break
+            fi
+            echo "Smokeshow upload error, sleep 1 sec and try again."
+            sleep 1
+          done
         env:
           SMOKESHOW_GITHUB_STATUS_DESCRIPTION: Coverage {coverage-percentage}
           SMOKESHOW_GITHUB_COVERAGE_THRESHOLD: 95

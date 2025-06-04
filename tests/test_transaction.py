@@ -28,9 +28,9 @@ def test_create_with_transaction():
     if course:
         # Sleep for 5 seconds to replicate the dataset.
         sleep(5)
-        assert (
-            Course.find_one({"_id": course.id}) is not None
-        ), "Course should be created"
+        assert Course.find_one({"_id": course.id}) is not None, (
+            "Course should be created"
+        )
 
 
 def test_create_with_transaction_rollback():
@@ -54,9 +54,9 @@ def test_create_with_transaction_rollback():
     if course:
         # Sleep for 5 seconds to replicate the dataset.
         sleep(5)
-        assert (
-            Course.find_one({"_id": course.id}) is None
-        ), "Course should not be created"
+        assert Course.find_one({"_id": course.id}) is None, (
+            "Course should not be created"
+        )
 
 
 def test_update_with_transaction_rollback():

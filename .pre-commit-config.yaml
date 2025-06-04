@@ -1,8 +1,14 @@
+# Install pre-commit hooks for linting and formatting. Run this command first time for each device.
+# `pre-commit install && pre-commit run --all-files`
+
+# Uninstall pre-commit hooks if you want to remove them.
+# `pre-commit uninstall`
+
 default_language_version:
   python: python3
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-toml
@@ -11,14 +17,18 @@ repos:
           - --unsafe
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.4
+  - repo: local
     hooks:
-      - id: ruff
-        args:
-          - --fix
-      - id: ruff-format
+      - id: lint
+        name: Run lint script
+        entry: ./scripts/lint.sh
+        language: system
+        pass_filenames: false
+      - id: format
+        name: Run format script
+        entry: ./scripts/format.sh
+        language: system
+        pass_filenames: false
 ci:
   autofix_commit_msg: 🎨 [pre-commit.ci] Auto format from pre-commit.com hooks
   autoupdate_commit_msg: ⬆ [pre-commit.ci] pre-commit autoupdate
-# `pre-commit install && pre-commit run --all-files` Run this command first time for each device.

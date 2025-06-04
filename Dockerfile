@@ -1,11 +1,14 @@
 FROM python:3.8
 
-RUN pip install "poetry==1.8"
+ENV PYTHONUNBUFFERED=1 \
+    UV_REQUESTS_TIMEOUT=100 \
+    UV_SYSTEM_PYTHON=1
+
+RUN curl -LsSf https://astral.sh/uv/0.6.10/install.sh | sh && \
+    mv /root/.local/bin/uv /usr/local/bin/uv
 
 WORKDIR /code
-COPY pyproject.toml *.lock /code/
 
-RUN poetry config virtualenvs.create false \
-    &&  poetry install --no-interaction --no-ansi --no-root
+ADD . /code
 
-COPY . .
+RUN uv sync --extra dev

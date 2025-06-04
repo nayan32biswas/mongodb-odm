@@ -15,9 +15,9 @@ def test_connection():
     disconnect()  # first disconnect init_config connection
 
     client = connect(DB_URL)
-    assert isinstance(
-        client, MongoClient
-    ), """\"connect\" function should return MongoClient object"""
+    assert isinstance(client, MongoClient), (
+        """\"connect\" function should return MongoClient object"""
+    )
 
 
 def test_disconnect():

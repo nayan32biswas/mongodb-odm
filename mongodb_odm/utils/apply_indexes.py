@@ -95,9 +95,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
 
                     new_keys = new_value["key"].keys()
                     default_language = new_value.get("default_language", "english")
-                    new_weight = new_value.get("weights") or {
-                        key: 1 for key in new_keys
-                    }
+                    new_weight = new_value.get("weights") or dict.fromkeys(new_keys, 1)
 
                     if (
                         db_value["weights"].keys() == new_keys

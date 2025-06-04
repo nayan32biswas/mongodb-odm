@@ -1,3 +1,5 @@
+__version__ = "1.0.0"
+
 from pydantic import BaseModel as BaseModel
 from pydantic import ConfigDict as ConfigDict
 from pymongo import ASCENDING as ASCENDING

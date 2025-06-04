@@ -16,35 +16,35 @@ logger = logging.getLogger(__name__)
 def test_find_one():
     populate_data()
     course = Course.find_one()
-    assert isinstance(
-        course, Course
-    ), "Each object should carry all characteristic of model"
+    assert isinstance(course, Course), (
+        "Each object should carry all characteristic of model"
+    )
     assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
 def test_count():
     populate_data()
     course_count = Course.count_documents()
-    assert isinstance(
-        course_count, int
-    ), "count_documents method should return int type value"
+    assert isinstance(course_count, int), (
+        "count_documents method should return int type value"
+    )
 
 
 def test_is_exists():
     populate_data()
     is_exists = Course.exists()
-    assert isinstance(
-        is_exists, bool
-    ), "count_documents method should return int type value"
+    assert isinstance(is_exists, bool), (
+        "count_documents method should return int type value"
+    )
 
 
 def test_find():
     populate_data()
     course_qs = Course.find(limit=10)
     for course in course_qs:
-        assert isinstance(
-            course, Course
-        ), "find method should return Course type object"
+        assert isinstance(course, Course), (
+            "find method should return Course type object"
+        )
         assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
@@ -104,9 +104,9 @@ def test_aggregate():
     populate_data()
     course_qs = Course.aggregate(pipeline=[])
     for course in course_qs:
-        assert isinstance(
-            course, ODMObj
-        ), "aggregate method should return dict type object"
+        assert isinstance(course, ODMObj), (
+            "aggregate method should return dict type object"
+        )
 
 
 def test_get_random_one():
@@ -115,9 +115,9 @@ def test_get_random_one():
     user = User.get({})
 
     course = Course.get_random_one(filter={"author_id": user.id})
-    assert isinstance(
-        course, Course
-    ), "get_random_one method should return Course type object"
+    assert isinstance(course, Course), (
+        "get_random_one method should return Course type object"
+    )
 
     assert course.author_id == user.id, "Random course author_id should match"
 
@@ -125,9 +125,9 @@ def test_get_random_one():
 def test_find_inheritance_object():
     populate_data()
     for content in Content.find(limit=10):
-        assert isinstance(
-            content, Content
-        ), "Each object should carry all characteristic of model"
+        assert isinstance(content, Content), (
+            "Each object should carry all characteristic of model"
+        )
         assert isinstance(content.id, ObjectId), "Invalid data return"
 
 
@@ -142,9 +142,9 @@ def test_find_raw():
     populate_data()
 
     for course in Course.find_raw(limit=2):
-        assert isinstance(
-            course, dict
-        ), "Each object should carry all characteristic of model"
+        assert isinstance(course, dict), (
+            "Each object should carry all characteristic of model"
+        )
 
 
 def test_projection_for_find_raw():
