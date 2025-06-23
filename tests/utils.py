@@ -1,11 +1,13 @@
-from .models.course import (
+from mongodb_odm import ODMObjectId
+
+from tests.models.course import (
     Comment,
     ContentDescription,
     ContentImage,
     Course,
     EmbeddedComment,
 )
-from .models.user import User
+from tests.models.user import User
 
 
 def create_users():
@@ -57,6 +59,31 @@ def create_comments():
         EmbeddedComment(user_id=user_one.id, description="Child comment one")
     )
     comment_one.update()
+
+
+async def async_create_courses(total_courses=1):
+    author_id = ODMObjectId()
+    courses = []
+
+    for i in range(total_courses):
+        course = await Course(
+            author_id=author_id,
+            title=f"Random Course {i}",
+        ).acreate()
+
+        courses.append(course)
+
+    return courses
+
+
+def drop_all_user_databases(client):
+    databases = client.list_database_names()
+
+    system_dbs = {"admin", "local", "config"}
+
+    for db_name in databases:
+        if db_name not in system_dbs:
+            client.drop_database(db_name)
 
 
 def populate_data():

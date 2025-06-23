@@ -1,5 +1,8 @@
-from .conftest import setup_test_database  # noqa
+import pytest
+
+from tests.test_doc_src.conftest import SETUP_TEST_DATABASE
 
 
-def test_overview(setup_test_database):  # noqa
+@pytest.mark.usefixtures(SETUP_TEST_DATABASE)
+def test_overview():
     from docs_src import overview  # noqa

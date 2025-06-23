@@ -1,15 +1,16 @@
-from typing import Any, Optional, Set
+from typing import Any, Optional, Set, Union
 
 from pydantic import BaseModel
 from pydantic._internal._repr import Representation as PydanticRepresentation
-from pymongo import MongoClient
+from pymongo import AsyncMongoClient, MongoClient
 
 
 class Connection:
     # Use this model to maintain database connection object structure.
     url: Optional[str] = None
-    client: Optional[MongoClient[Any]] = None
+    client: Optional[Union[MongoClient[Any], AsyncMongoClient[Any]]] = None
     databases: Optional[Set[str]] = None
+    async_is_enabled: bool = False
 
 
 class RelationalFieldInfo(PydanticRepresentation):

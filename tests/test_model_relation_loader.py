@@ -1,16 +1,15 @@
-import logging
 from typing import Optional
 
+import pytest
 from mongodb_odm import Document, ODMObjectId, Relationship
 
-from .conftest import init_config  # noqa
-from .models.course import Comment, Course
-from .models.user import User
-from .utils import populate_data
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
+from tests.models.course import Comment, Course
+from tests.models.user import User
+from tests.utils import populate_data
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_load_related_data():
     populate_data()
 
@@ -21,6 +20,7 @@ def test_load_related_data():
         assert course.author.id == course.author_id
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_load_related_multiple_data():
     populate_data()
 
@@ -34,6 +34,7 @@ def test_load_related_multiple_data():
         assert comment.course.id == comment.course_id
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_related_data_load_with_field():
     populate_data()
 
@@ -46,6 +47,7 @@ def test_related_data_load_with_field():
         assert type(comment.course) is not Course
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_load_related_data_with_invalid_field():
     populate_data()
 
@@ -57,6 +59,7 @@ def test_load_related_data_with_invalid_field():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_load_related_data_with_invalid_model():
     class ModelA(Document):
         string: str
@@ -77,6 +80,7 @@ def test_load_related_data_with_invalid_model():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_load_related_data_with_optional_object():
     class ModelA(Document):
         string: str

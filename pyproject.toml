@@ -45,6 +45,7 @@ dev = [
     "black>=23.9.0",
     "coverage[toml]>=7.2.2",
     "pytest>=7.2.2",
+    "pytest-asyncio>=0.24.0",
     "mdx-include>=1.4.2",
     "mkdocs>=1.4.2",
     "mkdocs-material>=9.1.4",
@@ -103,3 +104,6 @@ known-third-party = ["mongodb_odm", "pymongo", "pydantic"]
 [tool.ruff.lint.pyupgrade]
 # Preserve types, even if a file imports `from __future__ import annotations`.
 keep-runtime-typing = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

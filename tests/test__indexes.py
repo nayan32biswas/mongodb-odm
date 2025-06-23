@@ -1,7 +1,7 @@
-import logging
 from datetime import datetime
 from typing import Any, List, Optional
 
+import pytest
 from mongodb_odm import (
     ASCENDING,
     TEXT,
@@ -13,10 +13,9 @@ from mongodb_odm import (
 )
 from mongodb_odm.utils.apply_indexes import apply_indexes
 
-from .conftest import DB_URL, init_config  # noqa
+from tests.conftest import INIT_CONFIG, MONGO_URL
 
 databases = {"logging"}
-logger = logging.getLogger(__name__)
 
 
 class TestIndexes(Document):
@@ -33,6 +32,7 @@ class TestIndexes(Document):
         ]
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_create_indexes_without_connection():
     disconnect()
 
@@ -43,6 +43,7 @@ def test_create_indexes_without_connection():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_no_index_change():
     apply_indexes()
 
@@ -74,6 +75,7 @@ def check_indexes(model: Any, index_keys: List[List[str]]):
     return True
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_indexes_create_add_update_remove():
     """
     Write a big testing function to test index initial create, add, update, and remove.
@@ -128,6 +130,7 @@ def test_indexes_create_add_update_remove():
     check_indexes(TestIndexes, [["_id"], ["created_at"]])
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_text_indexes():
     """Make sure text index created properly"""
 
@@ -145,6 +148,7 @@ def test_text_indexes():
     check_indexes(TestIndexes, [["_id"], ["slug"], ["title"]])
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_text_filter():
     TestIndexes.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
@@ -158,6 +162,7 @@ def test_text_filter():
     assert text_data is not None
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_child_indexes_only():
     class ParentModel(Document):
         title: str = Field(...)
@@ -177,6 +182,7 @@ def test_child_indexes_only():
     check_indexes(ParentModel, [["_id"], ["_cls"], ["child_title"]])
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_child_indexes_without_cls_index():
     class ParentModel(Document):
         title: str = Field(...)
@@ -197,14 +203,16 @@ def test_child_indexes_without_cls_index():
     check_indexes(ParentModel, [["_id"], ["child_title"]])
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_indexes_for_all_db():
-    from .models.course import ContentDescription  # noqa
-    from .models.course import Comment, ContentImage, Course  # noqa
-    from .models.user import User  # noqa
+    from tests.models.course import ContentDescription  # noqa
+    from tests.models.course import Comment, ContentImage, Course  # noqa
+    from tests.models.user import User  # noqa
 
     apply_indexes()
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_indexes_for_multiple_database():
     disconnect()  # first disconnect init_config connection
 
@@ -216,7 +224,7 @@ def test_indexes_for_multiple_database():
             database = "logging"
             indexes = [IndexModel([("created_at", ASCENDING)])]
 
-    connect(DB_URL, databases=databases)
+    connect(MONGO_URL, databases=databases)
     Log(message="testing multiple database").create()
 
     apply_indexes()

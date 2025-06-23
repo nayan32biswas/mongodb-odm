@@ -1,18 +1,15 @@
-import logging
-from datetime import datetime
-
+import pytest
 from bson import ObjectId
 from mongodb_odm import DESCENDING
 from mongodb_odm.data_conversion import ODMObj
 
-from .conftest import init_config  # noqa
-from .models.course import Comment, Content, Course
-from .models.user import User
-from .utils import populate_data
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
+from tests.models.course import Comment, Content, Course
+from tests.models.user import User
+from tests.utils import populate_data
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_find_one():
     populate_data()
     course = Course.find_one()
@@ -22,6 +19,7 @@ def test_find_one():
     assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_count():
     populate_data()
     course_count = Course.count_documents()
@@ -30,6 +28,7 @@ def test_count():
     )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_is_exists():
     populate_data()
     is_exists = Course.exists()
@@ -38,6 +37,7 @@ def test_is_exists():
     )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_find():
     populate_data()
     course_qs = Course.find(limit=10)
@@ -48,6 +48,7 @@ def test_find():
         assert isinstance(course.id, ObjectId), "Invalid data return"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_embedded_filter():
     populate_data()
     user = User.get({})
@@ -55,6 +56,7 @@ def test_embedded_filter():
         pass
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_filter_invalid_field_validation():
     populate_data()
     user = User.get({})
@@ -81,25 +83,7 @@ def test_filter_invalid_field_validation():
         assert str(e) != ""
 
 
-def test_get_or_create():
-    populate_data()
-    user = User.get({})
-    title = "Title"
-    created_at = datetime.now().replace(microsecond=0)
-
-    course, created = Course.get_or_create(
-        {"author_id": user.id, "title": title, "created_at": created_at}
-    )
-    assert created is True, "New course should be created"
-    assert isinstance(course, Course), "Type should be Course"
-
-    course, created = Course.get_or_create(
-        {"author_id": user.id, "title": title, "created_at": created_at}
-    )
-    assert created is False, "Old course should get from DB"
-    assert isinstance(course, Course), "Type should be Course"
-
-
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_aggregate():
     populate_data()
     course_qs = Course.aggregate(pipeline=[])
@@ -109,6 +93,7 @@ def test_aggregate():
         )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_random_one():
     populate_data()
 
@@ -122,6 +107,7 @@ def test_get_random_one():
     assert course.author_id == user.id, "Random course author_id should match"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_find_inheritance_object():
     populate_data()
     for content in Content.find(limit=10):
@@ -131,6 +117,7 @@ def test_find_inheritance_object():
         assert isinstance(content.id, ObjectId), "Invalid data return"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_db_name():
     collection_name = Course._db()
     assert isinstance(collection_name, str)
@@ -138,6 +125,7 @@ def test_get_db_name():
     assert collection_name == "course"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_find_raw():
     populate_data()
 
@@ -147,6 +135,7 @@ def test_find_raw():
         )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_projection_for_find_raw():
     populate_data()
 
@@ -154,6 +143,7 @@ def test_projection_for_find_raw():
         assert isinstance(obj["_id"], ObjectId)
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_projection_for_find():
     populate_data()
 
@@ -163,6 +153,7 @@ def test_projection_for_find():
         assert obj.short_description is None
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_sort():
     populate_data()
 
@@ -170,6 +161,7 @@ def test_sort():
         assert isinstance(obj.id, ObjectId)
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_skip():
     populate_data()
 
@@ -177,6 +169,7 @@ def test_skip():
         assert isinstance(obj.id, ObjectId)
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_limit():
     populate_data()
 

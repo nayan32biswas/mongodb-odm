@@ -13,7 +13,7 @@ from mongodb_odm import (
     Relationship,
 )
 
-from .user import User
+from tests.models.user import User
 
 
 class Course(Document):

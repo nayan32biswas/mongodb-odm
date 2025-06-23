@@ -1,28 +1,41 @@
-import logging
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Set, Tuple, Union
+from typing import (
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+    cast,
+)
 
+from mongodb_odm.connection import db, get_client
+from mongodb_odm.data_conversion import dict2obj
+from mongodb_odm.exceptions import ObjectDoesNotExist
+from mongodb_odm.fields import Field
+from mongodb_odm.types import DICT_TYPE, SORT_TYPE, ODMObjectId, WriteOp
+from mongodb_odm.utils._internal_models import CollectionConfig, RelationalFieldInfo
+from mongodb_odm.utils.utils import (
+    convert_model_to_collection,
+    get_database_name,
+    get_relationship_fields_info,
+)
+from mongodb_odm.utils.validation import validate_filter_dict
 from pydantic import BaseModel, PrivateAttr
-from pymongo import IndexModel, client_session
+from pymongo import AsyncMongoClient, IndexModel, MongoClient
+from pymongo.asynchronous.client_session import AsyncClientSession
+from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.asynchronous.cursor import AsyncCursor
+from pymongo.client_session import ClientSession
 from pymongo.collection import Collection
 from pymongo.cursor import Cursor
 from pymongo.results import BulkWriteResult, DeleteResult, UpdateResult
 from typing_extensions import Self
 
-from .connection import db, get_client
-from .data_conversion import dict2obj
-from .exceptions import ObjectDoesNotExist
-from .fields import Field
-from .types import DICT_TYPE, SORT_TYPE, ODMObjectId, WriteOp
-from .utils._internal_models import CollectionConfig, RelationalFieldInfo
-from .utils.utils import (
-    convert_model_to_collection,
-    get_database_name,
-    get_relationship_fields_info,
-)
-from .utils.validation import validate_filter_dict
-
-logger = logging.getLogger(__name__)
 INHERITANCE_FIELD_NAME = "_cls"
 
 RELATION_TYPE = Dict[str, RelationalFieldInfo]
@@ -171,16 +184,20 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def _get_collection(cls) -> Collection[Any]:
-        """
-        Get db connection for a model.
-        """
-        return db(cls._database_name())[cls._get_collection_name()]
+        db_connection = db(cls._database_name())
+        collection = db_connection[cls._get_collection_name()]
+
+        return cast(Collection[Any], collection)
+
+    @classmethod
+    def _async_get_collection(cls) -> AsyncCollection[Any]:
+        db_connection = db(cls._database_name(), is_async_action=True)
+        collection = db_connection[cls._get_collection_name()]
+
+        return cast(AsyncCollection[Any], collection)
 
     @classmethod
     def _db(cls) -> str:
-        """
-        Get collection name
-        """
         return cls._get_collection_name()
 
     @classmethod
@@ -234,11 +251,24 @@ class _BaseDocument(BaseModel):
         return self.dict(exclude=self.get_exclude_fields())
 
     @classmethod
-    def start_session(cls, **kwargs: Any) -> client_session.ClientSession:
-        """
-        To manage database transactions.
-        """
-        return get_client().start_session(**kwargs)
+    def start_session(cls, **kwargs: Any) -> ClientSession:
+        client = get_client()
+        if not isinstance(client, MongoClient):
+            raise Exception(
+                "Client is not configured for sync operations use 'astart_session' instead."
+            )
+
+        return client.start_session(**kwargs)
+
+    @classmethod
+    def astart_session(cls, **kwargs: Any) -> AsyncClientSession:
+        client = get_client()
+        if not isinstance(client, AsyncMongoClient):
+            raise Exception(
+                "Client is not configured for async operations use 'start_session' instead."
+            )
+
+        return client.start_session(**kwargs)
 
     def __str__(self) -> str:
         return super().__repr__()
@@ -266,17 +296,47 @@ class Document(_BaseDocument):
         object.__setattr__(self, "id", id)
         object.__setattr__(self, "_id", id)
 
-    def create(self, **kwargs: Any) -> Self:
-        _collection = self._get_collection()
-
+    def _prepare_crate_data(self, **kwargs: Any) -> DICT_TYPE:
         data = self.to_mongo()
         if self._get_child() is not None:
             # Assign the '_cls' field if the model is a child.
             data = {**self.get_inheritance_key(), **data}
 
-        inserted_id = _collection.insert_one(data, **kwargs).inserted_id
-        self.__dict__.update({"_id": inserted_id, "id": inserted_id})
+        return data
+
+    def _update_new_id(self, new_id: ODMObjectId) -> None:
+        self.__dict__.update({"_id": new_id, "id": new_id})
+
+    def create(self, **kwargs: Any) -> Self:
+        data = self._prepare_crate_data(**kwargs)
+
+        _collection = self._get_collection()
+        result = _collection.insert_one(data, **kwargs)
+        inserted_id = result.inserted_id
+        self._update_new_id(inserted_id)
+
         return self
+
+    async def acreate(self, **kwargs: Any) -> Self:
+        data = self._prepare_crate_data(**kwargs)
+
+        _collection = self._async_get_collection()
+        inserted_id = (await _collection.insert_one(data, **kwargs)).inserted_id
+        self._update_new_id(inserted_id)
+
+        return self
+
+    @classmethod
+    def _validate_and_prepare_filter(cls, filter: Optional[DICT_TYPE]) -> DICT_TYPE:
+        if filter is None:
+            filter = {}
+
+        validate_filter_dict(cls, filter)
+
+        if cls._get_child() is not None:
+            filter = {**cls.get_inheritance_key(), **filter}
+
+        return filter
 
     @classmethod
     def find_raw(
@@ -285,19 +345,80 @@ class Document(_BaseDocument):
         projection: Optional[DICT_TYPE] = None,
         **kwargs: Any,
     ) -> Cursor[Any]:
-        if filter is None:
-            filter = {}
         if projection is None:
             projection = {}
 
-        validate_filter_dict(cls, filter)
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
+
         if projection:
             return _collection.find(filter, projection, **kwargs)
+
         return _collection.find(filter, **kwargs)
+
+    @classmethod
+    def afind_raw(
+        cls,
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
+        **kwargs: Any,
+    ) -> AsyncCursor[Any]:
+        if projection is None:
+            projection = {}
+
+        filter = cls._validate_and_prepare_filter(filter)
+        _collection = cls._async_get_collection()
+
+        if projection:
+            return _collection.find(filter, projection, **kwargs)
+
+        return _collection.find(filter, **kwargs)
+
+    @classmethod
+    def _prepare_query(
+        cls,
+        query_set: Any,
+        sort: Optional[SORT_TYPE] = None,
+        skip: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> Any:
+        """Helper method to prepare query with sort, skip and limit parameters."""
+        if sort:
+            query_set = query_set.sort(sort)
+        if skip:
+            query_set = query_set.skip(skip)
+        if limit:
+            query_set = query_set.limit(limit)
+
+        return query_set
+
+    @classmethod
+    def _get_child_models(cls) -> dict[str, Self]:
+        """Helper method to get child models mapping."""
+        model_children: dict[str, Self] = {}
+
+        for model in cls.__subclasses__():
+            child_model_name = model._get_child()
+            if child_model_name is None:
+                continue
+
+            model_children[child_model_name] = model  # type: ignore
+
+        return model_children
+
+    @classmethod
+    def _prepare_class_instance(
+        cls,
+        model_children: dict[str, Self],
+        data: DICT_TYPE,
+    ) -> Self:
+        if data.get(INHERITANCE_FIELD_NAME) in model_children:
+            """If this is a child model then convert it to that child model."""
+            kls = model_children[data[INHERITANCE_FIELD_NAME]]
+            return kls(**data)  # type: ignore
+
+        return cls(**data)
 
     @classmethod
     def find(
@@ -309,32 +430,37 @@ class Document(_BaseDocument):
         limit: Optional[int] = None,
         **kwargs: Any,
     ) -> Iterator[Self]:
-        if filter is None:
-            filter = {}
-
         qs = cls.find_raw(filter, projection, **kwargs)
-        if sort:
-            qs = qs.sort(sort)
-        if skip:
-            qs = qs.skip(skip)
-        if limit:
-            qs = qs.limit(limit)
+        qs = cls._prepare_query(qs, sort, skip, limit)
 
         if cls._has_children():
-            model_children = {}
-            for model in cls.__subclasses__():
-                model_children[model._get_child()] = model
-
+            model_children = cls._get_child_models()
             for data in qs:
-                if data.get(INHERITANCE_FIELD_NAME) in model_children:
-                    """If this is a child model then convert it to that child model."""
-                    yield model_children[data[INHERITANCE_FIELD_NAME]](**data)
-                else:
-                    """Convert it to the parent model"""
-                    yield cls(**data)
+                yield cls._prepare_class_instance(model_children, data)
+        else:
+            for data in qs:
+                yield cls(**data)
 
-        for data in qs:
-            yield cls(**data)
+    @classmethod
+    async def afind(
+        cls,
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
+        sort: Optional[SORT_TYPE] = None,
+        skip: Optional[int] = None,
+        limit: Optional[int] = None,
+        **kwargs: Any,
+    ) -> AsyncIterator[Self]:
+        qs = cls.afind_raw(filter, projection, **kwargs)
+        qs = cls._prepare_query(qs, sort, skip, limit)
+
+        if cls._has_children():
+            model_children = cls._get_child_models()
+            async for data in qs:
+                yield cls._prepare_class_instance(model_children, data)
+        else:
+            async for data in qs:
+                yield cls(**data)
 
     @classmethod
     def find_one(
@@ -344,15 +470,32 @@ class Document(_BaseDocument):
         sort: Optional[SORT_TYPE] = None,
         **kwargs: Any,
     ) -> Optional[Self]:
-        if filter is None:
-            filter = {}
-
         qs = cls.find_raw(filter, projection=projection, **kwargs)
         if sort:
             qs = qs.sort(sort)
+
         for data in qs.limit(1):
             """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
             return cls(**data)
+
+        return None
+
+    @classmethod
+    async def afind_one(
+        cls,
+        filter: Optional[DICT_TYPE] = None,
+        projection: Optional[DICT_TYPE] = None,
+        sort: Optional[SORT_TYPE] = None,
+        **kwargs: Any,
+    ) -> Optional[Self]:
+        qs = cls.afind_raw(filter, projection=projection, **kwargs)
+        if sort:
+            qs = qs.sort(sort)
+
+        async for data in qs.limit(1):
+            """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
+            return cls(**data)
+
         return None
 
     @classmethod
@@ -365,6 +508,20 @@ class Document(_BaseDocument):
         obj = cls.find_one(filter, sort=sort, **kwargs)
         if obj:
             return obj
+
+        raise ObjectDoesNotExist("Object not found.")
+
+    @classmethod
+    async def aget(
+        cls,
+        filter: DICT_TYPE,
+        sort: Optional[SORT_TYPE] = None,
+        **kwargs: Any,
+    ) -> Self:
+        obj = await cls.afind_one(filter, sort=sort, **kwargs)
+        if obj:
+            return obj
+
         raise ObjectDoesNotExist("Object not found.")
 
     @classmethod
@@ -377,41 +534,70 @@ class Document(_BaseDocument):
         obj = cls.find_one(filter, sort=sort, **kwargs)
         if obj:
             return obj, False
+
         return cls(**filter).create(), True
 
     @classmethod
-    def count_documents(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> int:
-        if filter is None:
-            filter = {}
+    async def aget_or_create(
+        cls,
+        filter: DICT_TYPE,
+        sort: Optional[SORT_TYPE] = None,
+        **kwargs: Any,
+    ) -> Tuple[Self, bool]:
+        obj = await cls.afind_one(filter, sort=sort, **kwargs)
+        if obj:
+            return obj, False
 
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        new_instance = await cls(**filter).acreate()
+
+        return new_instance, True
+
+    @classmethod
+    def count_documents(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> int:
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
+
         return _collection.count_documents(filter, **kwargs)
 
     @classmethod
-    def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
-        if filter is None:
-            filter = {}
+    async def acount_documents(
+        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+    ) -> int:
+        filter = cls._validate_and_prepare_filter(filter)
 
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        _collection = cls._async_get_collection()
 
-        _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
-        return _collection.count_documents(filter, **kwargs, limit=1) >= 1
+        return await _collection.count_documents(filter, **kwargs)
 
     @classmethod
-    def aggregate(
+    def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
+        """
+        It does not need to count all documents and avoid unnecessary db overhead.
+        """
+        for _ in cls.find_raw(filter, projection={"_id": 1}, **kwargs).limit(1):
+            return True
+
+        return False
+
+    @classmethod
+    async def aexists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
+        """
+        It does not need to count all documents and avoid unnecessary db overhead.
+        """
+        async for _ in cls.afind_raw(
+            filter, projection={"_id": 1}, is_async_action=True, **kwargs
+        ).limit(1):
+            return True
+
+        return False
+
+    @classmethod
+    def _prepare_aggregation_pipeline(
         cls,
         pipeline: List[Any],
-        get_raw: bool = False,
         inheritance_filter: bool = True,
-        **kwargs: Any,
-    ) -> Iterator[Any]:
-        _collection = cls._get_collection()
+    ) -> List[Any]:
         if inheritance_filter and cls._get_child() is not None:
             """
             If aggregate was called from the child model then add the "$match" stage
@@ -430,103 +616,254 @@ class Document(_BaseDocument):
                 pipeline = [
                     {"$match": {f"{INHERITANCE_FIELD_NAME}": cls._get_child()}}
                 ] + pipeline
-        for obj in _collection.aggregate(pipeline, **kwargs):
-            if get_raw is True:
-                yield obj
-            else:
-                # Convert dict to ODMObj
-                yield dict2obj(obj)
+
+        return pipeline
+
+    @classmethod
+    def _get_aggregation_obj(cls, obj: DICT_TYPE, get_raw: bool = False) -> Any:
+        if get_raw is True:
+            return obj
+
+        return dict2obj(obj)
+
+    @classmethod
+    def aggregate(
+        cls,
+        pipeline: List[Any],
+        get_raw: bool = False,
+        inheritance_filter: bool = True,
+        **kwargs: Any,
+    ) -> Iterator[Any]:
+        pipeline = cls._prepare_aggregation_pipeline(
+            pipeline, inheritance_filter=inheritance_filter
+        )
+        _collection = cls._get_collection()
+
+        query = _collection.aggregate(pipeline, **kwargs)
+
+        for obj in query:
+            yield cls._get_aggregation_obj(obj, get_raw=get_raw)
+
+    @classmethod
+    async def aaggregate(
+        cls,
+        pipeline: List[Any],
+        get_raw: bool = False,
+        inheritance_filter: bool = True,
+        **kwargs: Any,
+    ) -> AsyncIterator[Any]:
+        """
+        Return an async iterator for MongoDB aggregation results.
+        """
+        pipeline = cls._prepare_aggregation_pipeline(
+            pipeline, inheritance_filter=inheritance_filter
+        )
+        _collection = cls._async_get_collection()
+        query = await _collection.aggregate(pipeline, **kwargs)
+
+        async for obj in query:
+            yield cls._get_aggregation_obj(obj, get_raw=get_raw)
+
+    @classmethod
+    def _get_pipeline_for_random_one(cls, filter: DICT_TYPE) -> List[DICT_TYPE]:
+        return [{"$match": filter}, {"$sample": {"size": 1}}]
 
     @classmethod
     def get_random_one(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> Self:
-        if filter is None:
-            filter = {}
+        filter = cls._validate_and_prepare_filter(filter)
+        pipeline = cls._get_pipeline_for_random_one(filter)
 
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
-
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
-        pipeline = [{"$match": filter}, {"$sample": {"size": 1}}]
         for data in cls.aggregate(pipeline, get_raw=True, **kwargs):
             return cls(**data)
+
         raise ObjectDoesNotExist("Object not found.")
 
-    def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
-        filter = {"_id": self.id}
+    @classmethod
+    async def aget_random_one(
+        cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any
+    ) -> Self:
+        filter = cls._validate_and_prepare_filter(filter)
+        pipeline = cls._get_pipeline_for_random_one(filter)
+
+        async for data in cls.aaggregate(pipeline, get_raw=True, **kwargs):
+            return cls(**data)
+
+        raise ObjectDoesNotExist("Object not found.")
+
+    def _get_update_dict(self, raw: Optional[DICT_TYPE] = None) -> DICT_TYPE:
         if raw:
             updated_data = raw
         else:
             updated_data = {"$set": self.to_mongo()}
+
         if hasattr(self, "updated_at"):
             # Programmatically assign updated_at at the time of updating document.
             datetime_now = datetime.now()
             if "$set" not in updated_data:
                 updated_data["$set"] = {}
+
             updated_data["$set"]["updated_at"] = datetime_now
+
             self.__dict__.update({"updated_at": datetime_now})
 
+        return updated_data
+
+    def update(self, raw: Optional[DICT_TYPE] = None, **kwargs: Any) -> UpdateResult:
+        filter = {"_id": self.id}
+
+        updated_data = self._get_update_dict(raw)
+
         return self.update_one(filter, updated_data, **kwargs)
+
+    async def aupdate(
+        self, raw: Optional[DICT_TYPE] = None, **kwargs: Any
+    ) -> UpdateResult:
+        filter = {"_id": self.id}
+
+        updated_data = self._get_update_dict(raw)
+
+        return await self.aupdate_one(filter, updated_data, **kwargs)
 
     @classmethod
     def update_one(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        """Will perform as Pymongo update_one function."""
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
+
         return _collection.update_one(filter, data, **kwargs)
+
+    @classmethod
+    async def aupdate_one(
+        cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
+    ) -> UpdateResult:
+        filter = cls._validate_and_prepare_filter(filter)
+        _collection = cls._async_get_collection()
+
+        return await _collection.update_one(filter, data, **kwargs)
 
     @classmethod
     def update_many(
         cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
     ) -> UpdateResult:
-        """
-        Will perform as Pymongo update_many function.
-        Beware of using this method.
-        """
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
+
         return _collection.update_many(filter, data, **kwargs)
+
+    @classmethod
+    async def aupdate_many(
+        cls, filter: DICT_TYPE, data: DICT_TYPE, **kwargs: Any
+    ) -> UpdateResult:
+        filter = cls._validate_and_prepare_filter(filter)
+        _collection = cls._async_get_collection()
+
+        return await _collection.update_many(filter, data, **kwargs)
 
     def delete(self, **kwargs: Any) -> DeleteResult:
         return self.delete_one({"_id": self.id}, **kwargs)
 
+    async def adelete(self, **kwargs: Any) -> DeleteResult:
+        return await self.adelete_one({"_id": self.id}, **kwargs)
+
     @classmethod
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
         """Will perform as Pymongo delete_one function."""
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.delete_one(filter, **kwargs)
+
+    @classmethod
+    async def adelete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
+        """Will perform as Pymongo delete_one function."""
+        filter = cls._validate_and_prepare_filter(filter)
+        _collection = cls._async_get_collection()
+
+        return await _collection.delete_one(filter, **kwargs)
 
     @classmethod
     def delete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
         """Will perform as Pymongo delete_many function."""
-        validate_filter_dict(cls, filter)  # Validate filter with model fields
+        filter = cls._validate_and_prepare_filter(filter)
 
         _collection = cls._get_collection()
-        if cls._get_child() is not None:
-            filter = {**cls.get_inheritance_key(), **filter}
         return _collection.delete_many(filter, **kwargs)
+
+    @classmethod
+    async def adelete_many(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
+        """Will perform as Pymongo delete_many function."""
+        filter = cls._validate_and_prepare_filter(filter)
+        _collection = cls._async_get_collection()
+
+        return await _collection.delete_many(filter, **kwargs)
 
     @classmethod
     def bulk_write(
         cls, requests: Sequence[WriteOp[Any]], **kwargs: Any
     ) -> BulkWriteResult:
-        """
-        Will perform as Pymongo bulk_write function.
-        Beware of using this method.
-        """
         _collection = cls._get_collection()
         return _collection.bulk_write(requests, **kwargs)
+
+    @classmethod
+    async def abulk_write(
+        cls, requests: Sequence[WriteOp[Any]], **kwargs: Any
+    ) -> BulkWriteResult:
+        _collection = cls._async_get_collection()
+
+        return await _collection.bulk_write(requests, **kwargs)
+
+    @classmethod
+    def _get_loadable_fields_info(
+        cls,
+        fields: Optional[List[str]] = None,
+    ) -> RELATION_TYPE:
+        """Get model relational field from cache"""
+        cached_field_info = cls.get_relational_field_info()
+
+        """Match with user given fields"""
+        loadable_fields_info: Optional[RELATION_TYPE] = None
+        if fields:
+            loadable_fields_info = {}
+            for field in fields:
+                if field not in cached_field_info:
+                    raise Exception(f'Invalid field "{field}"')
+                loadable_fields_info[field] = cached_field_info[field]
+        else:
+            loadable_fields_info = {**cached_field_info}
+
+        return loadable_fields_info
+
+    @classmethod
+    def _get_instance_related_info(
+        cls, loadable_fields_info: RELATION_TYPE
+    ) -> Tuple[Dict[str, List[Any]], DICT_TYPE]:
+        field_keys = loadable_fields_info.keys()
+
+        fields_id_dict: Dict[str, List[RELATION_TYPE]] = {
+            field: [] for field in field_keys
+        }
+        field_data_data: DICT_TYPE = {field: {} for field in field_keys}
+
+        return fields_id_dict, field_data_data
+
+    @classmethod
+    def _get_objects_and_update_fields_id(
+        cls,
+        object_list: Union[Iterator[Self], Sequence[Self]],
+        loadable_fields_info: RELATION_TYPE,
+        fields_id_dict: Dict[str, List[Any]],
+    ) -> list[Self]:
+        results: list[Self] = []
+        for obj in object_list:
+            for field, field_info in loadable_fields_info.items():
+                fields_id_dict[field].append(obj.__dict__[field_info.local_field])
+
+            results.append(obj)
+
+        return results
 
     @classmethod
     def load_related(
@@ -542,45 +879,26 @@ class Document(_BaseDocument):
         if fields is None:
             fields = []
 
-        """Get model relational field from cache"""
-        cached_field_info = cls.get_relational_field_info()
-
-        """Match with user given fields"""
-        loadable_fields_info: Optional[RELATION_TYPE] = None
-        if fields:
-            loadable_fields_info = {}
-            for field in fields:
-                if field not in cached_field_info:
-                    raise Exception(f'Invalid field "{field}"')
-                loadable_fields_info[field] = cached_field_info[field]
-        else:
-            loadable_fields_info = {**cached_field_info}
-
-        field_keys = loadable_fields_info.keys()
-        fields_id_dict: Dict[str, List[RELATION_TYPE]] = {
-            field: [] for field in field_keys
-        }
-
-        """Load all necessary id from given object_list"""
-        results = []
-        for obj in object_list:
-            for field, field_info in loadable_fields_info.items():
-                fields_id_dict[field].append(obj.__dict__[field_info.local_field])
-            results.append(obj)
+        loadable_fields_info = cls._get_loadable_fields_info(fields)
+        fields_id_dict, field_data_data = cls._get_instance_related_info(
+            loadable_fields_info
+        )
+        results = cls._get_objects_and_update_fields_id(
+            object_list, loadable_fields_info, fields_id_dict
+        )
 
         """Load all document for all relational model"""
-        field_data_data: DICT_TYPE = {field: {} for field in field_keys}
         for field, ids in fields_id_dict.items():
-            field_data_data[field] = {
-                obj.id: obj
-                for obj in loadable_fields_info[field].model.find({"_id": {"$in": ids}})
-            }
+            query = loadable_fields_info[field].model.find({"_id": {"$in": ids}})
+
+            field_data_data[field] = {obj.id: obj for obj in query}
 
         """Assign loaded document with results"""
         for obj in results:
             for field, field_info in loadable_fields_info.items():
-                obj.__dict__[field] = field_data_data[field].get(
+                field_obj = field_data_data[field].get(
                     obj.__dict__[field_info.local_field]
                 )
+                obj.__dict__[field] = field_obj
 
         return results

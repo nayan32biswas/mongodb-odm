@@ -1,15 +1,14 @@
-import logging
 from typing import Optional
 
+import pytest
 from mongodb_odm import Document
 
-from .conftest import init_config  # noqa
-from .models.course import ContentDescription, Course
-from .utils import populate_data
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
+from tests.models.course import ContentDescription, Course
+from tests.utils import populate_data
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_document_as_model_error():
     try:
         _ = Document().create()
@@ -18,6 +17,7 @@ def test_document_as_model_error():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_invalid_allow_inheritance():
     class Parent(Document):
         field: Optional[int] = None
@@ -32,6 +32,7 @@ def test_invalid_allow_inheritance():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_allow_inheritance_true_for_child_and_parent():
     class Parent(Document):
         field: Optional[int] = None
@@ -52,6 +53,7 @@ def test_allow_inheritance_true_for_child_and_parent():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_invalid_Config():
     class Parent(Document):
         field: Optional[int] = None
@@ -70,6 +72,7 @@ def test_invalid_Config():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_error_on_null_obj():
     populate_data()
     try:
@@ -79,6 +82,7 @@ def test_get_error_on_null_obj():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_random_one_none():
     try:
         _ = ContentDescription.get_random_one({"_id": -1})

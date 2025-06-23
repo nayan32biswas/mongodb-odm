@@ -1,10 +1,7 @@
-import logging
 from typing import Any
 
 from mongodb_odm.types import DICT_TYPE
 from mongodb_odm.utils.utils import get_type_from_field
-
-logger = logging.getLogger()
 
 
 def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:

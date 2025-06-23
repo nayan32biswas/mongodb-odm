@@ -1,18 +1,17 @@
-import logging
 from time import sleep
 from typing import Any
 from uuid import uuid4
 
+import pytest
 from mongodb_odm.models import Document
 from pymongo.errors import OperationFailure
 
-from .conftest import init_config  # noqa
-from .models.course import Course
-from .models.user import get_user
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
+from tests.models.course import Course
+from tests.models.user import get_user
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_create_with_transaction():
     user = get_user()
 
@@ -33,6 +32,7 @@ def test_create_with_transaction():
         )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_create_with_transaction_rollback():
     user = get_user()
 
@@ -59,6 +59,7 @@ def test_create_with_transaction_rollback():
         )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_update_with_transaction_rollback():
     user = get_user()
 

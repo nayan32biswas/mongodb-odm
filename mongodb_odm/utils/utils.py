@@ -2,11 +2,10 @@ import re
 import types
 from typing import Any, Dict, List, Optional, Type, Union
 
+from mongodb_odm.fields import RelationshipInfo
+from mongodb_odm.utils._internal_models import RelationalFieldInfo
 from pydantic import BaseModel
 from typing_extensions import get_args, get_origin
-
-from ..fields import RelationshipInfo
-from ._internal_models import RelationalFieldInfo
 
 UnionType = getattr(types, "UnionType", Union)
 NoneType = type(None)

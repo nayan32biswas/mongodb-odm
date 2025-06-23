@@ -1,14 +1,13 @@
-import logging
+import pytest
 
-from .conftest import init_config  # noqa
-from .models.course import Course
-from .utils import populate_data
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
+from tests.models.course import Course
+from tests.utils import populate_data
 
 UPDATE_TITLE = "Update Title"
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_update_model():
     populate_data()
 
@@ -22,6 +21,7 @@ def test_update_model():
     course.delete()
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_update_model_raw():
     populate_data()
 
@@ -37,6 +37,7 @@ def test_update_model_raw():
     course.delete()
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_update_one():
     populate_data()
 
@@ -51,6 +52,7 @@ def test_update_one():
     course.delete()
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_update_many():
     populate_data()
 

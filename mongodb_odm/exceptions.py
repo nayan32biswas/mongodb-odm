@@ -8,3 +8,7 @@ class ConnectionError(Exception):
 
 class InvalidConnection(Exception):
     pass
+
+
+class InvalidAction(Exception):
+    pass

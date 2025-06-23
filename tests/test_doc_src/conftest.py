@@ -1,22 +1,17 @@
-import os
-
 import pytest
-from mongodb_odm.connection import disconnect, drop_database
+from mongodb_odm.connection import connect, disconnect
 
-DB_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
+from tests.conftest import MONGO_URL
+from tests.utils import drop_all_user_databases
+
+SETUP_TEST_DATABASE = "setup_test_database"
 
 
 @pytest.fixture
 def setup_test_database():
-    try:
-        drop_database()
-        drop_database("logging")
-    except Exception:
-        pass
-    try:
-        disconnect()
-    except Exception:
-        pass
+    client = connect(MONGO_URL)
+    drop_all_user_databases(client)
+    disconnect()
 
     yield None
 

@@ -1,16 +1,14 @@
-import logging
-
+import pytest
 from mongodb_odm import DeleteOne, Document, InsertOne, UpdateOne
 
-from .conftest import init_config  # noqa
-
-logger = logging.getLogger(__name__)
+from tests.conftest import INIT_CONFIG
 
 
 class NewModel(Document):
     title: str
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_bulk_insert():
     NewModel.bulk_write(
         [
@@ -20,6 +18,7 @@ def test_bulk_insert():
     )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_bulk_update():
     NewModel.bulk_write(
         [
@@ -28,6 +27,7 @@ def test_bulk_update():
     )
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_bulk_delete():
     NewModel.bulk_write(
         [DeleteOne({"title": "bulk insert"}), DeleteOne({"title": "updated"})]
