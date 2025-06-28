@@ -585,9 +585,7 @@ class Document(_BaseDocument):
         """
         It does not need to count all documents and avoid unnecessary db overhead.
         """
-        async for _ in cls.afind_raw(
-            filter, projection={"_id": 1}, is_async_action=True, **kwargs
-        ).limit(1):
+        async for _ in cls.afind_raw(filter, projection={"_id": 1}, **kwargs).limit(1):
             return True
 
         return False
@@ -772,6 +770,8 @@ class Document(_BaseDocument):
     def delete_one(cls, filter: DICT_TYPE, **kwargs: Any) -> DeleteResult:
         """Will perform as Pymongo delete_one function."""
         filter = cls._validate_and_prepare_filter(filter)
+
+        print(f"delete_many filter: {filter}, kwargs: {kwargs}")
 
         _collection = cls._get_collection()
         return _collection.delete_one(filter, **kwargs)

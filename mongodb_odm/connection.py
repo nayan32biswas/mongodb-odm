@@ -2,6 +2,7 @@ import logging
 from typing import Any, Optional, Set, Union
 
 from mongodb_odm.exceptions import ConnectionError, InvalidAction, InvalidConnection
+from mongodb_odm.types import DICT_TYPE
 from mongodb_odm.utils._internal_models import Connection
 from pymongo import AsyncMongoClient, MongoClient
 from pymongo.asynchronous.database import AsyncDatabase
@@ -13,16 +14,21 @@ logger = logging.getLogger(__name__)
 __connection_obj = Connection()
 
 
-def _get_connection_client(url: str) -> MongoClient[Any]:
-    return MongoClient(url)
+def _get_connection_client(url: str, connection_kwargs: DICT_TYPE) -> MongoClient[Any]:
+    return MongoClient(url, **connection_kwargs)
 
 
-def _get_async_connection_client(url: str) -> AsyncMongoClient[Any]:
-    return AsyncMongoClient(url)
+def _get_async_connection_client(
+    url: str, connection_kwargs: DICT_TYPE
+) -> AsyncMongoClient[Any]:
+    return AsyncMongoClient(url, **connection_kwargs)
 
 
 def connect(
-    url: str, databases: Optional[Set[str]] = None, async_is_enabled: bool = False
+    url: str,
+    databases: Optional[Set[str]] = None,
+    connection_kwargs: Optional[DICT_TYPE] = None,
+    async_is_enabled: bool = False,
 ) -> Union[AsyncMongoClient[Any], MongoClient[Any]]:
     """
     This connect function should manage and store database connection config
@@ -35,6 +41,9 @@ def connect(
         values should be a set of strings that are assigned on define models.
         The value is meant to validate that user is not trying to connect
         to a database that is not defined in the models.
+
+    connection_kwargs: dict, optional
+        Additional connection parameters that can be passed to MongoClient or AsyncMongoClient.
 
     async_is_enabled: bool, optional
         If True then use AsyncMongoClient, otherwise use MongoClient.
@@ -53,11 +62,14 @@ def connect(
         """Assign empty set as default value"""
         databases = set()
 
+    if not connection_kwargs:
+        connection_kwargs = {}
+
     client: Union[AsyncMongoClient[Any], MongoClient[Any]]
     if async_is_enabled:
-        client = _get_async_connection_client(url)
+        client = _get_async_connection_client(url, connection_kwargs)
     else:
-        client = _get_connection_client(url)
+        client = _get_connection_client(url, connection_kwargs)
 
     default_database = client.get_default_database().name
     databases.add(default_database)
@@ -67,6 +79,7 @@ def connect(
     __connection_obj.databases = databases
     __connection_obj.client = client
     __connection_obj.async_is_enabled = async_is_enabled
+    __connection_obj.connection_kwargs = connection_kwargs
 
     logger.info("Connection established successfully")
 
@@ -76,19 +89,13 @@ def connect(
 def _disconnect_common() -> bool:
     global __connection_obj
 
-    if __connection_obj.url:
-        __connection_obj.url = None
-    else:
-        logger.warning("No connection URL found.")
-
-    logger.info("Disconnect the db connection")
-
     from mongodb_odm.models import _clear_cache
 
     _clear_cache()
 
-    result = Connection()
-    __connection_obj = result
+    __connection_obj = Connection()  # Reset the connection object
+
+    logger.info("Disconnect the db connection")
 
     return True
 
@@ -105,8 +112,12 @@ def disconnect() -> bool:
             "The client is configured as async. Use adisconnect() instead."
         )
 
-    __connection_obj.client.close()
-    __connection_obj.client = None
+    try:
+        __connection_obj.client.close()
+    except Exception as e:
+        logger.error(f"Error while closing the connection: {e}")
+    finally:
+        __connection_obj.client = None
 
     return _disconnect_common()
 
@@ -143,11 +154,13 @@ def get_client() -> Union[AsyncMongoClient[Any] | MongoClient[Any]]:
         raise ConnectionError("DB connection URL is not provided")
 
     databases = __connection_obj.databases
+    connection_kwargs = __connection_obj.connection_kwargs
     async_is_enabled = __connection_obj.async_is_enabled
 
     return connect(
         __connection_obj.url,
         databases=databases,
+        connection_kwargs=connection_kwargs,
         async_is_enabled=async_is_enabled,
     )
 

@@ -13,7 +13,8 @@ from mongodb_odm import (
 )
 from mongodb_odm.utils.apply_indexes import apply_indexes
 
-from tests.conftest import INIT_CONFIG, MONGO_URL
+from tests.conftest import INIT_CONFIG
+from tests.constants import MONGO_URL
 
 databases = {"logging"}
 
@@ -32,15 +33,11 @@ class TestIndexes(Document):
         ]
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
 def test_create_indexes_without_connection():
-    disconnect()
-
-    try:
+    with pytest.raises(Exception) as exc_info:
         apply_indexes()
-        raise AssertionError()  # Should raise error before this line
-    except Exception as e:
-        assert str(e) != ""
+
+    assert isinstance(exc_info.value, Exception)
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)

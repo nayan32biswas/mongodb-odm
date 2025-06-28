@@ -1,5 +1,6 @@
 from typing import Any, Optional, Set, Union
 
+from mongodb_odm.types import DICT_TYPE
 from pydantic import BaseModel
 from pydantic._internal._repr import Representation as PydanticRepresentation
 from pymongo import AsyncMongoClient, MongoClient
@@ -10,6 +11,7 @@ class Connection:
     url: Optional[str] = None
     client: Optional[Union[MongoClient[Any], AsyncMongoClient[Any]]] = None
     databases: Optional[Set[str]] = None
+    connection_kwargs: Optional[DICT_TYPE] = None
     async_is_enabled: bool = False
 
 

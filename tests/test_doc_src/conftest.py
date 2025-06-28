@@ -1,7 +1,7 @@
 import pytest
 from mongodb_odm.connection import connect, disconnect
 
-from tests.conftest import MONGO_URL
+from tests.constants import MONGO_URL
 from tests.utils import drop_all_user_databases
 
 SETUP_TEST_DATABASE = "setup_test_database"

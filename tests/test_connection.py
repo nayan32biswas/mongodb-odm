@@ -1,10 +1,11 @@
 from typing import Optional
 
+import pytest
 from mongodb_odm import Document
-from mongodb_odm.connection import connect, disconnect, get_client
+from mongodb_odm.connection import ConnectionError, connect, disconnect, get_client
 from pymongo import MongoClient
 
-from tests.conftest import MONGO_URL
+from tests.constants import MONGO_URL
 
 databases = {"logging"}
 
@@ -29,12 +30,26 @@ def test_disconnect():
         assert str(e) != ""
 
 
-def test_get_client():
+def test_get_client_raises_connection_error():
     try:
-        print(get_client())
-        raise AssertionError()  # Should raise error before this line
-    except Exception as e:
-        assert str(e) != ""
+        # Ensure we are disconnected before testing
+        disconnect()
+    except Exception:
+        pass
+
+    with pytest.raises(ConnectionError) as exc_info:
+        get_client()
+
+    assert isinstance(exc_info.value, ConnectionError)
+
+
+def test_get_client_returns_client():
+    connect(MONGO_URL)
+
+    client = get_client()
+    assert isinstance(client, MongoClient)
+
+    disconnect()
 
 
 def clean_all_database(client):
