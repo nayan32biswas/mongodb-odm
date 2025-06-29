@@ -394,9 +394,9 @@ class Document(_BaseDocument):
         return query_set
 
     @classmethod
-    def _get_child_models(cls) -> dict[str, Self]:
+    def _get_child_models(cls) -> Dict[str, Self]:
         """Helper method to get child models mapping."""
-        model_children: dict[str, Self] = {}
+        model_children: Dict[str, Self] = {}
 
         for model in cls.__subclasses__():
             child_model_name = model._get_child()
@@ -410,7 +410,7 @@ class Document(_BaseDocument):
     @classmethod
     def _prepare_class_instance(
         cls,
-        model_children: dict[str, Self],
+        model_children: Dict[str, Self],
         data: DICT_TYPE,
     ) -> Self:
         if data.get(INHERITANCE_FIELD_NAME) in model_children:
@@ -855,8 +855,8 @@ class Document(_BaseDocument):
         object_list: Union[Iterator[Self], Sequence[Self]],
         loadable_fields_info: RELATION_TYPE,
         fields_id_dict: Dict[str, List[Any]],
-    ) -> list[Self]:
-        results: list[Self] = []
+    ) -> List[Self]:
+        results: List[Self] = []
         for obj in object_list:
             for field, field_info in loadable_fields_info.items():
                 fields_id_dict[field].append(obj.__dict__[field_info.local_field])

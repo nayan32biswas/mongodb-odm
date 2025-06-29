@@ -140,7 +140,7 @@ async def adisconnect() -> bool:
     return _disconnect_common()
 
 
-def get_client() -> Union[AsyncMongoClient[Any] | MongoClient[Any]]:
+def get_client() -> Union[AsyncMongoClient[Any], MongoClient[Any]]:
     """
     Function should return MongoClient if url exists.
     Otherwise raise ConnectionError error

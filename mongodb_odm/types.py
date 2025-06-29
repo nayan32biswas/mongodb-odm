@@ -61,7 +61,7 @@ class ODMObjectId(ObjectId):
             """
             return ObjectId(v)
         except Exception as e:
-            raise ValueError("Invalid data. ObjectId required") from e
+            raise TypeError("Invalid data. ObjectId required") from e
 
 
 class ObjectIdStr(str):
@@ -95,4 +95,5 @@ class ObjectIdStr(str):
                 return str(ObjectId(v))
             except Exception as e:
                 raise TypeError("Invalid ObjectId") from e
+
         raise TypeError("Invalid data. ObjectId required")

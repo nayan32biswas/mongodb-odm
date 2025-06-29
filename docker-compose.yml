@@ -22,6 +22,11 @@ services:
         reservations: # Guarantees these resources are available
           cpus: "1" # Reserve 1 CPU
           memory: 2G # Reserve 2 GB of memory
+    ulimits:
+      nofile:
+        soft: 64000 # Soft limit (warning threshold)
+        hard: 64000 # Hard limit (absolute maximum)
+      nproc: 64000 # Max number of processes
 
   mongodb_follower:
     image: mongo:8.0
@@ -44,6 +49,11 @@ services:
         reservations: # Guarantees these resources are available
           cpus: "1" # Reserve 1 CPU
           memory: 2G # Reserve 2 GB of memory
+    ulimits:
+      nofile:
+        soft: 64000 # Soft limit (warning threshold)
+        hard: 64000 # Hard limit (absolute maximum)
+      nproc: 64000 # Max number of processes
 
   init-replica:
     image: mongo:8.0
@@ -75,7 +85,7 @@ services:
     container_name: mongodb_odm_app
     command: python -m coverage run -m pytest tests
     environment:
-      MONGO_URL: mongodb://db:27017/testdb
+      MONGO_URL: mongodb://mongodb:27017/testdb?directConnection=true&replicaSet=rs0
     depends_on:
       - init-replica
     volumes:
@@ -91,3 +101,15 @@ volumes:
 networks:
   mongodb_odm_tier:
     driver: bridge
+# ------------------------------------------------------
+
+# Use full commands:
+
+# docker compose down --remove-orphans --volumes
+# docker compose up -d init-replica
+
+## Mongodb Status
+
+# docker exec -it mongodb_odm_db mongostat
+# docker exec -it mongodb_odm_db mongotop
+# docker exec -it mongodb_odm_db mongosh --eval "printjson(db.serverStatus().connections)"

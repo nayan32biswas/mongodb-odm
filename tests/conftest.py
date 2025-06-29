@@ -28,9 +28,12 @@ def init_config(database_connection):
 
 @pytest.fixture()
 async def async_init_config():
+    # Due to asyncio event loop restrictions, we need to open new connections for each async test
     connect(MONGO_URL, connection_kwargs=CONNECTION_POOL_PARAMS, async_is_enabled=True)
     await db().command("dropDatabase")
 
     yield None
 
+    await db().command("dropDatabase")
+    # We need to disconnect the async client after the test so that new connections can be established in the next async test
     await adisconnect()

@@ -6,7 +6,9 @@ MONGO_URL = os.environ.get(
 )
 
 CONNECTION_POOL_PARAMS = {
-    "maxPoolSize": 10,
+    "maxPoolSize": 255,
     "minPoolSize": 1,
     "maxIdleTimeMS": 30000,
+    "connectTimeoutMS": 2000,
+    "socketTimeoutMS": 2000,
 }
