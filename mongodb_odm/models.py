@@ -15,7 +15,7 @@ from typing import (
 
 from mongodb_odm.connection import db, get_client
 from mongodb_odm.data_conversion import dict2obj
-from mongodb_odm.exceptions import ObjectDoesNotExist
+from mongodb_odm.exceptions import InvalidConfiguration, ObjectDoesNotExist
 from mongodb_odm.fields import Field
 from mongodb_odm.types import DICT_TYPE, SORT_TYPE, ODMObjectId, WriteOp
 from mongodb_odm.utils._internal_models import CollectionConfig, RelationalFieldInfo
@@ -114,14 +114,14 @@ class _BaseDocument(BaseModel):
                 not hasattr(base_model.ODMConfig, "allow_inheritance")
                 or base_model.ODMConfig.allow_inheritance is not True
             ):
-                raise Exception(
+                raise InvalidConfiguration(
                     f"Invalid model inheritance. {base_model} does not allow model inheritance."
                 )
             if (
                 base_model.ODMConfig.allow_inheritance is True
                 and model.ODMConfig.allow_inheritance is True
             ):
-                raise Exception(
+                raise InvalidConfiguration(
                     f"Child Model{model.__name__} should declare a separate ODMConfig class."
                 )
             return base_model, model
@@ -254,7 +254,7 @@ class _BaseDocument(BaseModel):
     def start_session(cls, **kwargs: Any) -> ClientSession:
         client = get_client()
         if not isinstance(client, MongoClient):
-            raise Exception(
+            raise InvalidConfiguration(
                 "Client is not configured for sync operations use 'astart_session' instead."
             )
 
@@ -264,7 +264,7 @@ class _BaseDocument(BaseModel):
     def astart_session(cls, **kwargs: Any) -> AsyncClientSession:
         client = get_client()
         if not isinstance(client, AsyncMongoClient):
-            raise Exception(
+            raise InvalidConfiguration(
                 "Client is not configured for async operations use 'start_session' instead."
             )
 

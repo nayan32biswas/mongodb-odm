@@ -32,17 +32,23 @@ class ODMObjectId(ObjectId):
     def __get_pydantic_core_schema__(
         cls, _source_type: Any, _handler: Any
     ) -> core_schema.CoreSchema:
-        object_id_schema = core_schema.chain_schema(
-            [
-                core_schema.str_schema(),
-                core_schema.no_info_plain_validator_function(cls.validate),
-            ]
-        )
-
         return core_schema.json_or_python_schema(
-            json_schema=core_schema.str_schema(),
-            python_schema=core_schema.union_schema(
-                [core_schema.is_instance_schema(ObjectId), object_id_schema]
+            json_schema=core_schema.chain_schema(
+                [
+                    core_schema.str_schema(),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
+            ),
+            python_schema=core_schema.chain_schema(
+                [
+                    core_schema.union_schema(
+                        [
+                            core_schema.is_instance_schema(ObjectId),
+                            core_schema.str_schema(),
+                        ]
+                    ),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda x: ObjectId(x)
@@ -55,13 +61,9 @@ class ODMObjectId(ObjectId):
             """No conversion needed if type are already ObjectId"""
             return v
         try:
-            """
-            If value is valid string for ObjectId then convert it ObjectId
-            or it will raise error from ObjectId validation
-            """
             return ObjectId(v)
         except Exception as e:
-            raise TypeError("Invalid data. ObjectId required") from e
+            raise ValueError("Invalid data. ObjectId required") from e
 
 
 class ObjectIdStr(str):
@@ -69,17 +71,23 @@ class ObjectIdStr(str):
     def __get_pydantic_core_schema__(
         cls, _source_type: Any, _handler: Any
     ) -> core_schema.CoreSchema:
-        object_id_schema = core_schema.chain_schema(
-            [
-                core_schema.str_schema(),
-                core_schema.no_info_plain_validator_function(cls.validate),
-            ]
-        )
-
         return core_schema.json_or_python_schema(
-            json_schema=core_schema.str_schema(),
-            python_schema=core_schema.union_schema(
-                [core_schema.is_instance_schema(ObjectId), object_id_schema]
+            json_schema=core_schema.chain_schema(
+                [
+                    core_schema.str_schema(),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
+            ),
+            python_schema=core_schema.chain_schema(
+                [
+                    core_schema.union_schema(
+                        [
+                            core_schema.is_instance_schema(ObjectId),
+                            core_schema.str_schema(),
+                        ]
+                    ),
+                    core_schema.no_info_plain_validator_function(cls.validate),
+                ]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda x: str(x)
@@ -94,6 +102,6 @@ class ObjectIdStr(str):
             try:
                 return str(ObjectId(v))
             except Exception as e:
-                raise TypeError("Invalid ObjectId") from e
+                raise ValueError("Invalid ObjectId") from e
 
-        raise TypeError("Invalid data. ObjectId required")
+        raise ValueError("Invalid data. ObjectId required")

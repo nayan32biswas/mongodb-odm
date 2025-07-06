@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Set, Union
+from typing import Any, Optional, Set, Union, cast
 
 from mongodb_odm.exceptions import ConnectionError, InvalidAction, InvalidConnection
 from mongodb_odm.types import DICT_TYPE
@@ -100,7 +100,7 @@ def _disconnect_common() -> bool:
     return True
 
 
-def disconnect() -> bool:
+def disconnect(raise_error: bool = True) -> bool:
     global __connection_obj
 
     if __connection_obj.client is None:
@@ -108,21 +108,27 @@ def disconnect() -> bool:
         return _disconnect_common()
 
     if isinstance(__connection_obj.client, AsyncMongoClient):
-        raise InvalidAction(
-            "The client is configured as async. Use adisconnect() instead."
-        )
+        if not raise_error:
+            logger.warning(
+                "The client is configured as async. Use adisconnect() instead."
+            )
+            # We are not closing the async client expecting since this is a silent disconnect.
+            # Also it's not possible to call close() on an async client in a sync context.
+            __connection_obj.client = None
 
-    try:
-        __connection_obj.client.close()
-    except Exception as e:
-        logger.error(f"Error while closing the connection: {e}")
-    finally:
-        __connection_obj.client = None
+            return _disconnect_common()
+        else:
+            raise InvalidAction(
+                "The client is configured as async. Use adisconnect() instead."
+            )
+
+    __connection_obj.client.close()
+    __connection_obj.client = None
 
     return _disconnect_common()
 
 
-async def adisconnect() -> bool:
+async def adisconnect(raise_error: bool = True) -> bool:
     global __connection_obj
 
     if __connection_obj.client is None:
@@ -130,9 +136,12 @@ async def adisconnect() -> bool:
         return _disconnect_common()
 
     if isinstance(__connection_obj.client, MongoClient):
-        raise InvalidAction(
-            "The client is configured as sync. Use disconnect() instead."
-        )
+        if not raise_error:
+            return disconnect()
+        else:
+            raise InvalidAction(
+                "The client is configured as sync. Use disconnect() instead."
+            )
 
     await __connection_obj.client.close()
     __connection_obj.client = None
@@ -200,27 +209,22 @@ def db(
 
 
 def drop_database(database: Optional[str] = None) -> None:
-    collection = db(database)
-    if not isinstance(collection, Database):
-        raise InvalidAction(
-            "The client is not configured as sync please use 'adrop_database' instead."
-        )
+    collection = db(database, is_async_action=False)
 
     collection.command("dropDatabase")
 
 
 async def adrop_database(database: Optional[str] = None) -> None:  # noqa
     collection = db(database, is_async_action=True)
-    if not isinstance(collection, AsyncDatabase):
-        raise InvalidAction(
-            "The client is not configured as async please use 'drop_database' instead."
-        )
+
+    collection = cast(AsyncDatabase[Any], collection)
 
     await collection.command("dropDatabase")
 
 
-async def is_async() -> bool:
+def is_async() -> bool:
     global __connection_obj
+
     if not __connection_obj.client:
         raise ConnectionError("No connection established. Please connect first.")
 

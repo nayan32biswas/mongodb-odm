@@ -12,3 +12,7 @@ class InvalidConnection(Exception):
 
 class InvalidAction(Exception):
     pass
+
+
+class InvalidConfiguration(Exception):
+    pass
