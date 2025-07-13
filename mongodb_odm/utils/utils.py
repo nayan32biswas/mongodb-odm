@@ -24,6 +24,7 @@ def get_database_name(model: Any) -> Optional[Any]:
     """
     if hasattr(model.ODMConfig, "database"):
         return model.ODMConfig.database
+
     return None
 
 
@@ -53,24 +54,31 @@ def _is_union_type(t: Any) -> bool:
 
 def get_type_from_field(field: Any) -> Any:
     type_: Any = field.annotation
+
     # Resolve Optional fields
     if type_ is None:
         raise ValueError("Missing field type")
+
     origin = get_origin(type_)
+
     if origin is None:
         return type_
+
     if _is_union_type(origin):
         bases = get_args(type_)
+
         if len(bases) > 2:
             raise ValueError("Cannot have a (non-optional) union as a ODM field")
         # Non optional unions are not allowed
         if bases[0] is not NoneType and bases[1] is not NoneType:
             raise ValueError("Cannot have a (non-optional) union as a ODM field")
+
         # Optional unions are allowed
         return bases[0] if bases[0] is not NoneType else bases[1]
     elif origin is list:
         inner_type_ = get_args(type_)[0]
         return inner_type_
+
     return origin
 
 
@@ -104,6 +112,7 @@ def _get_fields_info(
             local_field=field_type_obj.default.local_field,  # author_id
             related_field=field_type_obj.default.related_field,  # author
         )
+
     return field_data
 
 
@@ -120,4 +129,5 @@ def get_relationship_fields_info(
         """Get all fields that are related to a specific model."""
         if type(field_info.default) is RelationshipInfo:
             fields_name.append(field_name)
+
     return _get_fields_info(cls, fields_name)
