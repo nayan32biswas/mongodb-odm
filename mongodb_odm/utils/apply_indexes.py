@@ -1,10 +1,9 @@
-import asyncio
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from bson import SON
 from mongodb_odm.connection import db
-from mongodb_odm.exceptions import InvalidConnection
+from mongodb_odm.exceptions import ConnectionError, InvalidConnection
 from mongodb_odm.models import INHERITANCE_FIELD_NAME, Document
 from pydantic import BaseModel
 from pymongo import ASCENDING, TEXT, IndexModel
@@ -27,7 +26,7 @@ def get_collection_indexes(
         return collection.list_indexes()
 
     if isinstance(collection, AsyncCollection):
-        return asyncio.run(collection.list_indexes())
+        raise ConnectionError("Use synchronous collection for indexes.")
 
 
 def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
