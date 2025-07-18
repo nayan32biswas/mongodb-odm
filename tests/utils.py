@@ -9,6 +9,8 @@ from tests.models.course import (
 )
 from tests.models.user import User
 
+ASYNC_DESCRIPTION = "Async Description"
+
 
 def create_users():
     User(username="one", full_name="Full Name").create()
@@ -74,6 +76,49 @@ async def async_create_courses(total_courses=1):
         courses.append(course)
 
     return courses
+
+
+async def async_create_contents():
+    author_id = ODMObjectId()
+
+    course = await Course(
+        author_id=author_id,
+        title="Random Course",
+    ).acreate()
+
+    content_description = await ContentDescription(
+        course_id=course.id, description=ASYNC_DESCRIPTION
+    ).acreate()
+
+    content_image = await ContentImage(
+        course_id=course.id, image_path="/media/async_image.png"
+    ).acreate()
+
+    return content_description, content_image
+
+
+async def async_create_comments():
+    user_one_id = ODMObjectId()
+    user_two_id = ODMObjectId()
+
+    course_one = await Course.acreate({"title": "one", "author_id": user_one_id})
+    course_two = await Course.acreate({"title": "two", "author_id": user_two_id})
+
+    comment_one = await Comment(
+        course_id=course_one.id,
+        user_id=user_one_id,
+        description="Comment One",
+    ).acreate()
+    await Comment(
+        course_id=course_two.id,
+        user_id=user_two_id,
+        description="Comment Two",
+    ).acreate()
+
+    comment_one.children.append(
+        EmbeddedComment(user_id=user_one_id, description="Child comment one")
+    )
+    await comment_one.update()
 
 
 def drop_all_user_databases(client):

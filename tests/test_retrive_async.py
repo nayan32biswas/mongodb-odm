@@ -16,6 +16,10 @@ async def test_afind_one():
     assert db_course is not None, "The course should be found in the database"
     assert db_course.id == course.id, "Course ID should match the created course ID"
 
+    db_course = await Course.afind_one({"_id": course.id}, sort=[("title", 1)])
+
+    assert db_course is not None, "The course should be found in the database"
+
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
 async def test_afind_raw():
@@ -57,22 +61,37 @@ async def test_aget():
     assert isinstance(db_course, Course), "Course should be a Course instance"
     assert db_course.id == course.id, "Course ID should match the created course ID"
 
+    with pytest.raises(ObjectDoesNotExist):
+        await Course.aget({"_id": ODMObjectId()})
+
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
 async def test_aget_or_create():
+    new_course_title = "New Course Title"
+
+    # Ensure no existing course with this title
+    await Course.adelete_many({"title": new_course_title})
+
     course_author_id = ODMObjectId()
-    course, _ = await Course.aget_or_create(
-        {
-            "author_id": course_author_id,
-            "title": "New Course Title",
-        },
+    course, created = await Course.aget_or_create(
+        {"author_id": course_author_id, "title": new_course_title},
     )
+
+    assert created is True, "Course should be created"
+    assert isinstance(course, Course), "Course should be a Course instance"
 
     db_course = await Course.aget({"author_id": course.author_id})
 
     assert db_course is not None, "Course should be found in the database"
     assert isinstance(db_course, Course), "Course should be a Course instance"
     assert db_course.id == course.id, "Course ID should match the created course ID"
+
+    course, created = await Course.aget_or_create(
+        {"author_id": course_author_id, "title": new_course_title},
+    )
+
+    assert created is False, "Course should not be created again"
+    assert isinstance(course, Course), "Course should be a Course instance"
 
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
