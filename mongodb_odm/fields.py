@@ -1,4 +1,5 @@
-from typing import AbstractSet, Any, Callable, Mapping, Optional, Union
+from collections.abc import Mapping
+from typing import AbstractSet, Any, Callable, Optional, Union
 
 from pydantic._internal._repr import Representation as PydanticRepresentation
 from pydantic.fields import FieldInfo as PydanticFieldInfo

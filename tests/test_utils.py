@@ -2,7 +2,7 @@ from typing import List, Optional, Union
 from unittest.mock import Mock
 
 import pytest
-from mongodb_odm.fields import RelationshipInfo
+from mongodb_odm import Document, ODMObjectId, Relationship
 from mongodb_odm.utils._internal_models import RelationalFieldInfo
 from mongodb_odm.utils.utils import (
     _get_fields_info,
@@ -152,19 +152,7 @@ class TestGetFieldsInfo:
 
         class MockModel(BaseModel):
             author_id: str = Field(...)
-
-            @classmethod
-            @property
-            def model_fields(cls):
-                # Mock the relationship field
-                mock_field = Mock()
-                mock_field.default = RelationshipInfo(local_field="author_id")
-                mock_field.annotation = Optional[User]
-
-                # Mock the local field
-                mock_local_field = Mock()
-
-                return {"author": mock_field, "author_id": mock_local_field}
+            author: Optional[User] = Relationship(local_field="author_id")
 
         result = _get_fields_info(MockModel, ["author"])
 
@@ -175,19 +163,11 @@ class TestGetFieldsInfo:
         assert result["author"].local_field == "author_id"
 
     def test_get_fields_info_invalid_local_field(self):
-        class User(BaseModel):
+        class User(Document):
             id: str
 
         class MockModel(BaseModel):
-            @classmethod
-            @property
-            def model_fields(cls):
-                # Mock the relationship field with invalid local_field
-                mock_field = Mock()
-                mock_field.default = RelationshipInfo(local_field="nonexistent_field")
-                mock_field.annotation = Optional[User]
-
-                return {"author": mock_field}
+            author: Optional[User] = Relationship(local_field="nonexistent_field")
 
         with pytest.raises(
             Exception, match='Invalid field "nonexistent_field" in Relationship'
@@ -197,30 +177,13 @@ class TestGetFieldsInfo:
 
 class TestGetRelationshipFieldsInfo:
     def test_get_relationship_fields_info_with_relationships(self):
-        class User(BaseModel):
+        class User(Document):
             id: str
 
-        class MockModel(BaseModel):
-            @classmethod
-            @property
-            def model_fields(cls):
-                # Mock relationship field
-                mock_rel_field = Mock()
-                mock_rel_field.default = RelationshipInfo(local_field="author_id")
-                mock_rel_field.annotation = Optional[User]
-
-                # Mock regular field
-                mock_regular_field = Mock()
-                mock_regular_field.default = "some_default"
-
-                # Mock local field
-                mock_local_field = Mock()
-
-                return {
-                    "author": mock_rel_field,
-                    "title": mock_regular_field,
-                    "author_id": mock_local_field,
-                }
+        class MockModel(Document):
+            title: str = Field(...)
+            author_id: ODMObjectId = Field(...)
+            author: Optional[User] = Relationship(local_field="author_id")
 
         result = get_relationship_fields_info(MockModel)
 
@@ -230,14 +193,7 @@ class TestGetRelationshipFieldsInfo:
 
     def test_get_relationship_fields_info_no_relationships(self):
         class MockModel(BaseModel):
-            @classmethod
-            @property
-            def model_fields(cls):
-                # Mock regular field only
-                mock_field = Mock()
-                mock_field.default = "some_default"
-
-                return {"title": mock_field}
+            title: str = Field(...)
 
         result = get_relationship_fields_info(MockModel)
 

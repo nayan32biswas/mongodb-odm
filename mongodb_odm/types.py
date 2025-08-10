@@ -1,4 +1,5 @@
-from typing import Any, Dict, Mapping, Sequence, Tuple, TypeVar, Union
+from collections.abc import Mapping, Sequence
+from typing import Any, Dict, Tuple, TypeVar, Union
 
 from bson import ObjectId
 from pydantic_core import core_schema

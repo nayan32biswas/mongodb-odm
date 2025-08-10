@@ -82,6 +82,10 @@ def get_type_from_field(field: Any) -> Any:
     return origin
 
 
+def get_model_fields(cls: Type[BaseModel]) -> Dict[str, Any]:
+    return cls.__pydantic_fields__
+
+
 def _get_fields_info(
     cls: Type[BaseModel], fields: List[str]
 ) -> Dict[str, RelationalFieldInfo]:
@@ -90,8 +94,8 @@ def _get_fields_info(
     """
     field_data: Dict[str, RelationalFieldInfo] = {}
     for field in fields:
-        field_type_obj = cls.model_fields[field]
-        if field_type_obj.default.local_field not in cls.model_fields:
+        field_type_obj = get_model_fields(cls)[field]
+        if field_type_obj.default.local_field not in get_model_fields(cls):
             # Check Relationship local_field exists in the model
             raise Exception(
                 f'Invalid field "{field_type_obj.default.local_field}" in Relationship'
@@ -125,7 +129,7 @@ def get_relationship_fields_info(
     cls: Document
     """
     fields_name = []
-    for field_name, field_info in cls.model_fields.items():
+    for field_name, field_info in get_model_fields(cls).items():
         """Get all fields that are related to a specific model."""
         if type(field_info.default) is RelationshipInfo:
             fields_name.append(field_name)

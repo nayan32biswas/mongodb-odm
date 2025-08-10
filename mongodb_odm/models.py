@@ -1,12 +1,10 @@
+from collections.abc import AsyncIterator, Iterator, Sequence
 from datetime import datetime
 from typing import (
     Any,
-    AsyncIterator,
     Dict,
-    Iterator,
     List,
     Optional,
-    Sequence,
     Set,
     Tuple,
     Union,
@@ -22,6 +20,7 @@ from mongodb_odm.utils._internal_models import CollectionConfig, RelationalField
 from mongodb_odm.utils.utils import (
     convert_model_to_collection,
     get_database_name,
+    get_model_fields,
     get_relationship_fields_info,
 )
 from mongodb_odm.utils.validation import validate_filter_dict
@@ -209,10 +208,11 @@ class _BaseDocument(BaseModel):
 
     @classmethod
     def get_parent_child_fields(cls) -> Dict[str, Any]:
-        fields = cls.model_fields
+        fields = get_model_fields(cls)
         if cls._has_children():
             for model in cls.__subclasses__():
-                fields.update(model.model_fields)
+                child_fields = get_model_fields(model)
+                fields.update(child_fields)
         return fields
 
     @classmethod

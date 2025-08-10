@@ -1,7 +1,7 @@
 from typing import Any
 
 from mongodb_odm.types import DICT_TYPE
-from mongodb_odm.utils.utils import get_type_from_field
+from mongodb_odm.utils.utils import get_model_fields, get_type_from_field
 
 
 def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
@@ -35,9 +35,9 @@ def validate_filter_dict(model: Any, filter: DICT_TYPE) -> bool:
             """
             temp_obj = get_type_from_field(fields[first_key])
             for nested_key in key_list[1:]:
-                if nested_key not in temp_obj.model_fields:
+                if nested_key not in get_model_fields(temp_obj):
                     raise ValueError(f"Invalid key '{key}'. '{nested_key}' not found")
-                temp_obj = get_type_from_field(temp_obj.model_fields[nested_key])
+                temp_obj = get_type_from_field(get_model_fields(temp_obj)[nested_key])
             continue
         raise ValueError(f"Invalid key {key}")
 

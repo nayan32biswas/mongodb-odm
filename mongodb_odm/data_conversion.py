@@ -1,4 +1,5 @@
-from typing import Any, Dict, Generator, List, Tuple, Union
+from collections.abc import Generator
+from typing import Any, Dict, List, Tuple, Union
 
 
 class ODMObj:
