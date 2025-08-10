@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Optional, Union
 
 from bson import SON
 from mongodb_odm.connection import db
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class IndexOperation(BaseModel):
     collection_name: str
-    create_indexes: List[Any]
+    create_indexes: list[Any]
     database_name: Optional[str] = None
 
 
@@ -29,7 +29,7 @@ def get_collection_indexes(
         raise ConnectionError("Use synchronous collection for indexes.")
 
 
-def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
+def index_for_a_collection(operation: IndexOperation) -> tuple[int, int]:
     """
     First get all indexes for a collection and match with operation.
     Remove full match object.
@@ -72,7 +72,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         # Store index object for future use
         new_indexes_store[new_index["name"]] = index
 
-    update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
+    update_indexes: list[tuple[IndexModel, dict[str, Any]]] = []
 
     # Iterate over indexes that are already created for a collection
     for i in range(len(db_indexes)):
@@ -157,21 +157,21 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     return ne, de
 
 
-def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
+def get_model_indexes(model: type[Document]) -> list[IndexModel]:
     # Get define indexes for a model
     if hasattr(model.ODMConfig, "indexes"):
         return list(model.ODMConfig.indexes)
     return []
 
 
-def get_all_indexes() -> List[IndexOperation]:
+def get_all_indexes() -> list[IndexOperation]:
     """
     First imports all child models of Document since it's the abstract parent model.
     Then retrieve all the child modules and will try to get indexes inside the ODMConfig class.
     """
-    operations: List[IndexOperation] = []
+    operations: list[IndexOperation] = []
 
-    def get_operation_obj(model: Type[Document]) -> IndexOperation:
+    def get_operation_obj(model: type[Document]) -> IndexOperation:
         return IndexOperation(
             collection_name=model._get_collection_name(),
             create_indexes=get_model_indexes(model),

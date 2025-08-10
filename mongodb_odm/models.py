@@ -2,11 +2,7 @@ from collections.abc import AsyncIterator, Iterator, Sequence
 from datetime import datetime
 from typing import (
     Any,
-    Dict,
-    List,
     Optional,
-    Set,
-    Tuple,
     Union,
     cast,
 )
@@ -37,10 +33,10 @@ from typing_extensions import Self
 
 INHERITANCE_FIELD_NAME = "_cls"
 
-RELATION_TYPE = Dict[str, RelationalFieldInfo]
+RELATION_TYPE = dict[str, RelationalFieldInfo]
 
-_cashed_collection: Dict[Any, CollectionConfig] = {}
-_cashed_field_info: Dict[str, RELATION_TYPE] = {}
+_cashed_collection: dict[Any, CollectionConfig] = {}
+_cashed_field_info: dict[str, RELATION_TYPE] = {}
 
 
 def _clear_cache() -> None:
@@ -62,7 +58,7 @@ class _BaseDocument(BaseModel):
         collection_name: Optional[str] = None
         allow_inheritance: bool = False
         index_inheritance_field: bool = True
-        indexes: List[IndexModel] = []
+        indexes: list[IndexModel] = []
         database: Optional[str] = None
 
         """
@@ -98,7 +94,7 @@ class _BaseDocument(BaseModel):
         return self.model_dump(**kwargs)
 
     @classmethod
-    def __get_collection_class(cls) -> Tuple[str, Optional[str]]:
+    def __get_collection_class(cls) -> tuple[str, Optional[str]]:
         """
         Get model class.
         if called from a child class:
@@ -200,14 +196,14 @@ class _BaseDocument(BaseModel):
         return cls._get_collection_name()
 
     @classmethod
-    def get_inheritance_key(cls) -> Dict[str, Optional[str]]:
+    def get_inheritance_key(cls) -> DICT_TYPE:
         """
         Get child filter keys
         """
         return {INHERITANCE_FIELD_NAME: cls._get_child()}
 
     @classmethod
-    def get_parent_child_fields(cls) -> Dict[str, Any]:
+    def get_parent_child_fields(cls) -> DICT_TYPE:
         fields = get_model_fields(cls)
         if cls._has_children():
             for model in cls.__subclasses__():
@@ -231,7 +227,7 @@ class _BaseDocument(BaseModel):
         return cached_field_info
 
     @classmethod
-    def get_exclude_fields(cls) -> Set[str]:
+    def get_exclude_fields(cls) -> set[str]:
         """
         Get all fields that should not pass while creating or updating an object.
         """
@@ -283,7 +279,7 @@ class Document(_BaseDocument):
     _id: ODMObjectId = PrivateAttr(default_factory=ODMObjectId)
     id: ODMObjectId = Field(default_factory=ODMObjectId)
 
-    def __init__(self, *args: List[Any], **kwargs: Any) -> None:
+    def __init__(self, *args: list[Any], **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
         if "_id" in kwargs:
@@ -394,9 +390,9 @@ class Document(_BaseDocument):
         return query_set
 
     @classmethod
-    def _get_child_models(cls) -> Dict[str, Self]:
+    def _get_child_models(cls) -> dict[str, Self]:
         """Helper method to get child models mapping."""
-        model_children: Dict[str, Self] = {}
+        model_children: dict[str, Self] = {}
 
         for model in cls.__subclasses__():
             child_model_name = model._get_child()
@@ -410,7 +406,7 @@ class Document(_BaseDocument):
     @classmethod
     def _prepare_class_instance(
         cls,
-        model_children: Dict[str, Self],
+        model_children: dict[str, Self],
         data: DICT_TYPE,
     ) -> Self:
         if data.get(INHERITANCE_FIELD_NAME) in model_children:
@@ -530,7 +526,7 @@ class Document(_BaseDocument):
         filter: DICT_TYPE,
         sort: Optional[SORT_TYPE] = None,
         **kwargs: Any,
-    ) -> Tuple[Self, bool]:
+    ) -> tuple[Self, bool]:
         obj = cls.find_one(filter, sort=sort, **kwargs)
         if obj:
             return obj, False
@@ -543,7 +539,7 @@ class Document(_BaseDocument):
         filter: DICT_TYPE,
         sort: Optional[SORT_TYPE] = None,
         **kwargs: Any,
-    ) -> Tuple[Self, bool]:
+    ) -> tuple[Self, bool]:
         obj = await cls.afind_one(filter, sort=sort, **kwargs)
         if obj:
             return obj, False
@@ -593,9 +589,9 @@ class Document(_BaseDocument):
     @classmethod
     def _prepare_aggregation_pipeline(
         cls,
-        pipeline: List[Any],
+        pipeline: list[Any],
         inheritance_filter: bool = True,
-    ) -> List[Any]:
+    ) -> list[Any]:
         if inheritance_filter and cls._get_child() is not None:
             """
             If aggregate was called from the child model then add the "$match" stage
@@ -627,7 +623,7 @@ class Document(_BaseDocument):
     @classmethod
     def aggregate(
         cls,
-        pipeline: List[Any],
+        pipeline: list[Any],
         get_raw: bool = False,
         inheritance_filter: bool = True,
         **kwargs: Any,
@@ -645,7 +641,7 @@ class Document(_BaseDocument):
     @classmethod
     async def aaggregate(
         cls,
-        pipeline: List[Any],
+        pipeline: list[Any],
         get_raw: bool = False,
         inheritance_filter: bool = True,
         **kwargs: Any,
@@ -663,7 +659,7 @@ class Document(_BaseDocument):
             yield cls._get_aggregation_obj(obj, get_raw=get_raw)
 
     @classmethod
-    def _get_pipeline_for_random_one(cls, filter: DICT_TYPE) -> List[DICT_TYPE]:
+    def _get_pipeline_for_random_one(cls, filter: DICT_TYPE) -> list[DICT_TYPE]:
         return [{"$match": filter}, {"$sample": {"size": 1}}]
 
     @classmethod
@@ -818,7 +814,7 @@ class Document(_BaseDocument):
     @classmethod
     def _get_loadable_fields_info(
         cls,
-        fields: Optional[List[str]] = None,
+        fields: Optional[list[str]] = None,
     ) -> RELATION_TYPE:
         """Get model relational field from cache"""
         cached_field_info = cls.get_relational_field_info()
@@ -839,10 +835,10 @@ class Document(_BaseDocument):
     @classmethod
     def _get_instance_related_info(
         cls, loadable_fields_info: RELATION_TYPE
-    ) -> Tuple[Dict[str, List[Any]], DICT_TYPE]:
+    ) -> tuple[dict[str, list[Any]], DICT_TYPE]:
         field_keys = loadable_fields_info.keys()
 
-        fields_id_dict: Dict[str, List[RELATION_TYPE]] = {
+        fields_id_dict: dict[str, list[RELATION_TYPE]] = {
             field: [] for field in field_keys
         }
         field_data_data: DICT_TYPE = {field: {} for field in field_keys}
@@ -854,9 +850,9 @@ class Document(_BaseDocument):
         cls,
         object_list: Union[Iterator[Self], Sequence[Self]],
         loadable_fields_info: RELATION_TYPE,
-        fields_id_dict: Dict[str, List[Any]],
-    ) -> List[Self]:
-        results: List[Self] = []
+        fields_id_dict: dict[str, list[Any]],
+    ) -> list[Self]:
+        results: list[Self] = []
         for obj in object_list:
             for field, field_info in loadable_fields_info.items():
                 fields_id_dict[field].append(obj.__dict__[field_info.local_field])
@@ -869,7 +865,7 @@ class Document(_BaseDocument):
     def load_related(
         cls,
         object_list: Union[Iterator[Self], Sequence[Self]],
-        fields: Optional[List[str]] = None,
+        fields: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> Sequence[Self]:
         """
@@ -908,9 +904,9 @@ class Document(_BaseDocument):
         cls,
         object_list: AsyncIterator[Self],
         loadable_fields_info: RELATION_TYPE,
-        fields_id_dict: Dict[str, List[Any]],
-    ) -> List[Self]:
-        results: List[Self] = []
+        fields_id_dict: dict[str, list[Any]],
+    ) -> list[Self]:
+        results: list[Self] = []
         async for obj in object_list:
             for field, field_info in loadable_fields_info.items():
                 fields_id_dict[field].append(obj.__dict__[field_info.local_field])
@@ -923,7 +919,7 @@ class Document(_BaseDocument):
     async def aload_related(
         cls,
         object_list: AsyncIterator[Self],
-        fields: Optional[List[str]] = None,
+        fields: Optional[list[str]] = None,
         **kwargs: Any,
     ) -> Sequence[Self]:
         """

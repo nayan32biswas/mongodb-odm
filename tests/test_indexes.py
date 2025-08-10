@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 from unittest.mock import Mock, patch
 
 import pytest
@@ -69,7 +69,7 @@ def check_each_index(db_indexes, each_index_keys):
     assert AssertionError(), f"'{each_index_keys}' is invalid index"
 
 
-def check_indexes(model: Any, index_keys: List[List[str]]):
+def check_indexes(model: Any, index_keys: list[list[str]]):
     # fmt: off
     db_indexes = [index.to_dict() for index in model._get_collection().list_indexes()]
     # fmt: on

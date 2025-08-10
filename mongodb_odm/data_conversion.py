@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Union
 
 
 class ODMObj:
@@ -18,7 +18,7 @@ class ODMObj:
     def __eq__(self, other: object) -> bool:
         return self.__dict__ == other.__dict__
 
-    def __iter__(self) -> Generator[Tuple[str, Any], None, None]:
+    def __iter__(self) -> Generator[tuple[str, Any], None, None]:
         yield from self.__dict__.items()
 
     def dict(self) -> Any:
@@ -38,7 +38,7 @@ def _to_dict(obj: Any) -> Any:
     return n_d
 
 
-def _to_obj(d: Union[Dict[str, Any], List[Any]]) -> Any:
+def _to_obj(d: Union[dict[str, Any], list[Any]]) -> Any:
     if isinstance(d, list):
         d = [_to_obj(x) for x in d]
     if not isinstance(d, dict):
@@ -52,5 +52,5 @@ def _to_obj(d: Union[Dict[str, Any], List[Any]]) -> Any:
     return obj
 
 
-def dict2obj(d: Dict[str, Any]) -> Any:
+def dict2obj(d: dict[str, Any]) -> Any:
     return _to_obj(d)

@@ -1,5 +1,5 @@
 from collections.abc import Mapping, Sequence
-from typing import Any, Dict, Tuple, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 from bson import ObjectId
 from pydantic_core import core_schema
@@ -13,8 +13,8 @@ from pymongo.operations import (
 )
 
 # Common types
-DICT_TYPE = Dict[str, Any]
-SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
+DICT_TYPE = dict[str, Any]
+SORT_TYPE = Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]
 
 DocumentType = TypeVar("DocumentType", bound=Mapping[str, Any])
 

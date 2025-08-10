@@ -1,4 +1,4 @@
-from typing import Any, Optional, Set, Union
+from typing import Any, Optional, Union
 
 from mongodb_odm.types import DICT_TYPE
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ class Connection:
     # Use this model to maintain database connection object structure.
     url: Optional[str] = None
     client: Optional[Union[MongoClient[Any], AsyncMongoClient[Any]]] = None
-    databases: Optional[Set[str]] = None
+    databases: Optional[set[str]] = None
     connection_kwargs: Optional[DICT_TYPE] = None
     async_is_enabled: bool = False
 

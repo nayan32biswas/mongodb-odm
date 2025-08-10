@@ -1,6 +1,6 @@
 import re
 import types
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Optional, Union
 
 from mongodb_odm.fields import RelationshipInfo
 from mongodb_odm.utils._internal_models import RelationalFieldInfo
@@ -82,17 +82,17 @@ def get_type_from_field(field: Any) -> Any:
     return origin
 
 
-def get_model_fields(cls: Type[BaseModel]) -> Dict[str, Any]:
+def get_model_fields(cls: type[BaseModel]) -> dict[str, Any]:
     return cls.__pydantic_fields__
 
 
 def _get_fields_info(
-    cls: Type[BaseModel], fields: List[str]
-) -> Dict[str, RelationalFieldInfo]:
+    cls: type[BaseModel], fields: list[str]
+) -> dict[str, RelationalFieldInfo]:
     """
     Extract related field information for a model for specific fields.
     """
-    field_data: Dict[str, RelationalFieldInfo] = {}
+    field_data: dict[str, RelationalFieldInfo] = {}
     for field in fields:
         field_type_obj = get_model_fields(cls)[field]
         if field_type_obj.default.local_field not in get_model_fields(cls):
@@ -121,8 +121,8 @@ def _get_fields_info(
 
 
 def get_relationship_fields_info(
-    cls: Type[BaseModel],
-) -> Dict[str, RelationalFieldInfo]:
+    cls: type[BaseModel],
+) -> dict[str, RelationalFieldInfo]:
     """
     This function will return all of the related fields with their information.
 

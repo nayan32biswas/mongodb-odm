@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Set, Union, cast
+from typing import Any, Optional, Union, cast
 
 from mongodb_odm.exceptions import ConnectionError, InvalidAction, InvalidConnection
 from mongodb_odm.types import DICT_TYPE
@@ -26,7 +26,7 @@ def _get_async_connection_client(
 
 def connect(
     url: str,
-    databases: Optional[Set[str]] = None,
+    databases: Optional[set[str]] = None,
     connection_kwargs: Optional[DICT_TYPE] = None,
     async_is_enabled: bool = False,
 ) -> Union[AsyncMongoClient[Any], MongoClient[Any]]:

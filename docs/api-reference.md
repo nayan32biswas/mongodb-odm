@@ -55,12 +55,12 @@ In the ODMConfig class, we already set some default values to change class behav
 
 ## Types
 
-### Generic Dict Type
+### Generic dict Type
 
 We will use this `DICT_TYPE` in all of our generic dict type.
 
 ```python
-DICT_TYPE = Dict[str, Any]
+DICT_TYPE = dict[str, Any]
 ```
 
 ### Sort Type
@@ -68,7 +68,7 @@ DICT_TYPE = Dict[str, Any]
 We will use this `SORT_TYPE` in all of our sorting arguments.
 
 ```python
-SORT_TYPE = Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]
+SORT_TYPE = Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]
 ```
 
 ## Class Method
@@ -181,7 +181,7 @@ def get_or_create(
     filter: DICT_TYPE,
     sort: Optional[SORT_TYPE] = None,
     **kwargs: Any,
-) -> Tuple[Self, bool]:
+) -> tuple[Self, bool]:
 ```
 
 ### count_documents
@@ -204,7 +204,7 @@ def exists(cls, filter: Optional[DICT_TYPE] = None, **kwargs: Any) -> bool:
 @classmethod
 def aggregate(
     cls,
-    pipeline: List[Any],
+    pipeline: list[Any],
     get_raw: bool = False,
     inheritance_filter: bool = True,
     **kwargs: Any,
@@ -272,7 +272,7 @@ Data will be loaded immediately no leave loading will be applied.
 def load_related(
     cls,
     object_list: Union[Iterator[Self], Sequence[Self]],
-    fields: Optional[List[str]] = None,
+    fields: Optional[list[str]] = None,
     **kwargs: Any,
 ) -> Sequence[Self]:
 ```

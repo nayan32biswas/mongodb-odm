@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Optional, Union
 from unittest.mock import Mock
 
 import pytest
@@ -120,7 +120,7 @@ class TestGetTypeFromField:
 
     def test_get_type_from_field_list(self):
         mock_field = Mock()
-        mock_field.annotation = List[str]
+        mock_field.annotation = list[str]
 
         result = get_type_from_field(mock_field)
         assert result is str

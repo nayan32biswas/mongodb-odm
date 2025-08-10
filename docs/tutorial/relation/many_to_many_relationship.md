@@ -106,7 +106,7 @@ Then we define the Pydantic model `EmbeddedSkill`. Where the name is not special
 
 The `EmbeddedSkill` has two fields `ODMObjectId` type `skill_id` and `int` type rating.
 
-We add the `List[EmbeddedSkill] `type `skills` field in `Player` mode.
+We add the `list[EmbeddedSkill]` type `skills` field in `Player` mode.
 
 ### Insert Data
 

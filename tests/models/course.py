@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 from mongodb_odm import (
     ASCENDING,
@@ -89,7 +89,7 @@ class Comment(Document):
     course_id: ODMObjectId = Field(...)
     user_id: ODMObjectId = Field(...)
 
-    children: List[EmbeddedComment] = []
+    children: list[EmbeddedComment] = []
     description: str = Field(...)
 
     created_at: datetime = Field(default_factory=datetime.now)
