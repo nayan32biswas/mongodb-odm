@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from mongodb_odm import adisconnect, connect, disconnect
 from mongodb_odm.connection import db
@@ -6,6 +8,14 @@ from tests.constants import CONNECTION_POOL_PARAMS, MONGO_URL
 
 INIT_CONFIG = "init_config"
 ASYNC_INIT_CONFIG = "async_init_config"
+
+
+@pytest.fixture(scope="session")
+def event_loop():
+    """Force a single event loop for all async tests in this session."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope="module")
