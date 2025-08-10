@@ -1,7 +1,7 @@
 import pytest
 from mongodb_odm import DeleteOne, Document, InsertOne, UpdateOne
 
-from tests.conftest import INIT_CONFIG, init_config  # noqa: F401
+from tests.conftest import INIT_CONFIG
 
 
 class NewModel(Document):
