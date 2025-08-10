@@ -14,7 +14,7 @@ As a developer, it's very frustrating to get unhandled type errors on production
 
 ## Start new project
 
-To start a new project make sure you have the correct version of python `python3 --version`. Python version **3.8 and above** was supported by this package.
+To start a new project make sure you have the correct version of python `python3 --version`. Python version **3.9 and above** was supported by this package.
 
 Create a new folder with the command `mkdir new-project && cd new-project`
 
