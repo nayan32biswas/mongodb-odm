@@ -69,7 +69,7 @@ jobs:
           docker compose stop mongodb mongodb_follower
 
         env:
-          MONGO_URL: mongodb://localhost:27017/testdb?directConnection=true&replicaSet=rs0
+          MONGO_URL: mongodb://localhost:27017/testdb?directConnection=true&replicaSet=rs0&readPreference=primary&retryWrites=true
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
 

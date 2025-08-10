@@ -27,7 +27,7 @@ from tests.constants import MONGO_URL
 databases = {"logging"}
 
 
-class TestIndexes(Document):
+class IndexesModel(Document):
     title: str = Field(max_length=255)
     slug: str = Field(...)
     short_description: Optional[str] = Field(max_length=512, default=None)
@@ -89,26 +89,27 @@ def test_indexes_create_add_update_remove():
     """
 
     """Initially create all indexes"""
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    check_indexes(TestIndexes, [["_id"], ["slug"], ["title", "short_description"]])
+    check_indexes(IndexesModel, [["_id"], ["slug"], ["title", "short_description"]])
 
     """Add new indexes"""
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
     check_indexes(
-        TestIndexes, [["_id"], ["slug"], ["created_at"], ["title", "short_description"]]
+        IndexesModel,
+        [["_id"], ["slug"], ["created_at"], ["title", "short_description"]],
     )
 
     """Update existing indexes values"""
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)]),
         IndexModel(
@@ -117,53 +118,54 @@ def test_indexes_create_add_update_remove():
     ]
     apply_indexes()
     check_indexes(
-        TestIndexes, [["_id"], ["created_at"], ["slug"], ["title", "short_description"]]
+        IndexesModel,
+        [["_id"], ["created_at"], ["slug"], ["title", "short_description"]],
     )
 
     """Remove some of indexes"""
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
-    check_indexes(TestIndexes, [["_id"], ["created_at"]])
+    check_indexes(IndexesModel, [["_id"], ["created_at"]])
 
     """No index was changed"""
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
     apply_indexes()
-    check_indexes(TestIndexes, [["_id"], ["created_at"]])
+    check_indexes(IndexesModel, [["_id"], ["created_at"]])
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_text_indexes():
     """Make sure text index created properly"""
 
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
     ]
     apply_indexes()
-    check_indexes(TestIndexes, [["_id"], ["slug"]])
+    check_indexes(IndexesModel, [["_id"], ["slug"]])
 
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT)]),
     ]
     apply_indexes()
-    check_indexes(TestIndexes, [["_id"], ["slug"], ["title"]])
+    check_indexes(IndexesModel, [["_id"], ["slug"], ["title"]])
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_text_filter():
-    TestIndexes.ODMConfig.indexes = [
+    IndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
     apply_indexes()
-    text_data = TestIndexes(
+    text_data = IndexesModel(
         title="How to connection Mongodb in Mongodb-ODM", slug="one"
     ).create()
-    text_data = TestIndexes.find_one(filter={"$text": {"$search": "mongodb"}})
+    text_data = IndexesModel.find_one(filter={"$text": {"$search": "mongodb"}})
     assert text_data is not None
 
 

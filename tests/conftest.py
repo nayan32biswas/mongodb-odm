@@ -8,22 +8,15 @@ INIT_CONFIG = "init_config"
 ASYNC_INIT_CONFIG = "async_init_config"
 
 
-@pytest.fixture(scope="module")
-def database_connection():
-    connect(MONGO_URL, connection_kwargs=CONNECTION_POOL_PARAMS)
-
-    yield None
-
-    disconnect()
-
-
 @pytest.fixture()
-def init_config(database_connection):
+def init_config():
+    connect(MONGO_URL, connection_kwargs=CONNECTION_POOL_PARAMS)
     db().command("dropDatabase")
 
     yield None
 
     db().command("dropDatabase")
+    disconnect()
 
 
 @pytest.fixture()

@@ -106,4 +106,4 @@ known-third-party = ["mongodb_odm", "pymongo", "pydantic"]
 keep-runtime-typing = true
 
 [tool.pytest.ini_options]
-# asyncio_mode = "auto"  # Not working in the github actions environment
+asyncio_mode = "auto"
