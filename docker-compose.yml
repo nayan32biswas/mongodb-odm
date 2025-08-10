@@ -85,7 +85,7 @@ services:
     container_name: mongodb_odm_app
     command: python -m coverage run -m pytest tests
     environment:
-      MONGO_URL: mongodb://mongodb:27017/testdb?directConnection=true&replicaSet=rs0
+      MONGO_URL: mongodb://mongodb:27017/testdb?replicaSet=rs0&readPreference=primary
     depends_on:
       - init-replica
     volumes:
