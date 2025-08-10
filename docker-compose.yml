@@ -63,18 +63,9 @@ services:
         condition: service_healthy
       mongodb_follower:
         condition: service_healthy
-    command: >
-      bash -c "
-      sleep 10 && mongosh --host mongodb:27017 --eval '
-        rs.initiate({
-          _id: \"rs0\",
-          members: [
-            { _id: 0, host: \"mongodb:27017\" },
-            { _id: 1, host: \"mongodb_follower:27017\" }
-          ]
-        })
-      '
-      "
+    command: ["bash", "/scripts/init-replica.sh"]
+    volumes:
+      - ./scripts:/scripts:ro
     networks:
       - mongodb_odm_tier
 
