@@ -3,8 +3,6 @@ from typing import Optional
 
 from mongodb_odm import ASCENDING, Document, Field, IndexModel
 
-from ..conftest import init_config  # noqa
-
 
 class User(Document):
     username: str = Field(...)

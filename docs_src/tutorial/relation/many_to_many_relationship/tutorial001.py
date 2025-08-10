@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import Optional
 
 from mongodb_odm import (
     ASCENDING,
@@ -30,7 +30,7 @@ class EmbeddedSkill(BaseModel):
 class Player(Document):
     name: str
     country_id: ODMObjectId
-    skills: List[EmbeddedSkill] = []
+    skills: list[EmbeddedSkill] = []
 
     country: Optional[Country] = Relationship(local_field="country_id")
 

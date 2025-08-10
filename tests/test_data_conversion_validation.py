@@ -1,12 +1,8 @@
-import logging
-
+import pytest
 from bson import ObjectId
 from mongodb_odm.data_conversion import dict2obj
 
-from .conftest import init_config  # noqa
-
-logger = logging.getLogger(__name__)
-
+from tests.conftest import INIT_CONFIG
 
 mongodb_data = {
     "list": [1, 2],
@@ -25,6 +21,7 @@ mongodb_data = {
 }
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_dict2obj():
     obj = dict2obj(mongodb_data)
 
@@ -35,6 +32,7 @@ def test_dict2obj():
     assert obj.nested_dict.a.a == mongodb_data["nested_dict"]["a"]["a"]
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_obj_equality():
     data = {
         "a": {"a": [1, 2]},
@@ -48,12 +46,14 @@ def test_obj_equality():
     assert obj != obj1
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_obj2dict():
     obj = dict2obj(mongodb_data)
 
     assert mongodb_data == obj.dict()
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_odm_obj_str():
     obj = dict2obj(mongodb_data)
 

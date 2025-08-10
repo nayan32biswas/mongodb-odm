@@ -1,24 +1,35 @@
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Type
+from typing import Any, Optional, Union
 
 from bson import SON
+from mongodb_odm.connection import db
+from mongodb_odm.exceptions import ConnectionError, InvalidConnection
+from mongodb_odm.models import INHERITANCE_FIELD_NAME, Document
 from pydantic import BaseModel
 from pymongo import ASCENDING, TEXT, IndexModel
-
-from ..connection import db
-from ..exceptions import InvalidConnection
-from ..models import INHERITANCE_FIELD_NAME, Document
+from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.collection import Collection
 
 logger = logging.getLogger(__name__)
 
 
 class IndexOperation(BaseModel):
     collection_name: str
-    create_indexes: List[Any]
+    create_indexes: list[Any]
     database_name: Optional[str] = None
 
 
-def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
+def get_collection_indexes(
+    collection: Union[Collection[Any], AsyncCollection[Any]],
+) -> Any:
+    if isinstance(collection, Collection):
+        return collection.list_indexes()
+
+    if isinstance(collection, AsyncCollection):
+        raise ConnectionError("Use synchronous collection for indexes.")
+
+
+def index_for_a_collection(operation: IndexOperation) -> tuple[int, int]:
     """
     First get all indexes for a collection and match with operation.
     Remove full match object.
@@ -37,8 +48,8 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         ) from e
 
     db_indexes = []
-    for index in collection.list_indexes():
-        old_index = index.to_dict()  # type: ignore
+    for index in get_collection_indexes(collection):
+        old_index = index.to_dict()
         # Skip "_id" index since it's create by mongodb system
         if "_id" in old_index["key"]:
             continue
@@ -49,7 +60,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     new_indexes_store = {}
 
     for index in indexes:
-        new_index: Any = index.document  # type: ignore
+        new_index: Any = index.document
         # Replace SON object with dict
         if isinstance(new_index["key"], SON):
             new_index["key"] = new_index["key"].to_dict()
@@ -61,7 +72,7 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
         # Store index object for future use
         new_indexes_store[new_index["name"]] = index
 
-    update_indexes: List[Tuple[IndexModel, Dict[str, Any]]] = []
+    update_indexes: list[tuple[IndexModel, dict[str, Any]]] = []
 
     # Iterate over indexes that are already created for a collection
     for i in range(len(db_indexes)):
@@ -146,21 +157,21 @@ def index_for_a_collection(operation: IndexOperation) -> Tuple[int, int]:
     return ne, de
 
 
-def get_model_indexes(model: Type[Document]) -> List[IndexModel]:
+def get_model_indexes(model: type[Document]) -> list[IndexModel]:
     # Get define indexes for a model
     if hasattr(model.ODMConfig, "indexes"):
         return list(model.ODMConfig.indexes)
     return []
 
 
-def get_all_indexes() -> List[IndexOperation]:
+def get_all_indexes() -> list[IndexOperation]:
     """
     First imports all child models of Document since it's the abstract parent model.
     Then retrieve all the child modules and will try to get indexes inside the ODMConfig class.
     """
-    operations: List[IndexOperation] = []
+    operations: list[IndexOperation] = []
 
-    def get_operation_obj(model: Type[Document]) -> IndexOperation:
+    def get_operation_obj(model: type[Document]) -> IndexOperation:
         return IndexOperation(
             collection_name=model._get_collection_name(),
             create_indexes=get_model_indexes(model),

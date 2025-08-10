@@ -7,82 +7,83 @@ from mongodb_odm.exceptions import InvalidConfiguration
 from mongodb_odm.models import Document
 from pymongo.errors import OperationFailure
 
-from tests.conftest import INIT_CONFIG
+from tests.conftest import ASYNC_INIT_CONFIG
 from tests.models.course import Course
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_create_with_transaction():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_create_with_async_transaction():
     author_id = ODMObjectId()
 
-    with Document.start_session() as session:
-        with session.start_transaction():
-            _ = Course(
+    async with Document.astart_session() as session:
+        async with await session.start_transaction():
+            _ = await Course(
                 author_id=author_id,
                 title="Course Title",
-            ).create(session=session)
-            session.commit_transaction()  # This will automatically apply if not called explicitly.
+            ).acreate(session=session)
+            # This will automatically apply if not called explicitly.
+            await session.commit_transaction()
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = Course.find_one({"author_id": author_id})
+    temp_course = await Course.afind_one({"author_id": author_id})
     assert temp_course is not None, "Course should be created"
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_create_with_transaction_rollback():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_create_with_transaction_rollback_async():
     author_id = ODMObjectId()
 
-    with Document.start_session() as session:
-        with session.start_transaction():
+    async with Document.astart_session() as session:
+        async with await session.start_transaction():
             try:
-                _ = Course(
+                _ = await Course(
                     author_id=author_id,
                     title="Course Title",
-                ).create(session=session)
+                ).acreate(session=session)
                 raise Exception("Custom error on transaction")
             except OperationFailure:
                 # abort the transaction if an error occurs
-                session.abort_transaction()
+                await session.abort_transaction()
             except Exception:
-                session.abort_transaction()
+                await session.abort_transaction()
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = Course.find_one({"author_id": author_id})
+    temp_course = await Course.afind_one({"author_id": author_id})
     assert temp_course is None, "Course should not be created"
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_update_with_transaction_rollback():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_update_with_transaction_rollback():
     author_id = ODMObjectId()
 
     # Use uuid4 to make the title unique for async testing.
     course_title = f"Course Title {uuid4()}"
-    course: Course = Course(
+    course: Course = await Course(
         author_id=author_id,
         title=course_title,
-    ).create()
+    ).acreate()
 
-    with Document.start_session() as session:
-        with session.start_transaction():
+    async with Document.astart_session() as session:
+        async with await session.start_transaction():
             try:
                 course.title = "Title Updated"
-                course.update(session=session)
+                await course.aupdate(session=session)
                 raise Exception("Custom error on transaction")
             except Exception:
-                session.abort_transaction()
+                await session.abort_transaction()
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    course = Course.get({"_id": course.id})
-    assert course.title == course_title, "Course title should not be updated"
+    temp_course = await Course.afind_one({"author_id": author_id})
+    assert temp_course.title == course_title, "Course title should not be updated"
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_try_to_open_transaction_with_async_connection():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_try_to_open_transaction_with_sync_connection():
     with pytest.raises(InvalidConfiguration) as exc_info:
-        with Document.astart_session():
+        with Document.start_session():
             pass
 
     assert type(exc_info.value) is InvalidConfiguration, (

@@ -8,7 +8,7 @@ If you need to deep dive in the code, here are some guidelines.
 
 ### Python
 
-MongoDB-ODM supports Python 3.8 and above. Make sure at least python 3.8 is installed on your device.
+MongoDB-ODM supports Python 3.9 and above. Make sure at least python 3.9 is installed on your device.
 
 ### UV
 

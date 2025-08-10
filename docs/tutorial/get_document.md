@@ -52,5 +52,4 @@ To find the **last** document from the collection we also use `find_last`.
 
 The `get` method accepts the sort kwargs argument. The `sort` kwargs accept several types of data.
 
-
-Data type was `Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]`.
+Data type was `Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]`.

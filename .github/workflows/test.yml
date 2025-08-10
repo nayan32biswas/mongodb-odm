@@ -24,11 +24,11 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
       fail-fast: false
 
     steps:
@@ -63,13 +63,13 @@ jobs:
       - run: mkdir coverage
       - name: Test
         run: |
-          docker compose up -d mongodb
-          docker compose up mongo-init
+          docker compose up -d mongodb mongodb_follower
+          docker compose up init-replica
           ./scripts/test.sh
-          docker compose stop mongodb
+          docker compose stop mongodb mongodb_follower
 
         env:
-          MONGO_URL: mongodb://localhost:27017/testdb
+          MONGO_URL: mongodb://localhost:27017/testdb?directConnection=true&replicaSet=rs0&readPreference=primary&retryWrites=true
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
 

@@ -1,15 +1,12 @@
-import logging
-
+import pytest
 from bson import ObjectId
 from mongodb_odm.types import ODMObjectId
 
+from tests.conftest import INIT_CONFIG
 from tests.models.course import Course
 
-from .conftest import init_config  # noqa
 
-logger = logging.getLogger(__name__)
-
-
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_validate_pydantic_object_id():
     obj = ODMObjectId()
     assert isinstance(obj, ObjectId)
@@ -27,6 +24,7 @@ def test_validate_pydantic_object_id():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_invalid_object_id():
     try:
         _ = ODMObjectId.validate("invalid ObjectId")
@@ -35,6 +33,7 @@ def test_invalid_object_id():
         assert str(e) != ""
 
 
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_id_with__id():
     course = Course(author_id=ODMObjectId(), title="temp title").create()
     assert course.id == course._id, "id and _id should have same value"

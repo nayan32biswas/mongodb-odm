@@ -1,30 +1,106 @@
-version: "3.9"
-
 services:
   mongodb:
-    image: mongo:5
-    command: --replSet rs0
+    image: mongo:8.0
+    container_name: mongodb_odm_db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/admin --quiet
-      interval: 2s
-      timeout: 3s
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet --host localhost --port 27017
+      interval: 5s
+      timeout: 30s
       retries: 5
+    networks:
+      - mongodb_odm_tier
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations: # Guarantees these resources are available
+          cpus: "1" # Reserve 1 CPU
+          memory: 2G # Reserve 2 GB of memory
+    ulimits:
+      nofile:
+        soft: 64000 # Soft limit (warning threshold)
+        hard: 64000 # Hard limit (absolute maximum)
+      nproc: 64000 # Max number of processes
 
-  mongo-init:
-    image: mongo:5
-    restart: "no"
+  mongodb_follower:
+    image: mongo:8.0
+    container_name: mongodb_odm_db_follower
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - mongo_data_follower:/data/db
+    networks:
+      - mongodb_odm_tier
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations: # Guarantees these resources are available
+          cpus: "1" # Reserve 1 CPU
+          memory: 2G # Reserve 2 GB of memory
+    ulimits:
+      nofile:
+        soft: 64000 # Soft limit (warning threshold)
+        hard: 64000 # Hard limit (absolute maximum)
+      nproc: 64000 # Max number of processes
+
+  init-replica:
+    image: mongo:8.0
+    container_name: mongodb-odm-init-replica
     depends_on:
       mongodb:
         condition: service_healthy
-    command: >
-      mongo --host mongodb:27017 --eval
-      '
-      rs.initiate( {
-        _id : "rs0",
-        members: [
-          { _id: 0, host: "localhost:27017" }
-        ]
-      })
-      '
+      mongodb_follower:
+        condition: service_healthy
+    command: ["bash", "/scripts/init-replica.sh"]
+    volumes:
+      - ./scripts:/scripts:ro
+    networks:
+      - mongodb_odm_tier
+
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: mongodb_odm_app
+    command: python -m coverage run -m pytest tests
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/testdb?replicaSet=rs0&readPreference=primary
+    depends_on:
+      - init-replica
+    volumes:
+      - ./:/code
+      - ./.venv_docker:/code/.venv # overrides the folder
+    networks:
+      - mongodb_odm_tier
+
+volumes:
+  mongo_data:
+  mongo_data_follower:
+
+networks:
+  mongodb_odm_tier:
+    driver: bridge
+# ------------------------------------------------------
+
+# Use full commands:
+
+# docker compose down --remove-orphans --volumes
+# docker compose up -d init-replica
+
+## Mongodb Status
+
+# docker exec -it mongodb_odm_db mongostat
+# docker exec -it mongodb_odm_db mongotop
+# docker exec -it mongodb_odm_db mongosh --eval "printjson(db.serverStatus().connections)"

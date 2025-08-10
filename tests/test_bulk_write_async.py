@@ -1,16 +1,16 @@
 import pytest
 from mongodb_odm import DeleteOne, Document, InsertOne, UpdateOne
 
-from tests.conftest import INIT_CONFIG
+from tests.conftest import ASYNC_INIT_CONFIG
 
 
 class NewModel(Document):
     title: str
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_bulk_insert():
-    NewModel.bulk_write(
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_bulk_insert():
+    await NewModel.abulk_write(
         [
             InsertOne({"title": "bulk insert"}),
             InsertOne({"title": "bulk insert"}),
@@ -18,17 +18,17 @@ def test_bulk_insert():
     )
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_bulk_update():
-    NewModel.bulk_write(
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_bulk_update():
+    await NewModel.abulk_write(
         [
             UpdateOne({"title": "bulk insert"}, {"$set": {"title": "updated"}}),
         ]
     )
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_bulk_delete():
-    NewModel.bulk_write(
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_bulk_delete():
+    await NewModel.abulk_write(
         [DeleteOne({"title": "bulk insert"}), DeleteOne({"title": "updated"})]
     )

@@ -10,8 +10,9 @@ comment
 
 <<comment
 # Up mongodb container
-docker compose up -d mongodb && docker compose up mongo-init
-export MONGO_URL="mongodb://localhost:27017/testdb"
+docker compose up -d mongodb mongodb_follower && \
+    docker compose up init-replica
+export MONGO_URL="mongodb://localhost:27017/testdb?directConnection=true&replicaSet=rs0"
 
 # Run the test locally with uv
 ./scripts/test.sh
@@ -20,10 +21,10 @@ comment
 
 <<comment
 # Run test for single file with docker
-docker compose -f docker-compose-local.yml run --rm app \
+docker compose run --rm app \
     uv run --extra dev coverage run -m pytest tests/test__indexes.py
 comment
 
 # Run test for all files with docker
-docker compose -f docker-compose-local.yml run --rm app \
+docker compose run --rm app \
     ./scripts/test.sh

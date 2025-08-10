@@ -52,4 +52,4 @@ The `find_one` method accepts a sort object.
 
 The `sort` kwargs accept several types of data.
 
-The data type for sort was `Union[str, Sequence[Tuple[str, Union[int, str, Mapping[str, Any]]]]]`.
+The data type for sort was `Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]`.
