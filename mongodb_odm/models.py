@@ -902,3 +902,57 @@ class Document(_BaseDocument):
                 obj.__dict__[field] = field_obj
 
         return results
+
+    @classmethod
+    async def _async_get_objects_and_update_fields_id(
+        cls,
+        object_list: AsyncIterator[Self],
+        loadable_fields_info: RELATION_TYPE,
+        fields_id_dict: Dict[str, List[Any]],
+    ) -> List[Self]:
+        results: List[Self] = []
+        async for obj in object_list:
+            for field, field_info in loadable_fields_info.items():
+                fields_id_dict[field].append(obj.__dict__[field_info.local_field])
+
+            results.append(obj)
+
+        return results
+
+    @classmethod
+    async def aload_related(
+        cls,
+        object_list: AsyncIterator[Self],
+        fields: Optional[List[str]] = None,
+        **kwargs: Any,
+    ) -> Sequence[Self]:
+        """
+        This method will load related documents from the database
+        according to the specified fields.
+        """
+        if fields is None:
+            fields = []
+
+        loadable_fields_info = cls._get_loadable_fields_info(fields)
+        fields_id_dict, field_data_data = cls._get_instance_related_info(
+            loadable_fields_info
+        )
+        results = await cls._async_get_objects_and_update_fields_id(
+            object_list, loadable_fields_info, fields_id_dict
+        )
+
+        """Load all document for all relational model"""
+        for field, ids in fields_id_dict.items():
+            query = loadable_fields_info[field].model.afind({"_id": {"$in": ids}})
+
+            field_data_data[field] = {obj.id: obj async for obj in query}
+
+        """Assign loaded document with results"""
+        for obj in results:
+            for field, field_info in loadable_fields_info.items():
+                field_obj = field_data_data[field].get(
+                    obj.__dict__[field_info.local_field]
+                )
+                obj.__dict__[field] = field_obj
+
+        return results
