@@ -64,12 +64,12 @@ jobs:
       - name: Test
         run: |
           docker compose up -d init-replica
-          echo "Sleep 5 seconds to allow replica set initialization" && sleep 5
+          echo "Sleep 10 seconds to allow replica set initialization" && sleep 10
           ./scripts/test.sh
           docker compose stop mongodb mongodb_follower
 
         env:
-          MONGO_URL: mongodb://localhost:27017/testdb?replicaSet=rs0
+          MONGO_URL: mongodb://localhost:27017/testdb?directConnection=true&replicaSet=rs0
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
 
