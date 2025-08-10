@@ -20,7 +20,7 @@ async def test_bulk_insert():
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
 async def test_bulk_update():
-    NewModel.abulk_write(
+    await NewModel.abulk_write(
         [
             UpdateOne({"title": "bulk insert"}, {"$set": {"title": "updated"}}),
         ]
@@ -29,6 +29,6 @@ async def test_bulk_update():
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
 async def test_bulk_delete():
-    NewModel.abulk_write(
+    await NewModel.abulk_write(
         [DeleteOne({"title": "bulk insert"}), DeleteOne({"title": "updated"})]
     )

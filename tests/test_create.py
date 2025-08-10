@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from mongodb_odm import ODMObjectId
 
 from tests.conftest import INIT_CONFIG
 from tests.models.course import Content, ContentDescription, ContentImage, Course
@@ -61,3 +62,15 @@ def test_get_or_create():
     )
     assert created is False, "Old course should get from DB"
     assert isinstance(course, Course), "Type should be Course"
+
+
+@pytest.mark.usefixtures(INIT_CONFIG)
+def test_object_initiation_with_id():
+    course_id = ODMObjectId()
+    user_id = ODMObjectId()
+
+    _ = Course(
+        id=course_id,
+        author_id=user_id,
+        title="Course Title",
+    ).create()

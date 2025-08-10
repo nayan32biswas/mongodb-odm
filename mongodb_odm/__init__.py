@@ -3,6 +3,7 @@ __version__ = "1.0.0"
 from mongodb_odm.connection import adisconnect as adisconnect
 from mongodb_odm.connection import connect as connect
 from mongodb_odm.connection import disconnect as disconnect
+from mongodb_odm.data_conversion import ODMObj as ODMObj
 from mongodb_odm.fields import Field as Field
 from mongodb_odm.fields import Relationship as Relationship
 from mongodb_odm.models import Document as Document

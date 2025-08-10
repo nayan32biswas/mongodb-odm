@@ -63,8 +63,13 @@ def create_comments():
     comment_one.update()
 
 
-async def async_create_courses(total_courses=1):
-    author_id = ODMObjectId()
+async def async_create_courses(total_courses=1, author_id=None):
+    if author_id is None:
+        user_one, _ = await User.aget_or_create(
+            {"username": "one", "full_name": "Full Name"}
+        )
+        author_id = user_one.id
+
     courses = []
 
     for i in range(total_courses):
@@ -98,25 +103,29 @@ async def async_create_contents():
 
 
 async def async_create_comments():
-    user_one_id = ODMObjectId()
-    user_two_id = ODMObjectId()
+    user_one, _ = await User.aget_or_create(
+        {"username": "one", "full_name": "Full Name"}
+    )
+    user_two, _ = await User.aget_or_create(
+        {"username": "two", "full_name": "Full Name"}
+    )
 
-    course_one = await Course.acreate({"title": "one", "author_id": user_one_id})
-    course_two = await Course.acreate({"title": "two", "author_id": user_two_id})
+    course_one = await Course(title="one", author_id=user_one.id).acreate()
+    course_two = await Course(title="two", author_id=user_two.id).acreate()
 
     comment_one = await Comment(
         course_id=course_one.id,
-        user_id=user_one_id,
+        user_id=user_one.id,
         description="Comment One",
     ).acreate()
     await Comment(
         course_id=course_two.id,
-        user_id=user_two_id,
+        user_id=user_two.id,
         description="Comment Two",
     ).acreate()
 
     comment_one.children.append(
-        EmbeddedComment(user_id=user_one_id, description="Child comment one")
+        EmbeddedComment(user_id=user_one.id, description="Child comment one")
     )
     await comment_one.update()
 

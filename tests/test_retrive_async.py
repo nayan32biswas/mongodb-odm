@@ -1,5 +1,5 @@
 import pytest
-from mongodb_odm import ODMObjectId
+from mongodb_odm import ODMObj, ODMObjectId
 from mongodb_odm.exceptions import ObjectDoesNotExist
 
 from tests.conftest import ASYNC_INIT_CONFIG
@@ -125,7 +125,8 @@ async def test_aaggregate():
     author_id = courses[0].author_id
 
     # Create a course with different author_id
-    _ = await async_create_courses(1)
+    other_author_id = ODMObjectId()
+    _ = await async_create_courses(1, author_id=other_author_id)
 
     pipeline = [{"$match": {"author_id": author_id}}]
 
@@ -135,23 +136,31 @@ async def test_aaggregate():
 
     # Verify the aggregation result
     assert results != [], "Aggregation should return a result"
-    assert results[0].author_id == author_id, (
-        "Author ID should match in aggregation result"
-    )
     assert len(results) == total_courses, (
         f"There should be {total_courses} courses for this author"
     )
+    for result in results:
+        assert isinstance(result, ODMObj), (
+            "Aggregation result should be a ODMObj instance"
+        )
+        assert result.author_id == author_id, (
+            "Author ID should match in aggregation result"
+        )
 
     results = []
     async for doc in Course.aaggregate(pipeline, get_raw=True):
         results.append(doc)
 
     # Verify the raw result
-    assert results != [], "Raw aggregation should return a result"
-    assert results[0]["author_id"] == author_id, "Author ID should match in raw result"
+    assert results != [], "Aggregation should return a result"
     assert len(results) == total_courses, (
         f"There should be {total_courses} courses for this author"
     )
+    for result in results:
+        assert isinstance(result, dict), "Aggregation result should be a dict instance"
+        assert result["author_id"] == author_id, (
+            "Author ID should match in aggregation result"
+        )
 
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
