@@ -63,8 +63,8 @@ jobs:
       - run: mkdir coverage
       - name: Test
         run: |
-          docker compose up -d mongodb mongodb_follower
-          docker compose up init-replica
+          docker compose up -d init-replica
+          echo "Sleep 5 seconds to allow replica set initialization" && sleep 5
           ./scripts/test.sh
           docker compose stop mongodb mongodb_follower
 
