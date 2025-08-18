@@ -17,8 +17,8 @@ from mongodb_odm import (
 from mongodb_odm.exceptions import ConnectionError
 from mongodb_odm.utils.apply_indexes import (
     IndexOperation,
+    _sync_apply_indexes_for_a_collection,
     apply_indexes,
-    index_for_a_collection,
 )
 
 from tests.conftest import INIT_CONFIG
@@ -257,21 +257,21 @@ def test_son_object_handling():
 
     operation = IndexOperation(
         collection_name="test_son_indexes",
-        create_indexes=[mock_index],
+        model_indexes=[mock_index],
         database_name=None,
     )
 
     # Mock the db function to avoid actual database operations
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes.get_collection_indexes"
+            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
         ) as mock_get_indexes:
             mock_collection = Mock()
             mock_get_indexes.return_value = []  # No existing indexes
             mock_db.return_value.__getitem__.return_value = mock_collection
 
             # This should handle SON object conversion without creating actual indexes
-            result = index_for_a_collection(operation)
+            result = _sync_apply_indexes_for_a_collection(operation)
             assert isinstance(result, tuple)
 
 
@@ -293,21 +293,21 @@ def test_invalid_key_type_handling():
 
     operation = IndexOperation(
         collection_name="test_invalid_indexes",
-        create_indexes=[mock_index],
+        model_indexes=[mock_index],
         database_name=None,
     )
 
     # Mock the db function to avoid actual database operations
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes.get_collection_indexes"
+            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
         ) as mock_get_indexes:
             mock_collection = Mock()
             mock_get_indexes.return_value = []  # No existing indexes
             mock_db.return_value.__getitem__.return_value = mock_collection
 
             # This should handle invalid key type and continue
-            result = index_for_a_collection(operation)
+            result = _sync_apply_indexes_for_a_collection(operation)
             assert isinstance(result, tuple)
             assert result == (0, 0)  # No indexes should be created
 
@@ -327,12 +327,14 @@ def test_non_dict_new_indexes_handling():
     # Now test with modified internal state to trigger line 86
     operation = IndexOperation(
         collection_name="test_non_dict_indexes",
-        create_indexes=[IndexModel([("title", ASCENDING)])],
+        model_indexes=[IndexModel([("title", ASCENDING)])],
         database_name=None,
     )
 
     # Manually modify the function to test the condition
-    with patch("mongodb_odm.utils.apply_indexes.index_for_a_collection") as mock_func:
+    with patch(
+        "mongodb_odm.utils.apply_indexes._sync_apply_indexes_for_a_collection"
+    ) as mock_func:
 
         def side_effect(op):
             # Simulate the condition where new_indexes[j] is not a dict
@@ -358,11 +360,11 @@ def test_partial_match_handling():
     # We'll test the code path where partial_match is not None
     operation = IndexOperation(
         collection_name="test_partial_match",
-        create_indexes=[],
+        model_indexes=[],
         database_name=None,
     )
 
-    result = index_for_a_collection(operation)
+    result = _sync_apply_indexes_for_a_collection(operation)
     assert isinstance(result, tuple)
 
 
@@ -371,32 +373,32 @@ def test_create_indexes_exception_handling():
     # Create a simple operation that will try to create indexes
     operation = IndexOperation(
         collection_name="test_create_exception",
-        create_indexes=[IndexModel([("title", ASCENDING)])],
+        model_indexes=[IndexModel([("title", ASCENDING)])],
         database_name=None,
     )
 
-    # Mock the entire db function and get_collection_indexes to return a collection that will fail
+    # Mock the entire db function and _sync_get_database_indexes to return a collection that will fail
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes.get_collection_indexes"
+            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
         ) as mock_get_indexes:
             mock_collection = Mock()
             mock_get_indexes.return_value = []  # No existing indexes
             mock_collection.create_indexes.side_effect = Exception(
-                "Mocked create_indexes error"
+                "Mocked model_indexes error"
             )
             mock_db.return_value.__getitem__.return_value = mock_collection
 
             # Test that the exception is properly re-raised
-            with pytest.raises(Exception, match="Mocked create_indexes error"):
-                index_for_a_collection(operation)
+            with pytest.raises(Exception, match="Mocked model_indexes error"):
+                _sync_apply_indexes_for_a_collection(operation)
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_no_changes_logging():
-    # Mock get_all_indexes to return empty list to ensure no changes
+    # Mock _get_all_indexes to return empty list to ensure no changes
     with patch(
-        "mongodb_odm.utils.apply_indexes.get_all_indexes"
+        "mongodb_odm.utils.apply_indexes._get_all_indexes"
     ) as mock_get_all_indexes:
         with patch("mongodb_odm.utils.apply_indexes.logger") as mock_logger:
             mock_get_all_indexes.return_value = []  # No operations to process
