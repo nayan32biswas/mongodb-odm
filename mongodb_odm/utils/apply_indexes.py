@@ -1,6 +1,7 @@
 import logging
 from collections.abc import MutableMapping
 from typing import Any, Optional, Union
+from typing import cast as type_cast
 
 from bson import SON
 from mongodb_odm.connection import db
@@ -10,12 +11,11 @@ from mongodb_odm.types import DICT_TYPE
 from pydantic import BaseModel
 from pymongo import ASCENDING, TEXT, IndexModel
 from pymongo.asynchronous.collection import AsyncCollection
+from pymongo.asynchronous.command_cursor import AsyncCommandCursor
 from pymongo.collection import Collection
 from pymongo.command_cursor import CommandCursor
 
 logger = logging.getLogger(__name__)
-
-DatabaseIndexesType = CommandCursor[MutableMapping[str, Any]]
 
 
 class IndexOperation(BaseModel):
@@ -24,11 +24,11 @@ class IndexOperation(BaseModel):
     database_name: Optional[str] = None
 
 
-def _get_dict_db_indexes(database_indexes: DatabaseIndexesType) -> list[DICT_TYPE]:
+def _get_dict_db_indexes(database_indexes: Any) -> list[DICT_TYPE]:
     dict_db_indexes: list[DICT_TYPE] = []
 
     for index in database_indexes:
-        old_index = index.to_dict()  # type: ignore
+        old_index = index.to_dict()
         # Skip "_id" index since it's create by mongodb system
         if "_id" in old_index["key"]:
             continue
@@ -112,7 +112,7 @@ def _check_exists_in_model_indexes(
 
 
 def _get_calculated_indexes_for_collection(
-    database_indexes: DatabaseIndexesType,
+    database_indexes: Any,
     model_indexes: list[IndexModel],
 ) -> tuple[list[IndexModel], list[DICT_TYPE]]:
     dict_db_indexes = _get_dict_db_indexes(database_indexes)
@@ -232,7 +232,8 @@ def _sync_apply_indexes_to_db(
     new_indexes: list[IndexModel],
     delete_db_indexes: list[DICT_TYPE],
 ) -> tuple[int, int]:
-    collection = _get_collection(operation)
+    _collection = _get_collection(operation)
+    collection = type_cast(Collection[Any], _collection)
 
     for db_index in delete_db_indexes:
         # If the DB index does not exist in new_indexes then drop that index.
@@ -262,6 +263,56 @@ def _sync_apply_indexes_for_a_collection(operation: IndexOperation) -> tuple[int
     return ne, de
 
 
+async def _async_get_database_indexes(
+    collection: Union[Collection[Any], AsyncCollection[Any]],
+) -> AsyncCommandCursor[MutableMapping[str, Any]]:
+    if isinstance(collection, AsyncCollection):
+        return await collection.list_indexes()
+
+    if isinstance(collection, Collection):
+        raise ConnectionError("Use asynchronous collection for indexes.")
+
+
+async def _async_apply_indexes_to_db(
+    operation: IndexOperation,
+    new_indexes: list[IndexModel],
+    delete_db_indexes: list[DICT_TYPE],
+) -> tuple[int, int]:
+    _collection = _get_collection(operation)
+    collection = type_cast(AsyncCollection[Any], _collection)
+
+    for db_index in delete_db_indexes:
+        # If the DB index does not exist in new_indexes then drop that index.
+        if db_index is not None:
+            await collection.drop_index(db_index["name"])
+
+    if len(new_indexes) > 0:
+        try:
+            await collection.create_indexes(new_indexes)
+        except Exception as e:
+            logger.error(f'\nProblem arise at "{operation.collection_name}": {e}\n')
+            raise e
+
+    return _get_created_and_deleted_indexes_count(
+        operation, new_indexes, delete_db_indexes
+    )
+
+
+async def _async_apply_indexes_for_a_collection(
+    operation: IndexOperation,
+) -> tuple[int, int]:
+    collection, model_indexes = _get_collection_and_indexes(operation)
+    database_indexes = [
+        obj async for obj in await _async_get_database_indexes(collection)
+    ]
+    new_indexes, delete_db_indexes = _get_calculated_indexes_for_collection(
+        database_indexes, model_indexes
+    )
+    ne, de = await _async_apply_indexes_to_db(operation, new_indexes, delete_db_indexes)
+
+    return ne, de
+
+
 def log_final_results(new_index: int, delete_index: int) -> None:
     if delete_index:
         logger.info(f"{delete_index}, index deleted.")
@@ -279,6 +330,20 @@ def apply_indexes() -> None:
     new_index, delete_index = 0, 0
     for operation in operations:
         ne, de = _sync_apply_indexes_for_a_collection(operation)
+        new_index += ne
+        delete_index += de
+
+    log_final_results(new_index, delete_index)
+
+
+async def async_apply_indexes() -> None:
+    """First get all indexes from all model."""
+    operations = _get_all_indexes()
+
+    """Then execute each indexes operation for each model."""
+    new_index, delete_index = 0, 0
+    for operation in operations:
+        ne, de = await _async_apply_indexes_for_a_collection(operation)
         new_index += ne
         delete_index += de
 
