@@ -41,8 +41,8 @@ def _get_dict_db_indexes(database_indexes: Any) -> list[DICT_TYPE]:
 
 def _get_dict_model_indexes(
     model_indexes: list[IndexModel],
-) -> tuple[list[DICT_TYPE | None], dict[str, IndexModel]]:
-    dict_model_indexes: list[DICT_TYPE | None] = []
+) -> tuple[list[Union[DICT_TYPE, None]], dict[str, IndexModel]]:
+    dict_model_indexes: list[Union[DICT_TYPE, None]] = []
     model_indexes_map: dict[str, IndexModel] = {}
 
     for index in model_indexes:
@@ -62,7 +62,7 @@ def _get_dict_model_indexes(
 
 
 def _check_exists_in_model_indexes(
-    db_dict_index: DICT_TYPE, dict_model_indexes: list[DICT_TYPE | None]
+    db_dict_index: DICT_TYPE, dict_model_indexes: list[Union[DICT_TYPE, None]]
 ) -> bool:
     def mark_as_exist(position: int) -> bool:
         """
