@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Any, Optional
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from bson import SON
@@ -17,42 +17,58 @@ from mongodb_odm import (
 from mongodb_odm.exceptions import ConnectionError
 from mongodb_odm.utils.apply_indexes import (
     IndexOperation,
-    _sync_apply_indexes_for_a_collection,
-    apply_indexes,
+    _async_apply_indexes_for_a_collection,
+    async_apply_indexes,
 )
 
-from tests.conftest import INIT_CONFIG
+from tests.conftest import ASYNC_INIT_CONFIG
 from tests.constants import MONGO_URL
 
 databases = {"logging"}
 
 
-class IndexesModel(Document):
+class AsyncIterator:
+    """Helper class to create async iterators for mocking database cursors."""
+
+    def __init__(self, items):
+        self.items = iter(items)
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            return next(self.items)
+        except StopIteration:
+            raise StopAsyncIteration from None
+
+
+class AsyncIndexesModel(Document):
     title: str = Field(max_length=255)
     slug: str = Field(...)
     short_description: Optional[str] = Field(max_length=512, default=None)
     created_at: datetime = Field(default_factory=datetime.now)
 
     class ODMConfig(Document.ODMConfig):
-        collection_name = "test_indexes"
+        collection_name = "async_test_indexes"
         indexes = [
             IndexModel([("slug", ASCENDING)], unique=True),
             IndexModel([("title", TEXT), ("short_description", TEXT)]),
         ]
 
 
-def test_create_indexes_without_connection():
+async def test_create_indexes_without_connection():
     with pytest.raises(Exception) as exc_info:
-        apply_indexes()
+        await async_apply_indexes()
 
     assert isinstance(exc_info.value, Exception)
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_no_index_change():
-    apply_indexes()
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_no_index_change():
+    await async_apply_indexes()
 
-    apply_indexes()  # No index was changed
+    await async_apply_indexes()  # No index was changed
 
 
 def check_each_index(db_indexes, each_index_keys):
@@ -66,12 +82,13 @@ def check_each_index(db_indexes, each_index_keys):
             break
         if is_match:
             return True
+
     assert AssertionError(), f"'{each_index_keys}' is invalid index"
 
 
-def check_indexes(model: Any, index_keys: list[list[str]]):
+async def check_indexes(model: Any, index_keys: list[list[str]]):
     # fmt: off
-    db_indexes = [index.to_dict() for index in model._get_collection().list_indexes()]
+    db_indexes = [index.to_dict() async for index in await model._get_collection().list_indexes()]
     # fmt: on
     assert len(index_keys) == len(db_indexes), "Number of indexes does not match"
 
@@ -80,8 +97,8 @@ def check_indexes(model: Any, index_keys: list[list[str]]):
     return True
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_indexes_create_add_update_remove():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_indexes_create_add_update_remove():
     """
     Write a big testing function to test index initial create, add, update, and remove.
     If we implement separate tests for each functionality then the flow test remains incomplete.
@@ -89,88 +106,92 @@ def test_indexes_create_add_update_remove():
     """
 
     """Initially create all indexes"""
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
-    apply_indexes()
-    check_indexes(IndexesModel, [["_id"], ["slug"], ["title", "short_description"]])
+    await async_apply_indexes()
+    await check_indexes(
+        AsyncIndexesModel, [["_id"], ["slug"], ["title", "short_description"]]
+    )
 
     """Add new indexes"""
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
-    apply_indexes()
-    check_indexes(
-        IndexesModel,
+    await async_apply_indexes()
+    await check_indexes(
+        AsyncIndexesModel,
         [["_id"], ["slug"], ["created_at"], ["title", "short_description"]],
     )
 
     """Update existing indexes values"""
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("created_at", ASCENDING)]),
         IndexModel(
             [("title", TEXT), ("short_description", TEXT)], default_language="english"
         ),
     ]
-    apply_indexes()
-    check_indexes(
-        IndexesModel,
+    await async_apply_indexes()
+    await check_indexes(
+        AsyncIndexesModel,
         [["_id"], ["created_at"], ["slug"], ["title", "short_description"]],
     )
 
     """Remove some of indexes"""
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
-    apply_indexes()
-    check_indexes(IndexesModel, [["_id"], ["created_at"]])
+    await async_apply_indexes()
+    await check_indexes(AsyncIndexesModel, [["_id"], ["created_at"]])
 
     """No index was changed"""
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("created_at", ASCENDING)], unique=True),
     ]
-    apply_indexes()
-    check_indexes(IndexesModel, [["_id"], ["created_at"]])
+    await async_apply_indexes()
+    await check_indexes(AsyncIndexesModel, [["_id"], ["created_at"]])
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_text_indexes():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_text_indexes():
     """Make sure text index created properly"""
 
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
     ]
-    apply_indexes()
-    check_indexes(IndexesModel, [["_id"], ["slug"]])
+    await async_apply_indexes()
+    await check_indexes(AsyncIndexesModel, [["_id"], ["slug"]])
 
-    IndexesModel.ODMConfig.indexes = [
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT)]),
     ]
-    apply_indexes()
-    check_indexes(IndexesModel, [["_id"], ["slug"], ["title"]])
+    await async_apply_indexes()
+    await check_indexes(AsyncIndexesModel, [["_id"], ["slug"], ["title"]])
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_text_filter():
-    IndexesModel.ODMConfig.indexes = [
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_text_filter():
+    AsyncIndexesModel.ODMConfig.indexes = [
         IndexModel([("slug", ASCENDING)], unique=True),
         IndexModel([("title", TEXT), ("short_description", TEXT)]),
     ]
-    apply_indexes()
-    text_data = IndexesModel(
+    await async_apply_indexes()
+    text_data = await AsyncIndexesModel(
         title="How to connection Mongodb in Mongodb-ODM", slug="one"
-    ).create()
-    text_data = IndexesModel.find_one(filter={"$text": {"$search": "mongodb"}})
+    ).acreate()
+    text_data = await AsyncIndexesModel.afind_one(
+        filter={"$text": {"$search": "mongodb"}}
+    )
     assert text_data is not None
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_child_indexes_only():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_child_indexes_only():
     class ParentModel(Document):
         title: str = Field(...)
 
@@ -185,12 +206,12 @@ def test_child_indexes_only():
                 IndexModel([("child_title", ASCENDING)]),
             ]
 
-    apply_indexes()
-    check_indexes(ParentModel, [["_id"], ["_cls"], ["child_title"]])
+    await async_apply_indexes()
+    await check_indexes(ParentModel, [["_id"], ["_cls"], ["child_title"]])
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_child_indexes_without_cls_index():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_child_indexes_without_cls_index():
     class ParentModel(Document):
         title: str = Field(...)
 
@@ -206,22 +227,22 @@ def test_child_indexes_without_cls_index():
                 IndexModel([("child_title", ASCENDING)]),
             ]
 
-    apply_indexes()
-    check_indexes(ParentModel, [["_id"], ["child_title"]])
+    await async_apply_indexes()
+    await check_indexes(ParentModel, [["_id"], ["child_title"]])
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_indexes_for_all_db():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_indexes_for_all_db():
     from tests.models.course import ContentDescription  # noqa
     from tests.models.course import Comment, ContentImage, Course  # noqa
     from tests.models.user import User  # noqa
 
-    apply_indexes()
+    await async_apply_indexes()
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_indexes_for_multiple_database():
-    disconnect()  # first disconnect init_config connection
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_indexes_for_multiple_database():
+    await adisconnect()  # first disconnect init_config connection
 
     class Log(Document):
         message: Optional[str] = None
@@ -231,16 +252,16 @@ def test_indexes_for_multiple_database():
             database = "logging"
             indexes = [IndexModel([("created_at", ASCENDING)])]
 
-    connect(MONGO_URL, databases=databases)
-    Log(message="testing multiple database").create()
+    connect(MONGO_URL, databases=databases, async_is_enabled=True)
+    await Log(message="testing multiple database").acreate()
 
-    apply_indexes()
+    await async_apply_indexes()
 
     Log.ODMConfig.database = None  # type: ignore
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_son_object_handling():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_son_object_handling():
     class TestSONIndexes(Document):
         title: str = Field(...)
 
@@ -249,7 +270,7 @@ def test_son_object_handling():
             indexes = []
 
     # Create a mock that behaves like IndexModel with SON key
-    mock_index = Mock()
+    mock_index = AsyncMock()
     mock_index.document = {
         "key": SON([("title", 1)]),
         "name": "title_1",
@@ -264,19 +285,20 @@ def test_son_object_handling():
     # Mock the db function to avoid actual database operations
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
+            "mongodb_odm.utils.apply_indexes._async_get_database_indexes"
         ) as mock_get_indexes:
-            mock_collection = Mock()
-            mock_get_indexes.return_value = []  # No existing indexes
+            mock_collection = AsyncMock()
+            # Make the mock function return a coroutine that will return an empty list
+            mock_get_indexes.return_value = AsyncIterator([])  # No existing indexes
             mock_db.return_value.__getitem__.return_value = mock_collection
 
             # This should handle SON object conversion without creating actual indexes
-            result = _sync_apply_indexes_for_a_collection(operation)
+            result = await _async_apply_indexes_for_a_collection(operation)
             assert isinstance(result, tuple)
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_invalid_key_type_handling():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_invalid_key_type_handling():
     class TestInvalidIndexes(Document):
         title: str = Field(...)
 
@@ -285,7 +307,7 @@ def test_invalid_key_type_handling():
             indexes = []
 
     # Create a mock that behaves like IndexModel with invalid key type
-    mock_index = Mock()
+    mock_index = AsyncMock()
     mock_index.document = {
         "key": "invalid_key_type",  # This should trigger the else continue
         "name": "invalid_index",
@@ -300,20 +322,20 @@ def test_invalid_key_type_handling():
     # Mock the db function to avoid actual database operations
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
+            "mongodb_odm.utils.apply_indexes._async_get_database_indexes"
         ) as mock_get_indexes:
-            mock_collection = Mock()
-            mock_get_indexes.return_value = []  # No existing indexes
+            mock_collection = AsyncMock()
+            mock_get_indexes.return_value = AsyncIterator([])  # No existing indexes
             mock_db.return_value.__getitem__.return_value = mock_collection
 
             # This should handle invalid key type and continue
-            result = _sync_apply_indexes_for_a_collection(operation)
+            result = await _async_apply_indexes_for_a_collection(operation)
             assert isinstance(result, tuple)
             assert result == (0, 0)  # No indexes should be created
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_non_dict_new_indexes_handling():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_non_dict_new_indexes_handling():
     class TestNonDictIndexes(Document):
         title: str = Field(...)
 
@@ -322,7 +344,7 @@ def test_non_dict_new_indexes_handling():
             indexes = [IndexModel([("title", ASCENDING)])]
 
     # First create the index normally
-    apply_indexes()
+    await async_apply_indexes()
 
     # Now test with modified internal state to trigger line 86
     operation = IndexOperation(
@@ -333,7 +355,7 @@ def test_non_dict_new_indexes_handling():
 
     # Manually modify the function to test the condition
     with patch(
-        "mongodb_odm.utils.apply_indexes._sync_apply_indexes_for_a_collection"
+        "mongodb_odm.utils.apply_indexes._async_apply_indexes_for_a_collection"
     ) as mock_func:
 
         def side_effect(op):
@@ -342,12 +364,12 @@ def test_non_dict_new_indexes_handling():
             return (0, 0)
 
         mock_func.side_effect = side_effect
-        result = mock_func(operation)
+        result = await mock_func(operation)
         assert result == (0, 0)
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_partial_match_handling():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_partial_match_handling():
     class TestPartialMatch(Document):
         title: str = Field(...)
         content: str = Field(...)
@@ -364,12 +386,12 @@ def test_partial_match_handling():
         database_name=None,
     )
 
-    result = _sync_apply_indexes_for_a_collection(operation)
+    result = await _async_apply_indexes_for_a_collection(operation)
     assert isinstance(result, tuple)
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_create_indexes_exception_handling():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_create_indexes_exception_handling():
     # Create a simple operation that will try to create indexes
     operation = IndexOperation(
         collection_name="test_create_exception",
@@ -377,13 +399,15 @@ def test_create_indexes_exception_handling():
         database_name=None,
     )
 
-    # Mock the entire db function and _sync_get_database_indexes to return a collection that will fail
+    # Mock the entire db function and _async_get_database_indexes to return a collection that will fail
     with patch("mongodb_odm.utils.apply_indexes.db") as mock_db:
         with patch(
-            "mongodb_odm.utils.apply_indexes._sync_get_database_indexes"
+            "mongodb_odm.utils.apply_indexes._async_get_database_indexes"
         ) as mock_get_indexes:
-            mock_collection = Mock()
-            mock_get_indexes.return_value = []  # No existing indexes
+            mock_collection = AsyncMock()
+            mock_get_indexes.return_value = AsyncIterator(
+                []
+            )  # No existing indexes as async iterator
             mock_collection.create_indexes.side_effect = Exception(
                 "Mocked model_indexes error"
             )
@@ -391,11 +415,11 @@ def test_create_indexes_exception_handling():
 
             # Test that the exception is properly re-raised
             with pytest.raises(Exception, match="Mocked model_indexes error"):
-                _sync_apply_indexes_for_a_collection(operation)
+                await _async_apply_indexes_for_a_collection(operation)
 
 
-@pytest.mark.usefixtures(INIT_CONFIG)
-def test_no_changes_logging():
+@pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
+async def test_no_changes_logging():
     # Mock _get_all_indexes to return empty list to ensure no changes
     with patch(
         "mongodb_odm.utils.apply_indexes._get_all_indexes"
@@ -403,7 +427,7 @@ def test_no_changes_logging():
         with patch("mongodb_odm.utils.apply_indexes.logger") as mock_logger:
             mock_get_all_indexes.return_value = []  # No operations to process
 
-            apply_indexes()
+            await async_apply_indexes()
 
             # Should log "No change detected."
             mock_logger.info.assert_called_with("No change detected.")
@@ -411,16 +435,16 @@ def test_no_changes_logging():
 
 async def test_apply_indexes_with_async_connection():
     try:
-        disconnect()  # Disconnect any existing connection
+        await adisconnect()  # Disconnect any existing connection
     except Exception:
         pass
 
-    connect(MONGO_URL, async_is_enabled=True)
+    connect(MONGO_URL, async_is_enabled=False)
 
     with pytest.raises(ConnectionError):
-        apply_indexes()
+        await async_apply_indexes()
 
     try:
-        await adisconnect()
+        disconnect()
     except Exception:
         pass
