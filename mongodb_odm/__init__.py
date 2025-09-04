@@ -10,6 +10,7 @@ from mongodb_odm.models import Document as Document
 from mongodb_odm.types import ObjectIdStr as ObjectIdStr
 from mongodb_odm.types import ODMObjectId as ODMObjectId
 from mongodb_odm.utils.apply_indexes import apply_indexes as apply_indexes
+from mongodb_odm.utils.apply_indexes import async_apply_indexes as async_apply_indexes
 from pydantic import BaseModel as BaseModel
 from pydantic import ConfigDict as ConfigDict
 from pymongo import ASCENDING as ASCENDING
