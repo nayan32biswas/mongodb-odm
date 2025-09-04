@@ -1,16 +1,16 @@
 # Multiple Database
 
-We can work with multiple databases within a single node. There are multiple use cases for multiple database systems. If you want to implement log on a separate database rather than the main database.
+We can work with multiple databases within a single node. There are multiple use cases for multiple database systems. For example, if you want to implement logging on a separate database rather than the main database.
 
 ## Connection
 
-We learn how to establish the connection with the database in the [connection chapter](../tutorial/connection.md).
+We learned how to establish the connection with the database in the [connection chapter](../tutorial/connection.md).
 
-To work with multiple databases we will use the same `connect` function that we used previously.
+To work with multiple databases, we will use the same `connect` function that we used previously.
 
-The `connect` function accepts two arguments. The first one is `url` (required str type) and the second one is `databases` (optional set type).
+The `connect` function accepts two arguments. The first one is `url` (required string type) and the second one is `databases` (optional set type).
 
-The first argument `url` string should have a **default database**. The second argument `databases` are optional. We can send multiple database names as needed.
+The first argument `url` string should have a **default database**. The second argument `databases` is optional. We can send multiple database names as needed.
 
 ```python hl_lines="4-7"
 # Code omitted above
@@ -27,11 +27,11 @@ The first argument `url` string should have a **default database**. The second a
 ```
 </details>
 
-## Mode Definition
+## Model Definition
 
-The no need for any modification of your model which will use the default database.
+There is no need for any modification of your model if it will use the default database.
 
-We will use a **logging** database to store all documents for `Log`. For the `Log` model, we always will use the **logging** database. Modification or document retrieval should have happened in the **logging** database.
+We will use a **logging** database to store all documents for `Log`. For the `Log` model, we will always use the **logging** database. Modification or document retrieval should happen in the **logging** database.
 
 Here we define the `Log` model that has a field `database = "logging"` inside the `ODMConfig` of the model.
 

@@ -2,33 +2,33 @@
 
 ## Contributing
 
-MongoDB-ODM is an open-source package that provides a powerful and flexible way to work with MongoDB databases in a Python environment. If you're a developer looking for an exciting project to contribute to, you are welcome here to contribute.
+MongoDB-ODM is an open-source package that provides a powerful and flexible way to work with MongoDB databases in a Python environment. If you're a developer looking for an exciting project to contribute to, you are welcome to contribute here.
 
-If you need to deep dive in the code, here are some guidelines.
+If you need to deep dive into the code, here are some guidelines.
 
 ### Python
 
-MongoDB-ODM supports Python 3.9 and above. Make sure at least python 3.9 is installed on your device.
+MongoDB-ODM supports Python 3.9 and above. Make sure at least Python 3.9 is installed on your device.
 
 ### UV
 
 **MongoDB-ODM** uses <a href="https://docs.astral.sh/uv" class="external-link" target="_blank">UV</a> to build, package, and publish the project.
 
-Install UV on your device by following <a href="https://docs.astral.sh/uv/getting-started/installation/" class="external-link" target="_blank">Official Doc</a>.
+Install UV on your device by following the <a href="https://docs.astral.sh/uv/getting-started/installation/" class="external-link" target="_blank">Official Documentation</a>.
 
-After installing the uv please visit their <a href="https://docs.astral.sh/uv" class="external-link" target="_blank">Official Doc</a> to know more about them.
+After installing UV, please visit their <a href="https://docs.astral.sh/uv" class="external-link" target="_blank">Official Documentation</a> to learn more about it.
 
 ### [Repository](https://github.com/nayan32biswas/mongodb-odm){.internal-link target=\_blank}
 
-First, make sure you have the repository, and you navigate the directory.
+First, make sure you have the repository, and navigate to the directory.
 
-And change the code or documentation you want to change.
+Change the code or documentation you want to modify.
 
-After the change follows the next steps.
+After making changes, follow the next steps.
 
 ### Format
 
-There is a script that you can run, that will format and clean all your code:
+There is a script you can run that will format and clean all your code:
 
 ```bash
 ./scripts/format.sh
@@ -36,7 +36,7 @@ There is a script that you can run, that will format and clean all your code:
 
 ### Docs
 
-To start the docs locally you can run this script:
+To start the docs locally, you can run this script:
 
 ```bash
 ./scripts/docs.sh
@@ -44,17 +44,17 @@ To start the docs locally you can run this script:
 
 ### Testing
 
-For testing the package first we need to install and activate MongoDB.
+For testing the package, first we need to install and activate MongoDB.
 
-Install MongoDB by following the <a href="https://www.mongodb.com/docs/manual/installation/" class="external-link" target="_blank">installation doc</a>. And start the MongoDB server.
+Install MongoDB by following the <a href="https://www.mongodb.com/docs/manual/installation/" class="external-link" target="_blank">installation documentation</a> and start the MongoDB server.
 
-Set `MONGO_URL` URL for your environment.
+Set the `MONGO_URL` environment variable:
 
 ```bash
 export MONGO_URL=<your-connection-url>
 ```
 
-After installing the MongoDB and setting the environment key run this script:
+After installing MongoDB and setting the environment variable, run this script:
 
 ```bash
 ./scripts/test.sh
@@ -62,7 +62,7 @@ After installing the MongoDB and setting the environment key run this script:
 
 #### Testing with Docker
 
-If you have installed docker on your device run this command for testing the package:
+If you have Docker installed on your device, run this command to test the package:
 
 ```bash
 ./scripts/test-with-docker.sh
@@ -72,7 +72,7 @@ If you have installed docker on your device run this command for testing the pac
 
 You can contribute to the source code with **Pull Requests**.
 
-- To fix a typo you found on the documentation.
+- To fix a typo you found in the documentation.
 - To propose new documentation sections.
 - To fix an existing issue/bug.
   - Make sure to add tests.
@@ -80,13 +80,13 @@ You can contribute to the source code with **Pull Requests**.
   - Make sure to add tests.
 - Make sure to add documentation if it's relevant.
 
-#### Steps to be follow before create PR
+#### Steps to Follow Before Creating a PR
 
-If you change the code base, make sure to follow those steps before creating PR.
+If you change the codebase, make sure to follow these steps before creating a PR.
 
-- `./scripts/test.sh` Run the unit test and make sure all tests and passed and test coverage is more than 95%.
-- `./scripts/lint.sh` Check all formatting is implemented and code format is accurate.
-- `./scripts/format.sh` Run auto format like import sorting etc.
+- `./scripts/test.sh` Run the unit tests and make sure all tests pass and test coverage is more than 95%.
+- `./scripts/lint.sh` Check that all formatting is implemented and code format is accurate.
+- `./scripts/format.sh` Run auto-formatting like import sorting, etc.
 
 ## Stay Connected
 
@@ -99,9 +99,9 @@ You can <a href="https://github.com/nayan32biswas/mongodb-odm/discussions/catego
 
 ### Ideas
 
-If you have new a idea please <a href="https://github.com/nayan32biswas/mongodb-odm/discussions/new?category=ideas" class="external-link" target="_blank">create</a> it in the GitHub repository, for example:
+If you have a new idea, please <a href="https://github.com/nayan32biswas/mongodb-odm/discussions/new?category=ideas" class="external-link" target="_blank">create</a> it in the GitHub repository, for example:
 
-- The idea about the new **feature**
+- An idea about a new **feature**
 
 ### Ask Questions
 
@@ -109,15 +109,15 @@ You can <a href="https://github.com/nayan32biswas/mongodb-odm/discussions/new?ca
 
 - Ask a **question** or ask about a **problem**
 
-### Issue
+### Issues
 
-Found a new bug/issue or want to help others please visit <a href="https://github.com/nayan32biswas/mongodb-odm/issues" class="external-link" target="_blank">Github Issue</a>
+Found a new bug/issue or want to help others? Please visit <a href="https://github.com/nayan32biswas/mongodb-odm/issues" class="external-link" target="_blank">GitHub Issues</a>.
 
-## Connect with the author
+## Connect with the Author
 
 You can connect with me on several platforms.
 
 - <a href="https://github.com/nayan32biswas" class="external-link" target="_blank">Follow me on **GitHub**</a>.
   - Follow me to see when I create a new Open Source project.
 - <a href="https://www.linkedin.com/in/nayan32biswas/" class="external-link" target="_blank">Connect with me on **Linkedin**</a>.
-  - You can message me there. And also I will update package-related updates here.
+  - You can message me there. I will also update package-related information here.

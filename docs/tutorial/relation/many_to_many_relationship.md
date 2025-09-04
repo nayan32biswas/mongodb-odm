@@ -1,10 +1,10 @@
 # Many to Many Relationship Intro
 
-In a traditional SQL database, we use 3rd table to implement many-to-many relations. Where the middle table holds the id from table `A` and the id from `B`.
+In a traditional SQL database, we use a 3rd table to implement many-to-many relations, where the middle table holds the id from table `A` and the id from table `B`.
 
 In this chapter, we will add skills for players.
 
-In MongoDB, we can implement many-to-many relations with two-way embedded ways and traditional ways. MongoDB won't block us from doing any one of these.
+In MongoDB, we can implement many-to-many relations using two-way embedded approaches and traditional approaches. MongoDB won't block us from using any one of these.
 
 We add another model `Skill` alongside `Country` and `Player` to illustrate many-to-many relations.
 
@@ -12,9 +12,9 @@ We add another model `Skill` alongside `Country` and `Player` to illustrate many
 
 First, we will implement the traditional way of implementing many-to-many relations.
 
-First declare the `Country`, `Skill`, and `Player` model.
+First, declare the `Country`, `Skill`, and `Player` models.
 
-Then declare the middle model `PlayerSkill` that will have `player_id`, `skill_id`, and `rating` fields.
+Then, declare the middle model `PlayerSkill` that will have `player_id`, `skill_id`, and `rating` fields.
 
 ```Python hl_lines="23"
 # Code omitted above
@@ -43,11 +43,11 @@ We will define a multi-key index for better performance. Also, we want `player_i
 # Code omitted below
 ```
 
-Here we use `IndexModel` which is directly used from `Pymongo`.
+Here we use `IndexModel`, which is directly used from `Pymongo`.
 
 ### Read data
 
-We will get one of the player data and his skills.
+We will get one of the player's data and his skills.
 
 ```Python
 # Code omitted above
@@ -64,7 +64,7 @@ We will get one of the player data and his skills.
 ```
 </details>
 
-After running the `read_data` function console should print.
+After running the `read_data` function, the console should print:
 
 ```bash
 Player(id=ObjectId('id'), name='Pelé', country_id=ObjectId('id'), _id=ObjectId('id'))
@@ -83,7 +83,7 @@ Run the code and check the MongoDB document viewer to see the impact.
 
 ## Model definition (Embedded way)
 
-In this example, we use MongoDB Embedded way to implement many-to-many relations.
+In this example, we use MongoDB's embedded approach to implement many-to-many relations.
 
 ```Python hl_lines="7 11 21"
 # Code omitted above
@@ -102,11 +102,11 @@ In this example, we use MongoDB Embedded way to implement many-to-many relations
 
 First, we define the new model `Skill`.
 
-Then we define the Pydantic model `EmbeddedSkill`. Where the name is not special and we can you any name we want.
+Then we define the Pydantic model `EmbeddedSkill`. The name is not special and we can use any name we want.
 
-The `EmbeddedSkill` has two fields `ODMObjectId` type `skill_id` and `int` type rating.
+The `EmbeddedSkill` has two fields: `ODMObjectId` type `skill_id` and `int` type `rating`.
 
-We add the `list[EmbeddedSkill]` type `skills` field in `Player` mode.
+We add the `list[EmbeddedSkill]` type `skills` field in the `Player` model.
 
 ### Insert Data
 
@@ -131,7 +131,7 @@ Then create a player with a list of `EmbeddedSkill`.
 
 ### Read Data
 
-Let's get one of the player data.
+Let's get one of the player's data.
 
 ```Python
 # Code omitted above
@@ -148,7 +148,7 @@ Let's get one of the player data.
 ```
 </details>
 
-After running the `read_data` function console should print.
+After running the `read_data` function, the console should print:
 
 ```bash
 Player(id=ObjectId('id'), name='Pelé', country_id=ObjectId('id'), skills=[EmbeddedSkill(skill_id=ObjectId('id'), rating=49), EmbeddedSkill(skill_id=ObjectId('id'), rating=49)], _id=ObjectId('id'))

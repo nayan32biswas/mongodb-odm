@@ -6,9 +6,9 @@ We can implement model inheritance at the collection level.
 
 Let's imagine we want to implement a course system.
 
-The course can have multiple types of content like `text`, `video`, `image`, `file`, etc. But all share some of the common fields `course_id`, `created_at`, etc. And content should be as listed.
+The course can have multiple types of content like `text`, `video`, `image`, `file`, etc. But all share some common fields like `course_id`, `created_at`, etc. And content should be listed.
 
-We can relationally use this functionality but it will be expensive to query because we need multiple lookups.
+We can use this functionality relationally, but it will be expensive to query because we need multiple lookups.
 
 In this scenario, we can implement **Model Inheritance** provided by **MongoDB-ODM**.
 (Note: Currently, only **one level** of inheritance is supported.)
@@ -36,13 +36,13 @@ First look at all models in a single block for better understanding.
 ```
 </details>
 
-We want everything simple. First, we define the course. Where courses only have one field `title`.
+We want to keep everything simple. First, we define the course, where courses only have one field: `title`.
 
 ### Content
 
-We define the `Content` model. We want to inherit the content model from the `Text` and `Video` model.
+We define the `Content` model. We want to inherit the content model in the `Text` and `Video` models.
 
-In the `ODMConfig` class for the `Content` model, we define `allow_inheritance = True` for model Content. To make a Model inheritable we need to make this field `True`.
+In the `ODMConfig` class for the `Content` model, we define `allow_inheritance = True`. To make a model inheritable, we need to set this field to `True`.
 
 ```python hl_lines="6"
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:18-26]!}
@@ -50,9 +50,9 @@ In the `ODMConfig` class for the `Content` model, we define `allow_inheritance =
 
 ### Text
 
-After defining the `Content` model we will define the `Text` model that inherits the `Content` model to have all functionality of `Content`.
+After defining the `Content` model, we will define the `Text` model that inherits from the `Content` model to have all the functionality of `Content`.
 
-And set `allow_inheritance = False` for the `Text` model. Otherwise, **MongoDB-ODM** will throw an error.
+Set `allow_inheritance = False` for the `Text` model. Otherwise, **MongoDB-ODM** will throw an error.
 
 ```python hl_lines="5"
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:29-33]!}
@@ -60,7 +60,7 @@ And set `allow_inheritance = False` for the `Text` model. Otherwise, **MongoDB-O
 
 ### Video
 
-As like `Text` functionality and declaration structure for the `Video` will be the same.
+Like the `Text` functionality and declaration structure, the `Video` will be the same.
 
 ```python hl_lines="5"
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:36-40]!}
@@ -72,7 +72,7 @@ Let's insert some data in the `Course` and `Content` collection.
 
 First, we create a course document.
 
-Then we create two `Content`. One `Text` content and the other one video content.
+Then we create two `Content` documents: one `Text` content and one video content.
 
 ```python
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:48-56]!}
@@ -87,18 +87,18 @@ Then we create two `Content`. One `Text` content and the other one video content
 
 ### Impact in Database
 
-For model inheritance, we do not create a separate collection for each model. Instead, we create a single collection for all models. And the collection name will be according to the parent class. We add an extra field `_cls` with each document to distinguish the different models.
+For model inheritance, we do not create a separate collection for each model. Instead, we create a single collection for all models, and the collection name will be according to the parent class. We add an extra field `_cls` with each document to distinguish between the different models.
 
 !!!tip
-By default, we define the `_cls` field as an `index` field. We can un indexes this field by defining `index_inheritance_field = False` in the parent class.
+    By default, we define the `_cls` field as an `index` field. We can remove the index from this field by defining `index_inheritance_field = False` in the parent class.
 
 ## Retrieve Collection
 
-We can use all our retrieval methods to retrieve data for the inherited model. We will add an extra filter key `{"_cls": '<Model Name>'}` to filter out targeted children or no extra filter for parents.
+We can use all our retrieval methods to retrieve data for the inherited model. We will add an extra filter key `{"_cls": '<Model Name>'}` to filter out the targeted children, or no extra filter for parents.
 
 ### Filter Content
 
-To get all content we can filter data with parent class `Content`.
+To get all content, we can filter data with the parent class `Content`.
 
 ```python
 {!./docs_src/advanced_tutorial/model_inheritance/tutorial000.py[ln:59-62]!}
@@ -111,7 +111,7 @@ To get all content we can filter data with parent class `Content`.
 ```
 </details>
 
-After running this function the printed object should look like this.
+After running this function, the printed object should look like this.
 
 ```bash
 Text(id=ObjectId('id'), course_id=ObjectId('id'), title='Introduction', text='Introduction Text', _id=ObjectId('id'))

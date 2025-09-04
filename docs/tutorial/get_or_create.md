@@ -6,7 +6,7 @@ Let's say we have a model and we don't know if data exists or not. And we need t
 
 We will work on the existing Player model.
 
-Let's create some data in the database test_db and a collection player.
+Let's create some data in the database `test_db` and a collection `player`.
 
 ```python
 # Code omitted above
@@ -25,7 +25,7 @@ Let's create some data in the database test_db and a collection player.
 
 ## General Process
 
-To achieve that functionality will first try to get the document. If data does not exist then create a document with the same data.
+To achieve that functionality, we will first try to get the document. If the data does not exist, then create a document with the same data.
 
 ```python
 # Code omitted above
@@ -61,4 +61,4 @@ We can achieve that functionality with a single function `get_or_create`.
 ```
 </details>
 
-The `get_or_create` will return two values. The first one is the actual object and the second one is a boolean field. Boolean field indicates the object is existing data or newly created.
+The `get_or_create` will return two values. The first one is the actual object and the second one is a boolean field. The boolean field indicates whether the object is existing data or newly created.

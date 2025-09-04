@@ -1,10 +1,10 @@
 # Find and Sort Data
 
-To find and sort documents we will use the same classmethod `find` that we are using for finding and filtering data.
+To find and sort documents, we will use the same classmethod `find` that we are using for finding and filtering data.
 
 ### Database
 
-We will start from the same database structure and the same number of data as previously.
+We will start with the same database structure and the same amount of data as previously.
 
 ## Sort by ID desc
 
@@ -23,7 +23,7 @@ We will start from the same database structure and the same number of data as pr
 ```
 </details>
 
-## Sort With Multiple Key
+## Sort With Multiple Keys
 
 ```python
 # Code omitted above
@@ -41,4 +41,4 @@ We will start from the same database structure and the same number of data as pr
 </details>
 
 !!! warning
-    Sorting on the none indexes field(`country_code`) is not efficient.
+    Sorting on non-indexed fields (`country_code`) is not efficient.

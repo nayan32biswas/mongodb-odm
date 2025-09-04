@@ -2,13 +2,13 @@
 
 MongoDB-ODM now provides comprehensive support for async/await operations, built on top of PyMongo's async capabilities. This enables you to build high-performance asynchronous applications with MongoDB while maintaining the familiar ODM interface.
 
-## Async Await Features
+## Async/Await Features
 
 We've added async/await support to MongoDB-ODM with the following key features:
 
 ### Async Function Naming Convention
 
-- Most of the async methods are prefixed with `a` and aligned with existing methods (e.g., `find()` → `afind()`, `create()` → `acreate()`).
+- Most async methods are prefixed with `a` and aligned with existing methods (e.g., `find()` → `afind()`, `create()` → `acreate()`).
 - Function arguments remain the same between sync and async versions
 - Consistent API design makes migration straightforward
 
@@ -80,7 +80,7 @@ All async methods follow the same pattern - they're prefixed with `a` and requir
 
 ## Troubleshooting
 
-### Event loop synchronization issues
+### Event Loop Synchronization Issues
 
 When using async functions in environments where an event loop is already running (like Jupyter notebooks, some web frameworks, or testing environments), you may encounter `RuntimeError: asyncio.run() cannot be called from a running event loop`. This happens because `asyncio.run()` tries to create a new event loop, but one already exists.
 
