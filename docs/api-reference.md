@@ -80,7 +80,6 @@ In this section, we will explain every **Class Method** that is callable from a 
 ```python
 @classmethod
 def _db(cls) -> str:
-
 ```
 
 We can get the collection name by calling `_db`.

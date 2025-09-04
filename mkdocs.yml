@@ -53,6 +53,9 @@ nav:
       - advanced-tutorial/index.md
       - advanced-tutorial/model-inheritance.md
       - advanced-tutorial/multiple-database.md
+  - Async Tutorial:
+      - async-tutorial/index.md
+      - async-tutorial/api-reference.md
   - help-get-help.md
   - release-notes.md
 
