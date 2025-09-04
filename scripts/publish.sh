@@ -2,5 +2,5 @@
 
 set -e
 
-# config pypi-token.pypi <your-api-token>
-publish --build --skip-existing
+uv build
+# uv publish --token <PYPI_API_TOKEN>

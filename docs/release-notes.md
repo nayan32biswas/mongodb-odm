@@ -1,5 +1,18 @@
 # Release Notes
 
+## 1.1.0
+
+### Config Changes
+
+- Add UV package manager and update configuration. PR [#37](https://github.com/nayan32biswas/mongodb-odm/pull/37) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Fix the failing test on github action. PR [#39](https://github.com/nayan32biswas/mongodb-odm/pull/39) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Features
+
+- Introduce asynchronous functionality. PR [#38](https://github.com/nayan32biswas/mongodb-odm/pull/38) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Async apply indexes. PR [#40](https://github.com/nayan32biswas/mongodb-odm/pull/40) by [@nayan32biswas](https://github.com/nayan32biswas).
+- Add async tutorial documentation and examples, fix typos and improve clarity in tutorial documentation. PR [#41](https://github.com/nayan32biswas/mongodb-odm/pull/41) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.0.2
 
 ### Fixes
