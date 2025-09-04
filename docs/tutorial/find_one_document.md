@@ -2,13 +2,13 @@
 
 ### Database
 
-We will start from the same database structure and the same number of data as previously.
+We will start with the same database structure and the same amount of data as previously.
 
 ## Find One
 
-Some times we need to find one object. In that scenario, we will use classmethod `find_one`.
+Sometimes we need to find one object. In that scenario, we will use the classmethod `find_one`.
 
-The `find_one` is a classmethod that returns a single object or None if the object not exists.
+The `find_one` is a classmethod that returns a single object or None if the object does not exist.
 
 ```python
 # Code omitted above
@@ -25,13 +25,13 @@ The `find_one` is a classmethod that returns a single object or None if the obje
 ```
 </details>
 
-If the filter matched with the collection data then it will return the `Player` type object. Otherwise, it will return `None`.
+If the filter matches the collection data, then it will return a `Player` type object. Otherwise, it will return `None`.
 
 The `find_one` will also act as `find_first`.
 
 ## Find Last
 
-To **find the** last document from the collection we also use `find_last`.
+To find the last document from the collection, we also use `find_last`.
 
 ```python
 # Code omitted above
@@ -50,6 +50,6 @@ To **find the** last document from the collection we also use `find_last`.
 
 The `find_one` method accepts a sort object.
 
-The `sort` kwargs accept several types of data.
+The `sort` kwargs accepts several types of data.
 
-The data type for sort was `Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]`.
+The data type for sort is `Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]`.

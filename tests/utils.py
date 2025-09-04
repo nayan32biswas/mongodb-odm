@@ -140,6 +140,16 @@ def drop_all_user_databases(client):
             client.drop_database(db_name)
 
 
+async def async_drop_all_user_databases(client):
+    databases = await client.list_database_names()
+
+    system_dbs = {"admin", "local", "config"}
+
+    for db_name in databases:
+        if db_name not in system_dbs:
+            await client.drop_database(db_name)
+
+
 def populate_data():
     create_users()
     create_courses()

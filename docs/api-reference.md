@@ -2,11 +2,11 @@
 
 ## Intro
 
-In this tutorial section, we will know everything in great detail.
+In this tutorial section, we will learn everything in great detail.
 
-Sometimes we need to check a function or variable as a prompt.
+Sometimes we need to check a function or variable as a reference.
 
-In this section, we will try to create a cheat sheet for quick checkups.
+In this section, we will try to create a cheat sheet for quick reference.
 
 ## Insert Some Data
 
@@ -49,7 +49,7 @@ In the ODMConfig class, we already set some default values to change class behav
         index_inheritance_field: bool = True
 ```
 
-- `collection_name` type optional `Optional[str]` default `None`
+- `collection_name` type `Optional[str]` default `None`
 - `allow_inheritance` type `bool` default `False`
 - `index_inheritance_field` type `bool` default `True`
 
@@ -57,7 +57,7 @@ In the ODMConfig class, we already set some default values to change class behav
 
 ### Generic dict Type
 
-We will use this `DICT_TYPE` in all of our generic dict type.
+We will use this `DICT_TYPE` for all of our generic dict types.
 
 ```python
 DICT_TYPE = dict[str, Any]
@@ -71,7 +71,7 @@ We will use this `SORT_TYPE` in all of our sorting arguments.
 SORT_TYPE = Union[str, Sequence[tuple[str, Union[int, str, Mapping[str, Any]]]]]
 ```
 
-## Class Method
+## Class Methods
 
 In this section, we will explain every **Class Method** that is callable from a defined class.
 
@@ -80,7 +80,6 @@ In this section, we will explain every **Class Method** that is callable from a 
 ```python
 @classmethod
 def _db(cls) -> str:
-
 ```
 
 We can get the collection name by calling `_db`.
@@ -92,7 +91,7 @@ def create(self, **kwargs) -> Self:
 
 ```
 
-The `create` method does not accept any **MongoDB-ODM** related argument. It's kwargs directly send to the **Pymongo** function.
+The `create` method does not accept any **MongoDB-ODM** related arguments. Its kwargs are directly sent to the **PyMongo** function.
 
 ### find_raw
 
@@ -106,7 +105,7 @@ def find_raw(
 ) -> Cursor[Any]:
 ```
 
-The `find_raw` is a special function that returns **Pymongo** find the cursor.
+The `find_raw` is a special function that returns a **PyMongo** find cursor.
 
 ### find
 
@@ -123,20 +122,20 @@ def find(
 ) -> Iterator[Self]:
 ```
 
-#### Parameter
+#### Parameters
 
-The `find_one` classmethod accepts 6 parameters.
+The `find` classmethod accepts 6 parameters.
 
-1. **filter** was the key for parameter 1. The data type should be `dict` and the default value was `{}`.
-2. **sort** was the key for parameter 2. The data type should be `Optional[SORT_TYPE]` and the default value was `None`.
-3. **skip** was the key for parameter 3. The data type was `Optional[int]` and the default value was `None`.
-4. **limit** was the key for parameter 3. The data type was `Optional[int]` and the default value was `None`.
-5. **projection** was the key for parameter 1. The data type should be `dict` and the default value was `{}`.
+1. **filter** - The data type should be `dict` and the default value is `None`.
+2. **projection** - The data type should be `dict` and the default value is `None`.
+3. **sort** - The data type should be `Optional[SORT_TYPE]` and the default value is `None`.
+4. **skip** - The data type is `Optional[int]` and the default value is `None`.
+5. **limit** - The data type is `Optional[int]` and the default value is `None`.
 6. Lastly, it accepts `**kwargs`
 
 #### Return Type
 
-It's `Iterator[Self]`, which is iterable. And we should get type support on each object.
+It returns `Iterator[Self]`, which is iterable. You should get type support on each object.
 
 ### find_one
 
@@ -151,13 +150,13 @@ def find_one(
 ) -> Optional[Self]:
 ```
 
-#### Received Parameter
+#### find_one Parameters
 
-The `find_one` classmethod accept 3 parameter.
+The `find_one` classmethod accepts 4 parameters.
 
-1. **filter** was the key for parameter 1. The ata type should be `dict` and the default value assigned with `{}`.
-2. **projection** was the key for parameter 1. The ata type should be `dict` and the default value was `{}`.
-3. **sort** was the key for parameter 2. The ata type should be `Optional[SORT_TYPE]` and the default value assigned with `None`.
+1. **filter** - The data type should be `dict` and the default value is `None`.
+2. **projection** - The data type should be `dict` and the default value is `None`.
+3. **sort** - The data type should be `Optional[SORT_TYPE]` and the default value is `None`.
 4. Lastly, it accepts `**kwargs`
 
 ### get
@@ -259,13 +258,13 @@ def bulk_write(
 ) -> BulkWriteResult:
 ```
 
-Here `WriteOp` is one of the type of `DeleteMany, DeleteOne, IndexModel, InsertOne, ReplaceOne, UpdateMany, UpdateOne` from `pymongo`
+Here `WriteOp` is one of the types: `DeleteMany, DeleteOne, IndexModel, InsertOne, ReplaceOne, UpdateMany, UpdateOne` from `pymongo`
 
 ### load_related
 
 The classmethod `load_related` will load all related fields from the database.
 
-Data will be loaded immediately no leave loading will be applied.
+Data will be loaded immediately; no lazy loading will be applied.
 
 ```python
 @classmethod
@@ -277,9 +276,9 @@ def load_related(
 ) -> Sequence[Self]:
 ```
 
-## Method
+## Methods
 
-In this section we will explain every **Method** that are callable after creating the object.
+In this section we will explain every **Method** that is callable after creating the object.
 
 ### update
 

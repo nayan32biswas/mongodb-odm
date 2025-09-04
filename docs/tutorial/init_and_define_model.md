@@ -5,13 +5,13 @@
 There is no need to create a database or collection separately. MongoDB automatically creates a new database and collection while we insert new data.
 
 You need to define a Pydantic model that should inherit **Document** from mongodb_odm.
-While new insertion takes place MongoDB automatically creates everything if something not exists.
+When new insertion takes place, MongoDB automatically creates everything if something does not exist.
 
 ## Target
 
 - First, we will create a Player Document model class.
 - Define indexes.
-- Make sure everything working and has an impact on the database.
+- Make sure everything is working and has an impact on the database.
 
 Here's a collection structure that we want to achieve.
 
@@ -77,18 +77,18 @@ The name of each of these variables will be the name of the field in the collect
 ### Field declaration
 
 - Start with the field `name` defined as type str, which is the standard way to declare something with type in Python.
-- We declare `country_code` with type `str` and in our databases it will be stored as `string` type.
-- In the end, we define `rating` notice that it has a type of `Optional[int]`. And we import that `Optional` from the `typing` standard module. The `rating` field can be `null` or `int` in the database.
+- We declare `country_code` with type `str` and in our database it will be stored as a `string` type.
+- In the end, we define `rating`. Notice that it has a type of `Optional[int]`. And we import that `Optional` from the `typing` standard module. The `rating` field can be `null` or `int` in the database.
 
 ### Primary key
 
 - You may notice we did not define the primary key.
 - We use MongoDB default primary key `_id` as our primary key.
-- You can access `id` and `_id (PrivateAttr)` both should share same value.
+- You can access `id` and `_id (PrivateAttr)` both should share the same value.
 
 ### Model ODMConfig
 
-`ODMConfig` class inside the `Player` was a special class.
+The `ODMConfig` class inside the `Player` is a special class.
 
 We will use this `ODMConfig` class to change the configuration of the `Player` class.
 
@@ -98,7 +98,7 @@ We will use this `ODMConfig` class to change the configuration of the `Player` c
 
 ## Custom Collection Name
 
-By default collection name of the `Player` model, will be **player**. The model name will be converted to a **snake case**.
+By default, the collection name of the `Player` model will be **player**. The model name will be converted to **snake case**.
 
 But we can customize the default behavior by defining `collection_name` in the `ODMConfig` class.
 

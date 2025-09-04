@@ -25,7 +25,7 @@ Here's a reminder of how the collection would look like, this is the data we wan
 
 ## Define Model
 
-We will continue from where we left of in the [Initiate Database and Define Model](./init_and_define_model.md) Chapter.
+We will continue from where we left off in the [Initiate Database and Define Model](./init_and_define_model.md) Chapter.
 
 ```{.python .annotate}
 {!./docs_src/tutorial/create/tutorial000.py[ln:1-10]!}
@@ -65,7 +65,7 @@ The collection should have one item on the list.
 
 ## Set database connection
 
-Set database connection one time for a project. It's recommended to set up a connection while the project is initializing.
+Set the database connection once for a project. It's recommended to set up a connection while the project is initializing.
 
 ```{.python .annotate hl_lines="4"}
 # Code omitted above
@@ -83,9 +83,9 @@ Create two players using `MongoDB-ODM`.
 
 We use the `create_documents` function to create two players.
 
-First, we create players on declaration time.
+First, we create players at declaration time.
 
-Second, we assign a player object to `maradona`. Then we create/insert the data into the database by calling `create` method.
+Second, we assign a player object to `maradona`. Then we create/insert the data into the database by calling the `create` method.
 
 ```{.python .annotate}
 # Code omitted above
@@ -97,11 +97,11 @@ Second, we assign a player object to `maradona`. Then we create/insert the data 
 
 {!./docs_src/tutorial/create/annotations/en/tutorial000.md!}
 
-Sometimes we need to assign an object and then change some data and insert data at the end. In that case, use the second approach. First, assign the object do all necessary changes, and save the document later.
+Sometimes we need to assign an object and then change some data and insert the data at the end. In that case, use the second approach. First, assign the object, do all necessary changes, and save the document later.
 
 ### Impact in Database
 
-After running the file we should find the two-player document in the `player` collection of the `test_db` database.
+After running the file, we should find the two player documents in the `player` collection of the `test_db` database.
 
 ## Full file code
 

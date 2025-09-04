@@ -45,13 +45,13 @@ The data will look like
 ...
 ```
 
-The `rating` field should be set as the index in db as we set it as an index in `ODMConfig`.
+The `rating` field should be set as an index in the database as we set it as an index in `ODMConfig`.
 
 We will continue from the last code that we used to create some data.
 
 ## Find data
 
-### Find Data MongoDB console
+### Find Data Using MongoDB Console
 
 Let's read the `player` collection using the **MongoDB console**.
 
@@ -61,11 +61,11 @@ use test_db
 db.player.find()
 ```
 
-Run the above code in the MongoDB console. We should get all data that are previously created.
+Run the above code in the MongoDB console. We should get all the data that was previously created.
 
 ### Find Data With MongoDB-ODM
 
-We will use the `find` method of the Player class that is implemented in `Document` class.
+We will use the `find` method of the Player class that is implemented in the `Document` class.
 
 ```python
 # Code omitted above
@@ -82,15 +82,15 @@ We will use the `find` method of the Player class that is implemented in `Docume
 ```
 </details>
 
-In the `read_players` function we call the `find` method.
+In the `read_players` function, we call the `find` method.
 
 The `find` is a `classmethod` that will return a generator. We will be able to iterate over the generator by using a loop.
 
-We can also be able to use the `next` function like `next(players)`. But `next(players)` may raise an error if there is no data in the `player` collection.
+We can also use the `next` function like `next(players)`. But `next(players)` may raise an error if there is no data in the `player` collection.
 
 Then we iterate through `players`.
 
-Each object of `players` is equivalent to the `Player` object. And we should get all functionality of the `Player` class.
+Each object in `players` is equivalent to a `Player` object. And we should get all the functionality of the `Player` class.
 
 Check the console after executing the function.
 
@@ -101,11 +101,11 @@ Player(id=ObjectId('id'), name='Zinedine Zidane', country_code='FRA', rating=94,
 ...
 ```
 
-For each object, we should get **type hints** that are provided by standard python and **Pydantic**
+For each object, we should get **type hints** that are provided by standard Python and **Pydantic**.
 
-## Accessing data from returned object
+## Accessing data from the returned object
 
-To access value from the object we will use `.` operator. Nothing special just standard python.
+To access values from the object we will use the `.` operator. Nothing special, just standard Python.
 
 Example:
 
@@ -130,11 +130,11 @@ use test_db
 db.player.find({"rating": {"$gte": 10}})
 ```
 
-After executing the above bash code in the MongoDB console we should get all player who has total employee greater than or equal to 10.
+After executing the above bash code in the MongoDB console, we should get all players who have a rating greater than or equal to 10.
 
 ### Filter Data with MongoDB-ODM
 
-We will use the same `find` method of the `Player` class that we use previously to read all data.
+We will use the same `find` method of the `Player` class that we used previously to read all data.
 
 The `find` method accepts several arguments like a `filter`, `sort`, `limit`, etc.
 
@@ -158,7 +158,7 @@ There is no validation of **JSON** objects. So make sure every keyword is correc
 
 The `find` class method will return an iterator.
 
-Return data should be the same as return data in **MongoDB Console**
+The returned data should be the same as the returned data in **MongoDB Console**.
 
 Check the console after executing the code.
 
@@ -171,9 +171,7 @@ Player(id=ObjectId('id'), name='Miroslav Klose', country_code='GER', rating=91, 
 
 ## Read data with projection
 
-Some time needs to limit some fields that should not pull from the database to improve network performance. Like we have a description field that has a very long string but on the list page, we don't need to pull them.
-
-In that scenario we can use `projection` kwargs in `find` function to limit on the data pulling.
+Sometimes we need to limit some fields that should not be pulled from the database to improve network performance. For example, we have a description field that has a very long string but on the list page, we don't need to pull it.
 
 In that scenario, we can use `projection` kwargs in the `find` function to limit the data pulling.
 
@@ -204,16 +202,16 @@ Player(id=ObjectId('id'), name='Lionel Messi', country_code='ARG', rating=None, 
 ```
 
 !!!warning
-We need to pull all fields that are required. We can only eliminate only `optional` or `nullable` fields. If we did not pull a field then the field value will be the default value.
+    We need to pull all fields that are required. We can only eliminate `optional` or `nullable` fields. If we do not pull a field, then the field value will be the default value.
 
 ## Learning Curve
 
 Filtering data is a crucial part of most DBMS systems.
 
-To filter data from a database every developer should know how a particular database provides the filtering API.
+To filter data from a database, every developer should know how a particular database provides the filtering API.
 
-Also when we add an extra modeling system for a better developer experience things get more complicated. Then developer should know both the filtering system (database way and model way). But we won't do that here.
+Also, when we add an extra modeling system for a better developer experience, things get more complicated. Then developers should know both the filtering system (database way and model way). But we won't do that here.
 
-Already mongo has a broad JSON query system. we will use that directly.
+MongoDB already has a broad JSON query system. We will use that directly.
 
-So no complex query learning curve was added to the learning process. We will filter data with mongo way.
+So no complex query learning curve was added to the learning process. We will filter data the MongoDB way.

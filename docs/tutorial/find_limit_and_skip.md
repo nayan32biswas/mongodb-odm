@@ -4,18 +4,17 @@ We can improve data retrieval performance by limiting or skipping data for a big
 
 ### Database
 
-We will start from the same database structure and the same number of data as previously.
+We will start with the same database structure and the same amount of data as previously.
 
 ## Limit Data
 
-To control how much data should return from the database we will use `limit` kwargs as a parameter in classmethod `find`.
+To control how much data should be returned from the database, we will use the `limit` kwargs as a parameter in the classmethod `find`.
 
+The `limit` is an optional field in `find`. Also, the limit should be an `int` type value.
 
-The `limit` is an optional field in `find`. Also limit should be `int` type value.
+Here we retrieve the **Player** collection with `limit=2`.
 
-Here we retrieve **Player** collection with `limit=2`.
-
-We should get maximum of two document printed in console after executing the `limit_data` function.
+We should get a maximum of two documents printed in the console after executing the `limit_data` function.
 
 ```python hl_lines="4"
 # Code omitted above
@@ -34,13 +33,13 @@ We should get maximum of two document printed in console after executing the `li
 
 ## Skip Data
 
-To **skip** some of the data we will use `skip` kwargs in classmethod `find`.
+To **skip** some of the data, we will use the `skip` kwargs in the classmethod `find`.
 
-The type definition for `skip` was `Optional[int]` and the default was `None`.
+The type definition for `skip` is `Optional[int]` and the default is `None`.
 
 Here we retrieve the `Player` collection after skipping the first two documents.
 
-After executing the function we should not see the first two objects from the collection.
+After executing the function, we should not see the first two objects from the collection.
 
 ```python hl_lines="4"
 # Code omitted above
@@ -59,13 +58,13 @@ After executing the function we should not see the first two objects from the co
 
 ## Combine Skip and Limit
 
-We can combine `skip` and `limit` and pass it to classmethod `find`.
+We can combine `skip` and `limit` and pass them to the classmethod `find`.
 
-It will work at the same time.
+They will work at the same time.
 
-For example, to retrieve the `Player` collection we pass two kwargs `Player.find(skip=3, limit=2)`.
+For example, to retrieve the `Player` collection, we pass two kwargs: `Player.find(skip=3, limit=2)`.
 
-The return object `players` can max have **2** documents and the first **3** documents should skip as `skip=3`
+The returned object `players` can have a maximum of **2** documents and the first **3** documents should be skipped as `skip=3`.
 
 ```python hl_lines="4"
 # Code omitted above

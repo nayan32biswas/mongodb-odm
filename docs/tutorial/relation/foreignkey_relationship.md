@@ -2,9 +2,9 @@
 
 ## Foreign Key Relation
 
-We added new `Country` model that has relation with `Player` model.
+We added a new `Country` model that has a relationship with the `Player` model.
 
-To create relation with `Player` model we need to use `ODMObjectId` as data type, that imported from `mongodb_odm`.
+To create a relationship with the `Player` model, we need to use `ODMObjectId` as the data type, which is imported from `mongodb_odm`.
 
 ```Python hl_lines="8 15 19"
 {!./docs_src/tutorial/relation/foreignkey_relationship/tutorial000.py[ln:1-29]!}
@@ -20,19 +20,19 @@ To create relation with `Player` model we need to use `ODMObjectId` as data type
 </details>
 
 !!! tip
-    MongoDB does not manage or validate relation between collection. We have to manage that data by ourself. We are assigning foreign key with **ODMObjectId**.
+    MongoDB does not manage or validate relationships between collections. We have to manage that data ourselves. We are assigning a foreign key with **ODMObjectId**.
 
 First import `ODMObjectId` from `mongodb_odm`.
 
-`ODMObjectId` has the complete functionality of `ObjectId` from bson package. `ODMObjectId` was directly inherited from `ObjectId` and added a validation function to work with **Pydantic**.
+`ODMObjectId` has the complete functionality of `ObjectId` from the bson package. `ODMObjectId` was directly inherited from `ObjectId` and added a validation function to work with **Pydantic**.
 
 ### Relationship
 
-From `Player` model we declare `country_id` which is `ODMObjectId` type object. The `country_id` field only hold `_id` from country document.
+From the `Player` model we declare `country_id` which is an `ODMObjectId` type object. The `country_id` field only holds the `_id` from the country document.
 
-Here we define a logical field `country`. The `country` field don't have any action in database.
+Here we define a logical field `country`. The `country` field doesn't have any action in the database.
 
-The `Relationship` accept multiple field one of them is `local_field` and it's required. The `local_field` field will define the local field that are related with.
+The `Relationship` accepts multiple fields, one of them is `local_field` and it's required. The `local_field` field will define the local field that is related to.
 
 ```Python hl_lines="9 24"
 {!./docs_src/tutorial/relation/foreignkey_relationship/tutorial000.py[ln:1-29]!}
@@ -49,7 +49,7 @@ The `Relationship` accept multiple field one of them is `local_field` and it's r
 
 ## Insert Player
 
-In this example, we will create some player that has a relation with the country collection.
+In this example, we will create some players that have a relationship with the country collection.
 
 ```Python
 # Code omitted above
@@ -66,15 +66,15 @@ In this example, we will create some player that has a relation with the country
 ```
 </details>
 
-First we clear all data for collection `Country` and `Player`.
+First we clear all data from the `Country` and `Player` collections.
 
 Then we create a document for `Country`.
 
-After that, we create two players in the database that has a relation with the country document.
+After that, we create two players in the database that have a relationship with the country document.
 
 ## Read Data
 
-Here we read all player from database. But country field will not have `Country` object since we don't read it from database.
+Here we read all players from the database. But the country field will not have a `Country` object since we don't read it from the database.
 
 ```Python
 # Code omitted above
@@ -99,7 +99,7 @@ In this example, we will read all players with their related countries.
 
 To read related countries we will use an extra class method `load_related`.
 
-The `load_related` is a classmethod that load all or partially related field all allocate them with related fields.
+The `load_related` is a classmethod that loads all or partially related fields and allocates them with related fields.
 
 ```Python
 # Code omitted above
@@ -123,7 +123,7 @@ Player(id=ObjectId('id'), name='Jamal Bhuyan', country_id=ObjectId('id'), rating
 Player(id=ObjectId('id'), name='Mohamed Emon Mahmud', country_id=ObjectId('id'), rating=None, country=Country(id=ObjectId('id'), name='Bangladesh', _id=ObjectId('id')), _id=ObjectId('id'))
 ```
 
-The printed data display again with pretty formatted.
+The printed data is displayed again with pretty formatting.
 
 ```python
 Player(
@@ -153,13 +153,13 @@ Player(
 ```
 
 !!!warning
-    If we call `load_related` the data will be loaded immediately no lazy loading will be applied.
+    If we call `load_related`, the data will be loaded immediately; no lazy loading will be applied.
 
 ### Read related data of specific field
 
 By default, `load_related` will load all related data from the database.
 
-We can narrow down what relational document will be loaded from the database by passing a list of the field name in `fields` if we don't need all.
+We can narrow down which relational documents will be loaded from the database by passing a list of field names in `fields` if we don't need all of them.
 
 In this example, we pass the `country` field that needs to be loaded from the database.
 
@@ -182,13 +182,13 @@ After running the `read_related_data_of_specific_field` function the output will
 
 ### Load Related for Single Object
 
-We can load related data for single objects also.
+We can also load related data for single objects.
 
-In this example, we provide two approaches to load-related data.
+In this example, we provide two approaches to load related data.
 
-In approach one we use the general method.
+In approach one, we use the general method.
 
-In approach two we use classmethod `load_related` to load-related data.
+In approach two, we use the classmethod `load_related` to load related data.
 
 ```Python
 # Code omitted above

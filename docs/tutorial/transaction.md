@@ -8,7 +8,7 @@ We suggest reading the doc from <a href="https://www.mongodb.com/docs/manual/cor
 
 ## Start transaction
 
-To implement transactions we will use the default mechanism of <a href="https://pymongo.readthedocs.io/en/stable/api/pymongo/client_session.html#transactions" class="external-link" target="_blank">PyMongo Transactions</a>.
+To implement transactions, we will use the default mechanism of <a href="https://pymongo.readthedocs.io/en/stable/api/pymongo/client_session.html#transactions" class="external-link" target="_blank">PyMongo Transactions</a>.
 
 First, we will start a session using **with** to implement transactions.
 
@@ -29,9 +29,9 @@ Then start the transaction using the session object.
 
 ## Create document using transaction
 
-To create an object with a transaction mechanism we will pass the **session** object as **kwargs** in create method.
+To create an object with a transaction mechanism, we will pass the **session** object as **kwargs** in the create method.
 
-If something goes wrong then we need to abort the actions by manually calling the **abort** function. Otherwise, partial action will be applied.
+If something goes wrong, then we need to abort the actions by manually calling the **abort** function. Otherwise, partial actions will be applied.
 
 ```Python hl_lines="10 15"
 # Code omitted above
@@ -49,11 +49,11 @@ If something goes wrong then we need to abort the actions by manually calling th
 </details>
 
 !!!warning
-    We need to call the `session.abort_transaction()` explicitly to abort the actions. If a partial function is executed and something goes wrong then we need to call the `abort_transaction` otherwise partial action will be applied.
+    We need to call the `session.abort_transaction()` explicitly to abort the actions. If a partial function is executed and something goes wrong, then we need to call the `abort_transaction`; otherwise, partial actions will be applied.
 
 ## Update document using transaction
 
-We can use transactions on update operation.
+We can use transactions on update operations.
 
 We need to pass the **session** object as **kwargs** in the update method.
 
@@ -74,7 +74,7 @@ We need to pass the **session** object as **kwargs** in the update method.
 
 ## Delete document using transaction
 
-We can use transactions on delete operation.
+We can use transactions on delete operations.
 
 We need to pass the **session** object as **kwargs** in the delete method.
 
