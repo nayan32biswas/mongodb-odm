@@ -470,11 +470,19 @@ class Document(_BaseDocument):
         if sort:
             qs = qs.sort(sort)
 
+        obj = None
         for data in qs.limit(1):
             """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
-            return cls(**data)
+            obj = data
 
-        return None
+        if not obj:
+            return None
+
+        if cls._has_children():
+            model_children = cls._get_child_models()
+            cls._prepare_class_instance(model_children, data)
+
+        return cls(**data)
 
     @classmethod
     async def afind_one(
@@ -488,11 +496,19 @@ class Document(_BaseDocument):
         if sort:
             qs = qs.sort(sort)
 
+        obj = None
         async for data in qs.limit(1):
             """limit 1 is equivalent to find_one and that is implemented in pymongo find_one"""
-            return cls(**data)
+            obj = data
 
-        return None
+        if not obj:
+            return None
+
+        if cls._has_children():
+            model_children = cls._get_child_models()
+            cls._prepare_class_instance(model_children, data)
+
+        return cls(**data)
 
     @classmethod
     def get(
