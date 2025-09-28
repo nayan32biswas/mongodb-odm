@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.1.1
+
+### Features
+
+- Enhance model inheritance functionality for the method `find_one` and `get`. PR [#43](https://github.com/nayan32biswas/mongodb-odm/pull/43) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.1.0
 
 ### Config Changes
