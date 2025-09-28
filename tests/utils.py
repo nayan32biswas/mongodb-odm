@@ -6,10 +6,19 @@ from tests.models.course import (
     ContentImage,
     Course,
     EmbeddedComment,
+    ImageStyle,
 )
 from tests.models.user import User
 
 ASYNC_DESCRIPTION = "Async Description"
+
+TOTAL_USERS = 3
+
+TOTAL_COURSES = 2
+TOTAL_CONTENT = 4
+TOTAL_IMAGES = 2
+TOTAL_DESCRIPTIONS = 2
+TOTAL_COMMENTS = 2
 
 
 def create_users():
@@ -36,7 +45,9 @@ def create_courses():
         short_description="short description two",
     ).create()
     ContentDescription(course_id=two.id, description="Description two").create()
-    ContentImage(course_id=two.id, image_path="/media/two.png").create()
+    ContentImage(
+        course_id=two.id, image_path="/media/two.png", style=ImageStyle.LEFT
+    ).create()
 
 
 def create_comments():
@@ -61,6 +72,59 @@ def create_comments():
         EmbeddedComment(user_id=user_one.id, description="Child comment one")
     )
     comment_one.update()
+
+
+async def _async_create_users():
+    await User(username="one", full_name="Full Name").acreate()
+    await User(username="two", full_name="Full Name").acreate()
+    await User(username="three", full_name="Full Name").acreate()
+
+
+async def _async_create_courses():
+    user_one = await User.aget({"username": "one"})
+    user_two = await User.aget({"username": "two"})
+
+    one = await Course(
+        author_id=user_one.id,
+        title="one",
+        short_description="short description one",
+    ).acreate()
+    await ContentDescription(course_id=one.id, description="Description one").acreate()
+    await ContentImage(course_id=one.id, image_path="/media/one.png").acreate()
+
+    two = await Course(
+        author_id=user_two.id,
+        title="two",
+        short_description="short description two",
+    ).acreate()
+    await ContentDescription(course_id=two.id, description="Description two").acreate()
+    await ContentImage(
+        course_id=two.id, image_path="/media/two.png", style=ImageStyle.LEFT
+    ).acreate()
+
+
+async def _async_create_comments():
+    user_one = await User.aget({"username": "one"})
+    user_three = await User.aget({"username": "three"})
+
+    course_one = await Course.aget({"title": "one"})
+    course_two = await Course.aget({"title": "two"})
+
+    comment_one = await Comment(
+        course_id=course_one.id,
+        user_id=user_three.id,
+        description="Comment One",
+    ).acreate()
+    await Comment(
+        course_id=course_two.id,
+        user_id=user_three.id,
+        description="Comment Two",
+    ).acreate()
+
+    comment_one.children.append(
+        EmbeddedComment(user_id=user_one.id, description="Child comment one")
+    )
+    await comment_one.aupdate()
 
 
 async def async_create_courses(total_courses=1, author_id=None):
@@ -154,3 +218,9 @@ def populate_data():
     create_users()
     create_courses()
     create_comments()
+
+
+async def async_populate_data():
+    await _async_create_users()
+    await _async_create_courses()
+    await _async_create_comments()

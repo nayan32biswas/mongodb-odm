@@ -90,7 +90,13 @@ Then we create two `Content` documents: one `Text` content and one video content
 For model inheritance, we do not create a separate collection for each model. Instead, we create a single collection for all models, and the collection name will be according to the parent class. We add an extra field `_cls` with each document to distinguish between the different models.
 
 !!!tip
-    By default, we define the `_cls` field as an `index` field. We can remove the index from this field by defining `index_inheritance_field = False` in the parent class.
+    By default, we define the `_cls` field as an `index` field. We can remove the index for this field by defining `index_inheritance_field = False` in the parent ODMConfig.
+    ```python hl_lines="4"
+    class Content(Document):
+        ...
+        class ODMConfig(Document.ODMConfig):
+            index_inheritance_field = False
+    ```
 
 ## Retrieve Collection
 
@@ -140,3 +146,7 @@ Text(id=ObjectId('id'), course_id=ObjectId('id'), title='Introduction', text='In
 
 Video(id=ObjectId('id'), course_id=ObjectId('id'), title='Environment Setup', video_path='/media/video_path.mp4', _id=ObjectId('id'))
 ```
+
+### **find_one** and **get** with inheritance
+
+Like the `find` method, we can retrieve the child object from the parent using the `find_one` and `get` methods. If the retrieved object appears to be one of the children, then the object will have all of the properties of that child.
