@@ -248,9 +248,9 @@ def test_inheritance_model_relation_load_related():
     assert isinstance(parent, ParentModel), "First object should be ParentModel"
     assert isinstance(child, ChildModel), "Second object should be ChildModel"
 
-    assert not isinstance(
-        child.other, OtherModel
-    ), "The related field should not populate the child model fields when loading from parent model"
+    assert not isinstance(child.other, OtherModel), (
+        "The related field should not populate the child model fields when loading from parent model"
+    )
 
     # Validate the load data for child model
     child_qs = ChildModel.find(sort=[("_id", ASCENDING)])

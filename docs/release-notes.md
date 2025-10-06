@@ -1,5 +1,11 @@
 # Release Notes
 
+## 1.1.2
+
+### Features
+
+- Fix the object conversion for model inheritance. PR [#44](https://github.com/nayan32biswas/mongodb-odm/pull/44) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.1.1
 
 ### Features
