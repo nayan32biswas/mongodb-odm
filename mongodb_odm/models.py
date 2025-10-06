@@ -480,7 +480,7 @@ class Document(_BaseDocument):
 
         if cls._has_children():
             model_children = cls._get_child_models()
-            cls._prepare_class_instance(model_children, data)
+            return cls._prepare_class_instance(model_children, data)
 
         return cls(**data)
 
@@ -506,7 +506,7 @@ class Document(_BaseDocument):
 
         if cls._has_children():
             model_children = cls._get_child_models()
-            cls._prepare_class_instance(model_children, data)
+            return cls._prepare_class_instance(model_children, data)
 
         return cls(**data)
 
