@@ -2,7 +2,14 @@ from typing import Optional
 
 import pytest
 from bson import ObjectId
-from mongodb_odm import ASCENDING, Document, Field, ODMObjectId, Relationship
+from mongodb_odm import (
+    ASCENDING,
+    DESCENDING,
+    Document,
+    Field,
+    ODMObjectId,
+    Relationship,
+)
 
 from tests.conftest import ASYNC_INIT_CONFIG
 from tests.models.course import (
@@ -29,6 +36,12 @@ async def test_inheritance_find_async():
         assert isinstance(obj.id, ObjectId)
         total_content_count += 1
 
+        if isinstance(obj, ContentDescription):
+            assert hasattr(obj, "description")
+        elif isinstance(obj, ContentImage):
+            assert hasattr(obj, "style")
+            assert hasattr(obj, "image_path")
+
     assert total_content_count == TOTAL_CONTENT
 
     total_image_count = 0
@@ -52,6 +65,8 @@ async def test_inheritance_find_one_async():
 
     obj = await Content.afind_one()
     assert isinstance(obj.id, ObjectId)
+    assert isinstance(obj, ContentDescription)
+    assert hasattr(obj, "description")
 
     obj = await ContentImage.afind_one({"style": ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
@@ -67,8 +82,10 @@ async def test_inheritance_find_one_async():
 async def test_inheritance_get_async():
     await async_populate_data()
 
-    obj = await Content.aget({})  # type: ignore
+    obj = await Content.aget({}, sort=[("_id", DESCENDING)])  # type: ignore
     assert isinstance(obj.id, ObjectId)
+    assert isinstance(obj, ContentImage)
+    assert hasattr(obj, "image_path")
 
     obj = await ContentImage.aget({"style": ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)

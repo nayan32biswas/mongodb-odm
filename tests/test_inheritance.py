@@ -2,7 +2,14 @@ from typing import Optional
 
 import pytest
 from bson import ObjectId
-from mongodb_odm import ASCENDING, Document, Field, ODMObjectId, Relationship
+from mongodb_odm import (
+    ASCENDING,
+    DESCENDING,
+    Document,
+    Field,
+    ODMObjectId,
+    Relationship,
+)
 
 from tests.conftest import INIT_CONFIG
 from tests.models.course import (
@@ -29,6 +36,12 @@ def test_inheritance_find():
         assert isinstance(obj.id, ObjectId)
         total_content_count += 1
 
+        if isinstance(obj, ContentDescription):
+            assert hasattr(obj, "description")
+        elif isinstance(obj, ContentImage):
+            assert hasattr(obj, "style")
+            assert hasattr(obj, "image_path")
+
     assert total_content_count == TOTAL_CONTENT
 
     total_image_count = 0
@@ -50,8 +63,10 @@ def test_inheritance_find():
 def test_inheritance_find_one():
     populate_data()
 
-    obj = Content.find_one()
+    obj = Content.find_one(sort=[("_id", ASCENDING)])
     assert isinstance(obj.id, ObjectId)
+    assert isinstance(obj, ContentDescription)
+    assert hasattr(obj, "description")
 
     obj = ContentImage.find_one({"style": ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
@@ -67,8 +82,10 @@ def test_inheritance_find_one():
 def test_inheritance_get():
     populate_data()
 
-    obj = Content.get({})
+    obj = Content.get({}, sort=[("_id", DESCENDING)])
     assert isinstance(obj.id, ObjectId)
+    assert isinstance(obj, ContentImage)
+    assert hasattr(obj, "image_path")
 
     obj = ContentImage.get({"style": ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
@@ -231,9 +248,9 @@ def test_inheritance_model_relation_load_related():
     assert isinstance(parent, ParentModel), "First object should be ParentModel"
     assert isinstance(child, ChildModel), "Second object should be ChildModel"
 
-    assert not isinstance(child.other, OtherModel), (
-        "The related field should not populate the child model fields when loading from parent model"
-    )
+    assert not isinstance(
+        child.other, OtherModel
+    ), "The related field should not populate the child model fields when loading from parent model"
 
     # Validate the load data for child model
     child_qs = ChildModel.find(sort=[("_id", ASCENDING)])
