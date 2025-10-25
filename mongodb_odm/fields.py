@@ -44,14 +44,12 @@ def Field(
 ) -> Any:
     # Extend Pydantic Field to have more control on the Field
     field_info = PydanticFieldInfo(
-        default,
+        default=default,
         default_factory=default_factory,
         alias=alias,
         title=title,
         description=description,
         exclude=exclude,
-        # include=include,
-        # const=const,
         gt=gt,
         ge=ge,
         lt=lt,
@@ -60,7 +58,6 @@ def Field(
         allow_inf_nan=allow_inf_nan,
         max_digits=max_digits,
         decimal_places=decimal_places,
-        # unique_items=unique_items,
         min_length=min_length,
         max_length=max_length,
         frozen=frozen,
