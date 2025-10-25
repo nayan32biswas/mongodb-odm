@@ -12,11 +12,6 @@ MappingIntStrAny = Mapping[IntStr, Any]
 NoArgAnyCallable = Callable[[], Any]
 
 
-class FieldInfo(PydanticFieldInfo):
-    def __init__(self, default: Any = Undefined, **kwargs: Any) -> None:
-        super().__init__(default=default, **kwargs)
-
-
 def Field(
     default: Any = Undefined,
     *,
@@ -24,8 +19,10 @@ def Field(
     alias: Optional[str] = None,
     title: Optional[str] = None,
     description: Optional[str] = None,
-    exclude: Union["AbstractSetIntStr", "MappingIntStrAny", Any] = None,
+    exclude: Union[bool, None] = None,
+    # Will be deprecated soon
     include: Union["AbstractSetIntStr", "MappingIntStrAny", Any] = None,
+    # Will be deprecated soon
     const: Optional[bool] = None,
     gt: Optional[float] = None,
     ge: Optional[float] = None,
@@ -35,6 +32,7 @@ def Field(
     allow_inf_nan: Optional[bool] = None,
     max_digits: Optional[int] = None,
     decimal_places: Optional[int] = None,
+    # Will be deprecated soon
     unique_items: Optional[bool] = None,
     min_length: Optional[int] = None,
     max_length: Optional[int] = None,
@@ -45,15 +43,13 @@ def Field(
     **extra: Any,
 ) -> Any:
     # Extend Pydantic Field to have more control on the Field
-    field_info = FieldInfo(
-        default,
+    field_info = PydanticFieldInfo(
+        default=default,
         default_factory=default_factory,
         alias=alias,
         title=title,
         description=description,
         exclude=exclude,
-        include=include,
-        const=const,
         gt=gt,
         ge=ge,
         lt=lt,
@@ -62,7 +58,6 @@ def Field(
         allow_inf_nan=allow_inf_nan,
         max_digits=max_digits,
         decimal_places=decimal_places,
-        unique_items=unique_items,
         min_length=min_length,
         max_length=max_length,
         frozen=frozen,
