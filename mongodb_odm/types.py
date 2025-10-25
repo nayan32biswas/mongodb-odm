@@ -2,6 +2,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, TypeVar, Union
 
 from bson import ObjectId
+from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pymongo.operations import (
     DeleteMany,
@@ -68,9 +69,11 @@ class ODMObjectId(ObjectId):
 
 
 class ObjectIdStr(str):
+    _example_object_id = str(ObjectId())
+
     @classmethod
     def __get_pydantic_core_schema__(
-        cls, _source_type: Any, _handler: Any
+        cls, _source_type: Any, handler: GetCoreSchemaHandler
     ) -> core_schema.CoreSchema:
         return core_schema.json_or_python_schema(
             json_schema=core_schema.chain_schema(
@@ -91,18 +94,32 @@ class ObjectIdStr(str):
                 ]
             ),
             serialization=core_schema.plain_serializer_function_ser_schema(
-                lambda x: str(x)
+                lambda x: str(x),  # Always serialize as string
+                return_schema=core_schema.str_schema(),
             ),
         )
 
     @classmethod
     def validate(cls, v: Union[str, ObjectId]) -> str:
         if isinstance(v, ObjectId):
-            return str(v)
+            return cls(str(v))
         elif isinstance(v, str):
             try:
-                return str(ObjectId(v))
+                return cls(str(ObjectId(v)))
             except Exception as e:
                 raise ValueError("Invalid ObjectId") from e
 
         raise ValueError("Invalid data. ObjectId required")
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+        cls, schema: core_schema.CoreSchema, handler: GetCoreSchemaHandler
+    ) -> Any:
+        """Provide OpenAPI/JSON Schema metadata."""
+        json_schema: Any = handler(schema)
+        json_schema.update(
+            type="string",
+            format="objectid",
+            example=cls._example_object_id,
+        )
+        return json_schema
