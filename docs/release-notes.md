@@ -1,5 +1,15 @@
 # Release Notes
 
+## 1.1.3
+
+### Upgrades
+
+- Add support for Python 3.14. PR [#47](https://github.com/nayan32biswas/mongodb-odm/pull/47) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Fixes
+
+- Enhance ObjectIdStr class with improved schema handling and validation. PR [#46](https://github.com/nayan32biswas/mongodb-odm/pull/46) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.1.2
 
 ### Features
