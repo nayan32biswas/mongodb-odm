@@ -6,7 +6,7 @@ from mongodb_odm.data_conversion import ODMObj
 from tests.conftest import INIT_CONFIG
 from tests.models.course import Comment, Content, Course
 from tests.models.user import User
-from tests.utils import populate_data
+from tests.utils import create_users, populate_data
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
@@ -133,6 +133,30 @@ def test_find_raw():
         assert isinstance(course, dict), (
             "Each object should carry all characteristic of model"
         )
+
+
+@pytest.mark.usefixtures(INIT_CONFIG)
+def test_id_transformation():
+    create_users()
+
+    user = User.find_one({"username": "two"})
+
+    def validate_user(u, new_user):
+        assert isinstance(new_user, User)
+        assert isinstance(new_user.id, ObjectId)
+        assert u.id == new_user.id
+
+    retriveed_data = User.find_one({"id": user.id})
+    validate_user(user, retriveed_data)
+
+    retriveed_data = User.find_one({"_id": user.id})
+    validate_user(user, retriveed_data)
+
+    total_user = 0
+    for _ in User.find({"id": user.id}):
+        total_user += 1
+
+    assert total_user == 1
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)

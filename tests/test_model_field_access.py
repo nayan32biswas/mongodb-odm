@@ -38,6 +38,7 @@ def test_field_access():
 def test_field_access_with_alias():
     # Pydantic stores fields by their attribute name, not alias
     assert Game.title == "title"
+    assert Game.id == "id"
 
 
 def test_inheritance():
@@ -67,6 +68,15 @@ def test_find_with_field_access():
     players = list(Player.find({Player.name: "Pelé"}))
     assert len(players) == 1
     assert players[0].name == "Pelé"
+
+
+@pytest.mark.usefixtures(INIT_CONFIG)
+def test_id_transformation_with_field_access():
+    player = Player(name="Pelé", age=80).create()
+    Player(name="Maradona", age=60).create()
+
+    player = Player.find_one({Player.id: player.id})
+    assert player.name == "Pelé"
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
