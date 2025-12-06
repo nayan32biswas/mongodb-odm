@@ -38,7 +38,10 @@ def test_field_access():
 def test_field_access_with_alias():
     # Pydantic stores fields by their attribute name, not alias
     assert Game.title == "title"
-    assert Game.id == "id"
+
+
+def test_id_field_access():
+    assert Player.id == "_id"
 
 
 def test_inheritance():

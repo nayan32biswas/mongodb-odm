@@ -18,7 +18,6 @@ from mongodb_odm.utils.utils import (
     get_database_name,
     get_model_fields,
     get_relationship_fields_info,
-    transform_filter,
 )
 from mongodb_odm.utils.validation import validate_filter_dict
 from pydantic import BaseModel, PrivateAttr
@@ -62,6 +61,8 @@ class ODMMeta(ModelMetaclass):
             fields = cls.__dict__.get("__pydantic_fields__")
 
             if fields and name in fields:
+                if name == "id":
+                    return "_id"
                 return name
         except Exception:
             pass
@@ -348,7 +349,6 @@ class Document(_BaseDocument):
         if filter is None:
             filter = {}
 
-        transform_filter(filter)
         validate_filter_dict(cls, filter)
 
         if cls._get_child() is not None:

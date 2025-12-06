@@ -146,14 +146,11 @@ def test_id_transformation():
         assert isinstance(new_user.id, ObjectId)
         assert u.id == new_user.id
 
-    retriveed_data = User.find_one({"id": user.id})
-    validate_user(user, retriveed_data)
-
-    retriveed_data = User.find_one({"_id": user.id})
+    retriveed_data = User.find_one({User.id: user.id})
     validate_user(user, retriveed_data)
 
     total_user = 0
-    for _ in User.find({"id": user.id}):
+    for _ in User.find({User.id: user.id}):
         total_user += 1
 
     assert total_user == 1

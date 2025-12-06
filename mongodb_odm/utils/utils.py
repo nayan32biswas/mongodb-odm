@@ -3,7 +3,6 @@ import types
 from typing import Any, Optional, Union
 
 from mongodb_odm.fields import RelationshipInfo
-from mongodb_odm.types import DICT_TYPE
 from mongodb_odm.utils._internal_models import RelationalFieldInfo
 from pydantic import BaseModel
 from typing_extensions import get_args, get_origin
@@ -136,10 +135,3 @@ def get_relationship_fields_info(
             fields_name.append(field_name)
 
     return _get_fields_info(cls, fields_name)
-
-
-def transform_filter(filter: DICT_TYPE) -> DICT_TYPE:
-    if "id" in filter:
-        filter["_id"] = filter.pop("id")
-
-    return filter
