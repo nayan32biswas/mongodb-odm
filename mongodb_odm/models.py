@@ -50,7 +50,7 @@ def _clear_cache() -> None:
 
 
 class ODMMeta(ModelMetaclass):
-    def __getattr__(cls, name: str) -> Any:
+    def __getattr__(cls, name: str) -> str:
         # Avoid recursion for internal pydantic attributes
         if name.startswith("__pydantic"):
             raise AttributeError(name)

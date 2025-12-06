@@ -204,6 +204,37 @@ Player(id=ObjectId('id'), name='Lionel Messi', country_code='ARG', rating=None, 
 !!!warning
     We need to pull all fields that are required. We can only eliminate `optional` or `nullable` fields. If we do not pull a field, then the field value will be the default value.
 
+## Model Field and ID Access
+
+For better type safety, error prevention, and IDE support, `mongodb-odm` supports accessing field names directly through the model class. Field name as a string literal is prone to typos and lacks type safety. You can use the model class attributes directly to access field names.
+
+The value of `Player.name` is equivalent to `name` (**`Player.id`** is as exception). We can use `Player.name` instead of `"name"`. This will provide better type safety and IDE support.
+
+We can use the model field (`Player.name`) anywhere we want to.
+
+For example:
+
+- We can use it in the `find` method
+
+```python
+Player.find(filter={Player.rating: {"$gte": 90}})
+```
+
+- We can also use the model field (`Player.name`) in the `sort` method.
+
+```python
+Player.find(sort=[(Player.rating, ASCENDING)])
+```
+
+- We can also use the model field (`Player.name`) in the `update_one` method.
+
+```python
+Player.update_one(filter={Player.rating: {"$gte": 90}}, update={Player.rating: 90})
+```
+
+!!!warning
+    We have exception here for the `id` field. The value of **`Player.id`** is equivalent to **`_id`**. Since MongoDB uses `_id` as the default field name for the primary key, we use `id` as the field name in the model class.
+
 ## Learning Curve
 
 Filtering data is a crucial part of most DBMS systems.
