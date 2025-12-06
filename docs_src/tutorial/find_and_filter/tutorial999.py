@@ -44,46 +44,48 @@ def read_players():  # (16)
 
 
 def filter_players():  # (20)
-    players = Player.find(filter={"rating": {"$gte": 90}})  # (21)
+    players = Player.find(filter={Player.rating: {"$gte": 90}})  # (21)
     for player in players:  # (22)
         print(player)
 
 
 def find_one_object():  # (24)
-    player = Player.find_one({"rating": {"country_code": "BRA", "$gte": 90}})  # (25)
+    player = Player.find_one(
+        {Player.rating: {Player.country_code: "BRA", "$gte": 90}}
+    )  # (25)
     if player:
         print(player)
 
 
 def get_object():  # (27)
-    player = Player.find_one({"name": "Pelé"})  # (28)
+    player = Player.find_one({Player.name: "Pelé"})  # (28)
     print(player)
 
 
 def get_or_create_object():  # (30)
-    player = Player.get_or_create({"name": "Pelé"})  # (31)
+    player = Player.get_or_create({Player.name: "Pelé"})  # (31)
     print(player)
 
 
 def count_total_documents():  # (33)
-    count = Player.count_documents({"name": "Pelé"})  # (34)
+    count = Player.count_documents({Player.name: "Pelé"})  # (34)
     print(count)
 
 
 def check_exists():  # (36)
-    is_exists = Player.exists({"name": "Pelé"})  # (37)
+    is_exists = Player.exists({Player.name: "Pelé"})  # (37)
     print(is_exists)
 
 
 def aggregate_collection():  # (39)
-    pipeline = [{"$match": {"rating": {"$gte": 90}}}]  # (40)
+    pipeline = [{"$match": {Player.rating: {"$gte": 90}}}]  # (40)
     data_list = Player.aggregate(pipeline)  # (41)
     for data in data_list:  # (42)
         print(data)
 
 
 def get_random_one():  # (44)
-    player = Player.get_random_one({"rating": {"$gte": 90}})  # (45)
+    player = Player.get_random_one({Player.rating: {"$gte": 90}})  # (45)
     print(player)
 
 

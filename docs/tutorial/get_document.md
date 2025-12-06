@@ -38,7 +38,7 @@ To find the **last** document from the collection we also use `find_last`.
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/get_document/tutorial000.py[ln:61-63]!}
+{!./docs_src/tutorial/get_document/tutorial000.py[ln:61-64]!}
 
 # Code omitted below
 ```

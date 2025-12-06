@@ -2,5 +2,5 @@
 
 set -x
 
-pip-compile docs/requirements.in
-mkdocs build
+uv run pip-compile docs/requirements.in
+uv run mkdocs build

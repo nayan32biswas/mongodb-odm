@@ -43,7 +43,10 @@ def configuration():
 
 
 def general_process():
-    filter: dict[str, Any] = {"name": "Pelé", "country_code": "example@test.com"}
+    filter: dict[str, Any] = {
+        Player.name: "Pelé",
+        Player.country_code: "example@test.com",
+    }
     player = Player.find_one(filter)
     created = False
     if not player:
@@ -54,12 +57,12 @@ def general_process():
 
 def get_or_create_document():
     player, created = Player.get_or_create(
-        filter={"name": "Pelé", "country_code": "BRA"}
+        filter={Player.name: "Pelé", Player.country_code: "BRA"}
     )
     print(created, player)
 
     player, created = Player.get_or_create(
-        filter={"name": "Vini Jr.", "country_code": "BRA"}
+        filter={Player.name: "Vini Jr.", Player.country_code: "BRA"}
     )
     print(created, player)
 

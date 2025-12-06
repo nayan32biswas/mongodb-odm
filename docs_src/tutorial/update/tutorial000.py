@@ -43,20 +43,22 @@ def configuration():
 
 
 def update_document():
-    player = Player.get(filter={"name": "Pelé"})
+    player = Player.get(filter={Player.name: "Pelé"})
     player.rating = 97
     player.update()
 
 
 def update_one_document():
     result = Player.update_one(
-        filter={"name": "Diego Maradona"}, data={"$set": {"rating": 98}}
+        filter={Player.name: "Diego Maradona"}, data={"$set": {Player.rating: 98}}
     )
     print(result.modified_count)
 
 
 def update_many_document():
-    result = Player.update_many(filter={"rating": 91}, data={"$set": {"rating": 92}})
+    result = Player.update_many(
+        filter={Player.rating: 91}, data={"$set": {Player.rating: 92}}
+    )
     print(result.modified_count)
 
 

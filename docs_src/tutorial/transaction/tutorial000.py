@@ -30,11 +30,11 @@ def update_documents():
     with Document.start_session() as session:
         with session.start_transaction():
             try:
-                pele = Player.get({"name": "Pelé"})
+                pele = Player.get({Player.name: "Pelé"})
                 pele.rating = 98
                 pele.update(session=session)
 
-                maradona = Player.get({"name": "Diego Maradona"})
+                maradona = Player.get({Player.name: "Diego Maradona"})
                 pele.rating = 97
                 maradona.update(session=session)
             except OperationFailure:
@@ -45,10 +45,10 @@ def delete_documents():
     with Document.start_session() as session:
         with session.start_transaction():
             try:
-                pele = Player.get({"name": "Pelé"})
+                pele = Player.get({Player.name: "Pelé"})
                 pele.delete(session=session)
 
-                maradona = Player.get({"name": "Diego Maradona"})
+                maradona = Player.get({Player.name: "Diego Maradona"})
                 maradona.delete(session=session)
             except OperationFailure:
                 session.abort_transaction()

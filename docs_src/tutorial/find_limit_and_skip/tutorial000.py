@@ -65,7 +65,7 @@ def skip_and_limit_data():
 
 def implement_pagination(page, limit):
     skip = (page - 1) * limit
-    filter = {"rating": {"$gte": 90}}
+    filter = {Player.rating: {"$gte": 90}}
     players = Player.find(filter=filter, skip=skip, limit=limit)
     for player in players:
         print(player)

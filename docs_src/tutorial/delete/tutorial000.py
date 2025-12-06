@@ -43,17 +43,17 @@ def create_players():
 
 
 def delete_document():
-    player = Player.get(filter={"name": "Pelé"})
+    player = Player.get(filter={Player.name: "Pelé"})
     player.delete()
 
 
 def delete_one_document():
-    result = Player.delete_one(filter={"name": "Diego Maradona"})
+    result = Player.delete_one(filter={Player.name: "Diego Maradona"})
     print(result.deleted_count)
 
 
 def delete_many_document():
-    result = Player.delete_many(filter={"rating": 89})
+    result = Player.delete_many(filter={Player.rating: 89})
     print(result.deleted_count)
 
 

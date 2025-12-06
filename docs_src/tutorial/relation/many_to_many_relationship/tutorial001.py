@@ -76,7 +76,7 @@ def insert_data():
 
 
 def read_data():
-    pele = Player.get({"name": "Pelé"})
+    pele = Player.get({Player.name: "Pelé"})
     print(pele)
 
 
