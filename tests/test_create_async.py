@@ -13,7 +13,7 @@ async def test_create_course():
         title="New Course Title",
     ).acreate()
 
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
 
     assert db_course is not None, "Course should be created in the database"
 
@@ -29,7 +29,7 @@ async def test_acreate_with_all_fields():
     ).acreate()
 
     # Verify the course was created with all fields
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
 
     assert db_course is not None, "Course should be created in the database"
     assert db_course.author_id == author_id, "Author ID should match"
@@ -63,7 +63,7 @@ async def test_acreate_multiple_courses():
 
     # Verify all courses exist in database
     for course in courses:
-        db_course = await Course.afind_one({"_id": course.id})
+        db_course = await Course.afind_one({Course.id: course.id})
         assert db_course is not None, f"Course {course.title} should exist in database"
         assert db_course.author_id == author_id, "Author ID should match"
 
@@ -80,7 +80,7 @@ async def test_acreate_with_kwargs():
     ).acreate(bypass_document_validation=True)
 
     # Verify the course was created successfully
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
     assert db_course is not None, "Course should be created even with kwargs"
     assert db_course.title == "Course with Kwargs", "Title should match"
 
@@ -139,7 +139,7 @@ async def test_acreate_with_none_values():
     ).acreate()
 
     # Verify the course was created
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
     assert db_course is not None, "Course should be created"
     assert db_course.title == "Course with None", "Title should be preserved"
 

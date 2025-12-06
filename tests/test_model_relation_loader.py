@@ -39,7 +39,7 @@ def test_related_data_load_with_field():
     populate_data()
 
     comment_qs = Comment.find()
-    comments = Comment.load_related(comment_qs, fields=["user"])
+    comments = Comment.load_related(comment_qs, fields=[Comment.user])
     for comment in comments:
         assert type(comment.user) is User
         assert comment.user.id == comment.user_id
@@ -53,7 +53,7 @@ def test_load_related_data_with_invalid_field():
 
     try:
         comment_qs = Comment.find()
-        _ = Comment.load_related(comment_qs, fields=["invalid"])
+        _ = Comment.load_related(comment_qs, fields=[Comment.invalid])
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""
@@ -74,7 +74,7 @@ def test_load_related_data_with_invalid_model():
         a = ModelA(string="a").create()
         ModelB(a_id=a.id, other_field="Other").create()
         b_qs = ModelB.find()
-        _ = ModelB.load_related(b_qs, fields=["a"])
+        _ = ModelB.load_related(b_qs, fields=[ModelB.a])
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""

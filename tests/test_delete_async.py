@@ -29,12 +29,12 @@ async def test_adelete():
     assert delete_result.deleted_count == 1, "One document should be deleted"
 
     # Verify the specific course was deleted
-    deleted_course = await Course.afind_one({"_id": original_id})
+    deleted_course = await Course.afind_one({Course.id: original_id})
     assert deleted_course is None, "Target course should be deleted from the database"
 
     # Verify other courses with same author still exist
     remaining_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         remaining_same_author_courses.append(course)
 
     assert len(remaining_same_author_courses) == 2, (
@@ -42,7 +42,7 @@ async def test_adelete():
     )
 
     # Verify the course with different author_id was not affected
-    untouched_course = await Course.afind_one({"_id": other_course.id})
+    untouched_course = await Course.afind_one({Course.id: other_course.id})
     assert untouched_course is not None, "Other course should still exist"
     assert untouched_course.title == "Other Course", "Other course should be unchanged"
 
@@ -55,12 +55,12 @@ async def test_adelete():
     assert delete_result.deleted_count == 1, "One document should be deleted"
 
     # Verify the second course was deleted
-    deleted_second_course = await Course.afind_one({"_id": second_original_id})
+    deleted_second_course = await Course.afind_one({Course.id: second_original_id})
     assert deleted_second_course is None, "Second target course should be deleted"
 
     # Verify only one course with same author remains
     final_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         final_same_author_courses.append(course)
 
     assert len(final_same_author_courses) == 1, (
@@ -77,7 +77,7 @@ async def test_adelete():
 
     # Verify all courses with original author are now deleted
     no_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         no_same_author_courses.append(course)
 
     assert len(no_same_author_courses) == 0, "No courses with same author should remain"
@@ -122,7 +122,7 @@ async def test_adelete():
     )
 
     # Verify complex course was deleted
-    deleted_complex = await Course.afind_one({"_id": complex_course.id})
+    deleted_complex = await Course.afind_one({Course.id: complex_course.id})
     assert deleted_complex is None, "Complex course should be deleted from database"
 
 
@@ -142,17 +142,17 @@ async def test_adelete_one():
 
     # Test deleting one specific document by ID
     target_course = courses[0]
-    delete_result = await Course.adelete_one({"_id": target_course.id})
+    delete_result = await Course.adelete_one({Course.id: target_course.id})
 
     assert delete_result.deleted_count == 1, "One document should be deleted"
 
     # Verify the correct document was deleted
-    deleted_course = await Course.afind_one({"_id": target_course.id})
+    deleted_course = await Course.afind_one({Course.id: target_course.id})
     assert deleted_course is None, "Target course should be deleted from the database"
 
     # Verify other courses with same author still exist
     remaining_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         remaining_same_author_courses.append(course)
 
     assert len(remaining_same_author_courses) == 2, (
@@ -160,18 +160,18 @@ async def test_adelete_one():
     )
 
     # Verify the course with different author_id was not affected
-    untouched_course = await Course.afind_one({"_id": other_course.id})
+    untouched_course = await Course.afind_one({Course.id: other_course.id})
     assert untouched_course is not None, "Other course should still exist"
     assert untouched_course.title == "Other Course", "Other course should be unchanged"
 
     # Test deleting with filter that matches multiple documents but only deletes one
-    delete_result = await Course.adelete_one({"author_id": author_id})
+    delete_result = await Course.adelete_one({Course.author_id: author_id})
 
     assert delete_result.deleted_count == 1, "Only one document should be deleted"
 
     # Verify only one more document was deleted
     final_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         final_same_author_courses.append(course)
 
     assert len(final_same_author_courses) == 1, (
@@ -180,7 +180,7 @@ async def test_adelete_one():
 
     # Test deleting with filter that matches no documents
     non_existent_id = ODMObjectId()
-    delete_result = await Course.adelete_one({"_id": non_existent_id})
+    delete_result = await Course.adelete_one({Course.id: non_existent_id})
 
     assert delete_result.deleted_count == 0, "No documents should be deleted"
 
@@ -195,7 +195,7 @@ async def test_adelete_one():
 
     # Test deleting with complex filter
     delete_result = await Course.adelete_one(
-        {"author_id": author_id, "title": {"$regex": "Course"}}
+        {Course.author_id: author_id, Course.title: {"$regex": "Course"}}
     )
 
     assert delete_result.deleted_count == 1, (
@@ -204,7 +204,7 @@ async def test_adelete_one():
 
     # Verify the last course with the target author is deleted
     final_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         final_author_courses.append(course)
 
     assert len(final_author_courses) == 0, (
@@ -244,13 +244,13 @@ async def test_adelete_many():
     assert total_initial_count == 6, "Should have 6 total courses initially"
 
     # Test deleting multiple documents by author_id
-    delete_result = await Course.adelete_many({"author_id": author_id})
+    delete_result = await Course.adelete_many({Course.author_id: author_id})
 
     assert delete_result.deleted_count == 4, "Four documents should be deleted"
 
     # Verify all courses with the same author_id were deleted
     remaining_same_author_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         remaining_same_author_courses.append(course)
 
     assert len(remaining_same_author_courses) == 0, (
@@ -259,7 +259,7 @@ async def test_adelete_many():
 
     # Verify courses with different author_id were not affected
     remaining_other_courses = []
-    async for course in Course.afind({"author_id": other_author_id}):
+    async for course in Course.afind({Course.author_id: other_author_id}):
         remaining_other_courses.append(course)
 
     assert len(remaining_other_courses) == 2, "Both other author courses should remain"
@@ -270,7 +270,7 @@ async def test_adelete_many():
 
     # Test deleting with filter that matches no documents
     non_existent_author = ODMObjectId()
-    delete_result = await Course.adelete_many({"author_id": non_existent_author})
+    delete_result = await Course.adelete_many({Course.author_id: non_existent_author})
 
     assert delete_result.deleted_count == 0, "No documents should be deleted"
 
@@ -303,7 +303,7 @@ async def test_adelete_many():
 
     # Test deleting with complex filter (regex pattern)
     delete_result = await Course.adelete_many(
-        {"author_id": new_author_id, "title": {"$regex": "Test Course"}}
+        {Course.author_id: new_author_id, Course.title: {"$regex": "Test Course"}}
     )
 
     assert delete_result.deleted_count == 3, (
@@ -312,7 +312,7 @@ async def test_adelete_many():
 
     # Verify only the course with different title remains
     remaining_courses = []
-    async for course in Course.afind({"author_id": new_author_id}):
+    async for course in Course.afind({Course.author_id: new_author_id}):
         remaining_courses.append(course)
 
     assert len(remaining_courses) == 1, "Only one course should remain"
@@ -335,7 +335,7 @@ async def test_adelete_many():
     ).acreate()
 
     delete_result = await Course.adelete_many(
-        {"author_id": another_author_id, "title": {"$regex": "Multi Field"}}
+        {Course.author_id: another_author_id, Course.title: {"$regex": "Multi Field"}}
     )
 
     assert delete_result.deleted_count == 2, (

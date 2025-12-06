@@ -28,8 +28,8 @@ def create_users():
 
 
 def create_courses():
-    user_one = User.get({"username": "one"})
-    user_two = User.get({"username": "two"})
+    user_one = User.get({User.username: "one"})
+    user_two = User.get({User.username: "two"})
 
     one = Course(
         author_id=user_one.id,
@@ -51,11 +51,11 @@ def create_courses():
 
 
 def create_comments():
-    user_one = User.get({"username": "one"})
-    user_three = User.get({"username": "three"})
+    user_one = User.get({User.username: "one"})
+    user_three = User.get({User.username: "three"})
 
-    course_one = Course.get({"title": "one"})
-    course_two = Course.get({"title": "two"})
+    course_one = Course.get({Course.title: "one"})
+    course_two = Course.get({Course.title: "two"})
 
     comment_one = Comment(
         course_id=course_one.id,
@@ -81,8 +81,8 @@ async def _async_create_users():
 
 
 async def _async_create_courses():
-    user_one = await User.aget({"username": "one"})
-    user_two = await User.aget({"username": "two"})
+    user_one = await User.aget({User.username: "one"})
+    user_two = await User.aget({User.username: "two"})
 
     one = await Course(
         author_id=user_one.id,
@@ -104,11 +104,11 @@ async def _async_create_courses():
 
 
 async def _async_create_comments():
-    user_one = await User.aget({"username": "one"})
-    user_three = await User.aget({"username": "three"})
+    user_one = await User.aget({User.username: "one"})
+    user_three = await User.aget({User.username: "three"})
 
-    course_one = await Course.aget({"title": "one"})
-    course_two = await Course.aget({"title": "two"})
+    course_one = await Course.aget({Course.title: "one"})
+    course_two = await Course.aget({Course.title: "two"})
 
     comment_one = await Comment(
         course_id=course_one.id,
@@ -130,7 +130,7 @@ async def _async_create_comments():
 async def async_create_courses(total_courses=1, author_id=None):
     if author_id is None:
         user_one, _ = await User.aget_or_create(
-            {"username": "one", "full_name": "Full Name"}
+            {User.username: "one", User.full_name: "Full Name"}
         )
         author_id = user_one.id
 
@@ -168,10 +168,10 @@ async def async_create_contents():
 
 async def async_create_comments():
     user_one, _ = await User.aget_or_create(
-        {"username": "one", "full_name": "Full Name"}
+        {User.username: "one", User.full_name: "Full Name"}
     )
     user_two, _ = await User.aget_or_create(
-        {"username": "two", "full_name": "Full Name"}
+        {User.username: "two", User.full_name: "Full Name"}
     )
 
     course_one = await Course(title="one", author_id=user_one.id).acreate()

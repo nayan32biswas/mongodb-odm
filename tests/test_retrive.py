@@ -99,7 +99,7 @@ def test_get_random_one():
 
     user = User.get({})
 
-    course = Course.get_random_one(filter={"author_id": user.id})
+    course = Course.get_random_one(filter={Course.author_id: user.id})
     assert isinstance(course, Course), (
         "get_random_one method should return Course type object"
     )
@@ -139,7 +139,7 @@ def test_find_raw():
 def test_id_transformation():
     create_users()
 
-    user = User.find_one({"username": "two"})
+    user = User.find_one({User.username: "two"})
 
     def validate_user(u, new_user):
         assert isinstance(new_user, User)
@@ -160,15 +160,17 @@ def test_id_transformation():
 def test_projection_for_find_raw():
     populate_data()
 
-    for obj in Course.find_raw(projection={"_id": 1}):
-        assert isinstance(obj["_id"], ObjectId)
+    for obj in Course.find_raw(projection={Course.id: 1}):
+        assert isinstance(obj[Course.id], ObjectId)
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_projection_for_find():
     populate_data()
 
-    for obj in Course.find(projection={"short_description": 0, "cover_image": 0}):
+    for obj in Course.find(
+        projection={Course.short_description: 0, Course.cover_image: 0}
+    ):
         assert isinstance(obj.id, ObjectId)
         assert obj.cover_image is None
         assert obj.short_description is None
@@ -178,7 +180,7 @@ def test_projection_for_find():
 def test_sort():
     populate_data()
 
-    for obj in Course.find(sort=[("_id", DESCENDING)]):
+    for obj in Course.find(sort=[(Course.id, DESCENDING)]):
         assert isinstance(obj.id, ObjectId)
 
 

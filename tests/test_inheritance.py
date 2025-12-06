@@ -45,7 +45,7 @@ def test_inheritance_find():
     assert total_content_count == TOTAL_CONTENT
 
     total_image_count = 0
-    for obj in ContentImage.find({"style": ImageStyle.LEFT}):
+    for obj in ContentImage.find({ContentImage.style: ImageStyle.LEFT}):
         assert isinstance(obj.id, ObjectId)
         total_image_count += 1
 
@@ -63,12 +63,12 @@ def test_inheritance_find():
 def test_inheritance_find_one():
     populate_data()
 
-    obj = Content.find_one(sort=[("_id", ASCENDING)])
+    obj = Content.find_one(sort=[(Content.id, ASCENDING)])
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentDescription)
     assert hasattr(obj, "description")
 
-    obj = ContentImage.find_one({"style": ImageStyle.LEFT})
+    obj = ContentImage.find_one({ContentImage.style: ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert obj.style == ImageStyle.LEFT
@@ -82,12 +82,12 @@ def test_inheritance_find_one():
 def test_inheritance_get():
     populate_data()
 
-    obj = Content.get({}, sort=[("_id", DESCENDING)])
+    obj = Content.get({}, sort=[(Content.id, DESCENDING)])
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert hasattr(obj, "image_path")
 
-    obj = ContentImage.get({"style": ImageStyle.LEFT})
+    obj = ContentImage.get({ContentImage.style: ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert obj.style == ImageStyle.LEFT
@@ -118,12 +118,12 @@ def test_inheritance_exists():
     content_exists = Content.exists()
     assert content_exists is True
 
-    img_exists = ContentImage.exists({"style": ImageStyle.LEFT})
+    img_exists = ContentImage.exists({ContentImage.style: ImageStyle.LEFT})
     assert img_exists is True
 
     # Delete images with style LEFT
-    ContentImage.delete_many({"style": ImageStyle.LEFT})
-    img_exists = ContentImage.exists({"style": ImageStyle.LEFT})
+    ContentImage.delete_many({ContentImage.style: ImageStyle.LEFT})
+    img_exists = ContentImage.exists({ContentImage.style: ImageStyle.LEFT})
     assert img_exists is False
 
     description_exists = ContentDescription.exists()
@@ -141,10 +141,11 @@ def test_inheritance_update_one():
     populate_data()
 
     ContentImage.update_one(
-        {"style": ImageStyle.LEFT}, {"$set": {"style": ImageStyle.RIGHT}}
+        {ContentImage.style: ImageStyle.LEFT},
+        {"$set": {ContentImage.style: ImageStyle.RIGHT}},
     )
 
-    images = list(Content.find({"style": ImageStyle.RIGHT}))
+    images = list(Content.find({ContentImage.style: ImageStyle.RIGHT}))
     assert len(images) == 1
     assert isinstance(images[0], ContentImage)
     assert images[0].style == ImageStyle.RIGHT
@@ -154,9 +155,9 @@ def test_inheritance_update_one():
 def test_inheritance_update_many():
     populate_data()
 
-    ContentImage.update_many({}, {"$set": {"style": ImageStyle.RIGHT}})
+    ContentImage.update_many({}, {"$set": {ContentImage.style: ImageStyle.RIGHT}})
 
-    images = list(Content.find({"style": ImageStyle.RIGHT}))
+    images = list(Content.find({ContentImage.style: ImageStyle.RIGHT}))
     assert len(images) == TOTAL_IMAGES
     assert isinstance(images[0], ContentImage)
     assert isinstance(images[1], ContentImage)
@@ -166,16 +167,16 @@ def test_inheritance_update_many():
 def test_inheritance_delete_one():
     populate_data()
 
-    ContentImage.delete_one({"style": ImageStyle.RIGHT})
-    assert ContentImage.exists({"style": ImageStyle.RIGHT}) is False
+    ContentImage.delete_one({ContentImage.style: ImageStyle.RIGHT})
+    assert ContentImage.exists({ContentImage.style: ImageStyle.RIGHT}) is False
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_inheritance_delete_many():
     populate_data()
 
-    ContentImage.delete_many({"style": ImageStyle.RIGHT})
-    assert ContentImage.exists({"style": ImageStyle.RIGHT}) is False
+    ContentImage.delete_many({ContentImage.style: ImageStyle.RIGHT})
+    assert ContentImage.exists({ContentImage.style: ImageStyle.RIGHT}) is False
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
@@ -200,7 +201,7 @@ def test_inheritance_child_get_random_one():
         course_id=course.id, style=ImageStyle.RIGHT, image_path="path/to/image.jpg"
     ).create()
     obj = ContentImage.get_random_one(
-        filter={"course_id": course.id, "style": ImageStyle.RIGHT}
+        filter={ContentImage.course_id: course.id, ContentImage.style: ImageStyle.RIGHT}
     )
 
     assert isinstance(obj.id, ObjectId)
@@ -237,7 +238,7 @@ def test_inheritance_model_relation_load_related():
     ParentModel(title="demo").create()
     ChildModel(title="demo", child_title="demo", other_id=other.id).create()
 
-    parent_qs = ParentModel.find(sort=[("_id", ASCENDING)])
+    parent_qs = ParentModel.find(sort=[(ParentModel.id, ASCENDING)])
     parents = ParentModel.load_related(parent_qs)
 
     assert len(parents) == 2, "Should have 2 objects"
@@ -253,7 +254,7 @@ def test_inheritance_model_relation_load_related():
     )
 
     # Validate the load data for child model
-    child_qs = ChildModel.find(sort=[("_id", ASCENDING)])
+    child_qs = ChildModel.find(sort=[(ChildModel.id, ASCENDING)])
     children = ChildModel.load_related(child_qs)
 
     assert len(children) == 1, "Should have 1 object"

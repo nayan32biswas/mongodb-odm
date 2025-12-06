@@ -22,7 +22,7 @@ async def test_aupdate():
     assert update_result.matched_count == 1, "One document should be matched"
 
     # Verify the update in the database
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
     assert db_course is not None, "Course should still exist in the database"
     assert db_course.title == new_title, "Course title should be updated"
 
@@ -34,7 +34,7 @@ async def test_aupdate():
     assert update_result.matched_count == 1, "One document should be matched"
 
     # Verify the update in the database
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
     assert db_course is not None, "Course should still exist in the database"
     assert db_course.title == "Another Updated Title", (
         "Course title should be updated again"
@@ -59,16 +59,16 @@ async def test_aupdate_one():
     # Test updating one specific document by ID
     new_title = "Updated Course 1"
     update_result = await Course.aupdate_one(
-        {"_id": course1.id},
-        {"$set": {"title": new_title}},
+        {Course.id: course1.id},
+        {"$set": {Course.title: new_title}},
     )
 
     assert update_result.modified_count == 1, "One document should be modified"
     assert update_result.matched_count == 1, "One document should be matched"
 
     # Verify the correct document was updated
-    db_course1 = await Course.afind_one({"_id": course1.id})
-    db_course2 = await Course.afind_one({"_id": course2.id})
+    db_course1 = await Course.afind_one({Course.id: course1.id})
+    db_course2 = await Course.afind_one({Course.id: course2.id})
 
     assert db_course1 is not None, "Course 1 should exist in the database"
     assert db_course1.title == new_title, "Course 1 title should be updated"
@@ -77,8 +77,8 @@ async def test_aupdate_one():
 
     # Test updating with filter that matches multiple documents but only updates one
     update_result = await Course.aupdate_one(
-        {"author_id": author_id},
-        {"$set": {"title": "Updated by Author Filter"}},
+        {Course.author_id: author_id},
+        {"$set": {Course.title: "Updated by Author Filter"}},
     )
 
     assert update_result.modified_count == 1, "Only one document should be modified"
@@ -87,8 +87,8 @@ async def test_aupdate_one():
     # Test updating with filter that matches no documents
     non_existent_id = ODMObjectId()
     update_result = await Course.aupdate_one(
-        {"_id": non_existent_id},
-        {"$set": {"title": "This should not update"}},
+        {Course.id: non_existent_id},
+        {"$set": {Course.title: "This should not update"}},
     )
 
     assert update_result.modified_count == 0, "No documents should be modified"
@@ -97,8 +97,8 @@ async def test_aupdate_one():
     # Test with upsert=True to create a new document
     new_course_id = ODMObjectId()
     update_result = await Course.aupdate_one(
-        {"_id": new_course_id},
-        {"$set": {"title": "Upserted Course", "author_id": author_id}},
+        {Course.id: new_course_id},
+        {"$set": {Course.title: "Upserted Course", Course.author_id: author_id}},
         upsert=True,
     )
 
@@ -107,7 +107,7 @@ async def test_aupdate_one():
     assert update_result.upserted_id == new_course_id, "New document should be upserted"
 
     # Verify the upserted document exists
-    upserted_course = await Course.afind_one({"_id": new_course_id})
+    upserted_course = await Course.afind_one({Course.id: new_course_id})
     assert upserted_course is not None, "Upserted course should exist in the database"
     assert upserted_course.title == "Upserted Course", (
         "Upserted course should have correct title"
@@ -130,7 +130,7 @@ async def test_aupdate_many():
 
     # Test updating multiple documents by author_id
     update_result = await Course.aupdate_many(
-        {"author_id": author_id}, {"$set": {"title": "Updated Course Title"}}
+        {Course.author_id: author_id}, {"$set": {Course.title: "Updated Course Title"}}
     )
 
     assert update_result.modified_count == 3, "Three documents should be modified"
@@ -138,7 +138,7 @@ async def test_aupdate_many():
 
     # Verify all courses with the same author_id were updated
     updated_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         updated_courses.append(course)
 
     assert len(updated_courses) == 3, "Should find 3 updated courses"
@@ -148,7 +148,7 @@ async def test_aupdate_many():
         )
 
     # Verify the course with different author_id was not updated
-    untouched_course = await Course.afind_one({"_id": other_course.id})
+    untouched_course = await Course.afind_one({Course.id: other_course.id})
     assert untouched_course is not None, "Other course should still exist"
     assert untouched_course.title == "Other Course", (
         "Other course title should remain unchanged"
@@ -156,8 +156,8 @@ async def test_aupdate_many():
 
     # Test updating with filter that matches no documents
     update_result = await Course.aupdate_many(
-        {"author_id": ODMObjectId()},  # Non-existent author
-        {"$set": {"title": "This should not update"}},
+        {Course.author_id: ODMObjectId()},  # Non-existent author
+        {"$set": {Course.title: "This should not update"}},
     )
 
     assert update_result.modified_count == 0, "No documents should be modified"
@@ -166,7 +166,7 @@ async def test_aupdate_many():
     # Test updating all documents (no filter restrictions)
     update_result = await Course.aupdate_many(
         {},  # Empty filter matches all documents
-        {"$set": {"short_description": "Global update"}},
+        {"$set": {Course.short_description: "Global update"}},
     )
 
     assert update_result.modified_count == 4, "All four documents should be modified"
@@ -185,10 +185,10 @@ async def test_aupdate_many():
 
     # Test updating with multiple field changes
     update_result = await Course.aupdate_many(
-        {"author_id": author_id},
+        {Course.author_id: author_id},
         {
-            "$set": {"title": "Final Title", "status": "active"},
-            "$unset": {"short_description": ""},
+            "$set": {Course.title: "Final Title", "status": "active"},
+            "$unset": {Course.short_description: ""},
         },
     )
 
@@ -197,7 +197,7 @@ async def test_aupdate_many():
 
     # Verify complex update was applied
     final_courses = []
-    async for course in Course.afind({"author_id": author_id}):
+    async for course in Course.afind({Course.author_id: author_id}):
         final_courses.append(course)
 
     for course in final_courses:
