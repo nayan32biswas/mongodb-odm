@@ -45,7 +45,6 @@ jobs:
           version: "0.6.10"
           enable-cache: true
           cache-dependency-glob: |
-            requirements**.txt
             pyproject.toml
             *.lock
 
@@ -98,7 +97,6 @@ jobs:
           version: "0.6.10"
           enable-cache: true
           cache-dependency-glob: |
-            requirements**.txt
             pyproject.toml
             *.lock
 
