@@ -41,7 +41,7 @@ async def test_related_data_load_with_field():
     await async_create_comments()
 
     comment_qs = Comment.afind()
-    comments = await Comment.aload_related(comment_qs, fields=["user"])
+    comments = await Comment.aload_related(comment_qs, fields=[Comment.user])
 
     for comment in comments:
         assert type(comment.user) is User
@@ -56,7 +56,7 @@ async def test_load_related_data_with_invalid_field():
 
     try:
         comment_qs = Comment.afind()
-        _ = await Comment.aload_related(comment_qs, fields=["invalid"])
+        _ = await Comment.aload_related(comment_qs, fields=[Comment.invalid])
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""
@@ -77,7 +77,7 @@ async def test_load_related_data_with_invalid_model():
         a = await ModelA(string="a").acreate()
         await ModelB(a_id=a.id, other_field="Other").acreate()
         b_qs = ModelB.afind()
-        _ = await ModelB.aload_related(b_qs, fields=["a"])
+        _ = await ModelB.aload_related(b_qs, fields=[ModelB.a])
         raise AssertionError()  # Should raise error before this line
     except Exception as e:
         assert str(e) != ""

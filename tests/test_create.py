@@ -36,7 +36,7 @@ def test_inheritance_model_create():
     ).create()
 
     content_count = Content.count_documents(
-        {"_id": {"$in": [content_description.id, content_image.id]}}
+        {Content.id: {"$in": [content_description.id, content_image.id]}}
     )
 
     assert content_count == 2, (
@@ -52,13 +52,13 @@ def test_get_or_create():
     created_at = datetime.now().replace(microsecond=0)
 
     course, created = Course.get_or_create(
-        {"author_id": user.id, "title": title, "created_at": created_at}
+        {Course.author_id: user.id, Course.title: title, Course.created_at: created_at}
     )
     assert created is True, "New course should be created"
     assert isinstance(course, Course), "Type should be Course"
 
     course, created = Course.get_or_create(
-        {"author_id": user.id, "title": title, "created_at": created_at}
+        {Course.author_id: user.id, Course.title: title, Course.created_at: created_at}
     )
     assert created is False, "Old course should get from DB"
     assert isinstance(course, Course), "Type should be Course"

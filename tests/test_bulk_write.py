@@ -12,8 +12,8 @@ class NewModel(Document):
 def test_bulk_insert():
     NewModel.bulk_write(
         [
-            InsertOne({"title": "bulk insert"}),
-            InsertOne({"title": "bulk insert"}),
+            InsertOne({NewModel.title: "bulk insert"}),
+            InsertOne({NewModel.title: "bulk insert"}),
         ]
     )
 
@@ -22,7 +22,10 @@ def test_bulk_insert():
 def test_bulk_update():
     NewModel.bulk_write(
         [
-            UpdateOne({"title": "bulk insert"}, {"$set": {"title": "updated"}}),
+            UpdateOne(
+                {NewModel.title: "bulk insert"},
+                {"$set": {NewModel.title: "updated"}},
+            ),
         ]
     )
 
@@ -30,5 +33,8 @@ def test_bulk_update():
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_bulk_delete():
     NewModel.bulk_write(
-        [DeleteOne({"title": "bulk insert"}), DeleteOne({"title": "updated"})]
+        [
+            DeleteOne({NewModel.title: "bulk insert"}),
+            DeleteOne({NewModel.title: "updated"}),
+        ]
     )

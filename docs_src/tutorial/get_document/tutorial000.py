@@ -52,14 +52,16 @@ def create_players():
 
 def get_document():
     try:
-        player = Player.get(filter={"country_code": "example@test.com"})
+        player = Player.get(filter={Player.country_code: "example@test.com"})
         print(player)
     except ObjectDoesNotExist as ex:
         print(ex)
 
 
 def get_last_document():
-    player = Player.get(filter={"rating": {"$gte": 90}}, sort=[("_id", DESCENDING)])
+    player = Player.get(
+        filter={Player.rating: {"$gte": 90}}, sort=[("_id", DESCENDING)]
+    )
     print(player)
 
 

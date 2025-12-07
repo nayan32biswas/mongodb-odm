@@ -6,7 +6,7 @@ from mongodb_odm.data_conversion import ODMObj
 from tests.conftest import INIT_CONFIG
 from tests.models.course import Comment, Content, Course
 from tests.models.user import User
-from tests.utils import populate_data
+from tests.utils import create_users, populate_data
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
@@ -99,7 +99,7 @@ def test_get_random_one():
 
     user = User.get({})
 
-    course = Course.get_random_one(filter={"author_id": user.id})
+    course = Course.get_random_one(filter={Course.author_id: user.id})
     assert isinstance(course, Course), (
         "get_random_one method should return Course type object"
     )
@@ -136,18 +136,41 @@ def test_find_raw():
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
+def test_id_transformation():
+    create_users()
+
+    user = User.find_one({User.username: "two"})
+
+    def validate_user(u, new_user):
+        assert isinstance(new_user, User)
+        assert isinstance(new_user.id, ObjectId)
+        assert u.id == new_user.id
+
+    retriveed_data = User.find_one({User.id: user.id})
+    validate_user(user, retriveed_data)
+
+    total_user = 0
+    for _ in User.find({User.id: user.id}):
+        total_user += 1
+
+    assert total_user == 1
+
+
+@pytest.mark.usefixtures(INIT_CONFIG)
 def test_projection_for_find_raw():
     populate_data()
 
-    for obj in Course.find_raw(projection={"_id": 1}):
-        assert isinstance(obj["_id"], ObjectId)
+    for obj in Course.find_raw(projection={Course.id: 1}):
+        assert isinstance(obj[Course.id], ObjectId)
 
 
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_projection_for_find():
     populate_data()
 
-    for obj in Course.find(projection={"short_description": 0, "cover_image": 0}):
+    for obj in Course.find(
+        projection={Course.short_description: 0, Course.cover_image: 0}
+    ):
         assert isinstance(obj.id, ObjectId)
         assert obj.cover_image is None
         assert obj.short_description is None
@@ -157,7 +180,7 @@ def test_projection_for_find():
 def test_sort():
     populate_data()
 
-    for obj in Course.find(sort=[("_id", DESCENDING)]):
+    for obj in Course.find(sort=[(Course.id, DESCENDING)]):
         assert isinstance(obj.id, ObjectId)
 
 

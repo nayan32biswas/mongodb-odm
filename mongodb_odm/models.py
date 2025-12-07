@@ -21,6 +21,7 @@ from mongodb_odm.utils.utils import (
 )
 from mongodb_odm.utils.validation import validate_filter_dict
 from pydantic import BaseModel, PrivateAttr
+from pydantic._internal._model_construction import ModelMetaclass
 from pymongo import AsyncMongoClient, IndexModel, MongoClient
 from pymongo.asynchronous.client_session import AsyncClientSession
 from pymongo.asynchronous.collection import AsyncCollection
@@ -48,7 +49,28 @@ def _clear_cache() -> None:
         del _cashed_field_info[key]
 
 
-class _BaseDocument(BaseModel):
+class ODMMeta(ModelMetaclass):
+    def __getattr__(cls, name: str) -> str:
+        # Avoid recursion for internal pydantic attributes
+        if name.startswith("__pydantic"):
+            raise AttributeError(name)
+
+        try:
+            # Try to access model_fields without triggering __getattr__ for it
+            # In Pydantic v2, fields are stored in __pydantic_fields__
+            fields = cls.__dict__.get("__pydantic_fields__")
+
+            if fields and name in fields:
+                if name == "id":
+                    return "_id"
+                return name
+        except Exception:
+            pass
+
+        raise AttributeError(f"type object '{cls.__name__}' has no attribute '{name}'")
+
+
+class _BaseDocument(BaseModel, metaclass=ODMMeta):
     """
     This class will handle all database and model-related configuration.
     """

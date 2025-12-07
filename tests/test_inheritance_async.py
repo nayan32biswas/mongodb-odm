@@ -45,7 +45,7 @@ async def test_inheritance_find_async():
     assert total_content_count == TOTAL_CONTENT
 
     total_image_count = 0
-    async for obj in ContentImage.afind({"style": ImageStyle.LEFT}):
+    async for obj in ContentImage.afind({ContentImage.style: ImageStyle.LEFT}):
         assert isinstance(obj.id, ObjectId)
         total_image_count += 1
 
@@ -68,7 +68,7 @@ async def test_inheritance_find_one_async():
     assert isinstance(obj, ContentDescription)
     assert hasattr(obj, "description")
 
-    obj = await ContentImage.afind_one({"style": ImageStyle.LEFT})
+    obj = await ContentImage.afind_one({ContentImage.style: ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert obj.style == ImageStyle.LEFT
@@ -82,12 +82,12 @@ async def test_inheritance_find_one_async():
 async def test_inheritance_get_async():
     await async_populate_data()
 
-    obj = await Content.aget({}, sort=[("_id", DESCENDING)])  # type: ignore
+    obj = await Content.aget({}, sort=[(Content.id, DESCENDING)])  # type: ignore
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert hasattr(obj, "image_path")
 
-    obj = await ContentImage.aget({"style": ImageStyle.LEFT})
+    obj = await ContentImage.aget({ContentImage.style: ImageStyle.LEFT})
     assert isinstance(obj.id, ObjectId)
     assert isinstance(obj, ContentImage)
     assert obj.style == ImageStyle.LEFT
@@ -118,12 +118,12 @@ async def test_inheritance_exists_async():
     content_exists = await Content.aexists()
     assert content_exists is True
 
-    img_exists = await ContentImage.aexists({"style": ImageStyle.LEFT})
+    img_exists = await ContentImage.aexists({ContentImage.style: ImageStyle.LEFT})
     assert img_exists is True
 
     # Delete images with style LEFT
-    await ContentImage.adelete_many({"style": ImageStyle.LEFT})
-    img_exists = await ContentImage.aexists({"style": ImageStyle.LEFT})
+    await ContentImage.adelete_many({ContentImage.style: ImageStyle.LEFT})
+    img_exists = await ContentImage.aexists({ContentImage.style: ImageStyle.LEFT})
     assert img_exists is False
 
     description_exists = await ContentDescription.aexists()
@@ -141,10 +141,13 @@ async def test_inheritance_update_one_async():
     await async_populate_data()
 
     await ContentImage.aupdate_one(
-        {"style": ImageStyle.LEFT}, {"$set": {"style": ImageStyle.RIGHT}}
+        {ContentImage.style: ImageStyle.LEFT},
+        {"$set": {ContentImage.style: ImageStyle.RIGHT}},
     )
 
-    images = [obj async for obj in Content.afind({"style": ImageStyle.RIGHT})]
+    images = [
+        obj async for obj in Content.afind({ContentImage.style: ImageStyle.RIGHT})
+    ]
     assert len(images) == 1
     assert isinstance(images[0], ContentImage)
     assert images[0].style == ImageStyle.RIGHT
@@ -154,9 +157,13 @@ async def test_inheritance_update_one_async():
 async def test_inheritance_update_many_async():
     await async_populate_data()
 
-    await ContentImage.aupdate_many({}, {"$set": {"style": ImageStyle.RIGHT}})
+    await ContentImage.aupdate_many(
+        {}, {"$set": {ContentImage.style: ImageStyle.RIGHT}}
+    )
 
-    images = [obj async for obj in Content.afind({"style": ImageStyle.RIGHT})]
+    images = [
+        obj async for obj in Content.afind({ContentImage.style: ImageStyle.RIGHT})
+    ]
     assert len(images) == TOTAL_IMAGES
     assert isinstance(images[0], ContentImage)
     assert isinstance(images[1], ContentImage)
@@ -166,16 +173,16 @@ async def test_inheritance_update_many_async():
 async def test_inheritance_delete_one_async():
     await async_populate_data()
 
-    await ContentImage.adelete_one({"style": ImageStyle.RIGHT})
-    assert await ContentImage.aexists({"style": ImageStyle.RIGHT}) is False
+    await ContentImage.adelete_one({ContentImage.style: ImageStyle.RIGHT})
+    assert await ContentImage.aexists({ContentImage.style: ImageStyle.RIGHT}) is False
 
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
 async def test_inheritance_delete_many_async():
     await async_populate_data()
 
-    await ContentImage.adelete_many({"style": ImageStyle.RIGHT})
-    assert await ContentImage.aexists({"style": ImageStyle.RIGHT}) is False
+    await ContentImage.adelete_many({ContentImage.style: ImageStyle.RIGHT})
+    assert await ContentImage.aexists({ContentImage.style: ImageStyle.RIGHT}) is False
 
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
@@ -200,7 +207,7 @@ async def test_inheritance_child_get_random_one_async():
         course_id=course.id, style=ImageStyle.RIGHT, image_path="path/to/image.jpg"
     ).acreate()
     obj = await ContentImage.aget_random_one(
-        filter={"course_id": course.id, "style": ImageStyle.RIGHT}
+        filter={ContentImage.course_id: course.id, ContentImage.style: ImageStyle.RIGHT}
     )
 
     assert isinstance(obj.id, ObjectId)
@@ -236,7 +243,7 @@ async def test_inheritance_model_relation_load_related_async():
     await ParentModel(title="demo").acreate()
     await ChildModel(title="demo", child_title="demo", other_id=other.id).acreate()
 
-    parent_qs = ParentModel.afind(sort=[("_id", ASCENDING)])
+    parent_qs = ParentModel.afind(sort=[(ParentModel.id, ASCENDING)])
     parents = await ParentModel.aload_related(parent_qs)
 
     assert len(parents) == 2, "Should have 2 objects"
@@ -252,7 +259,7 @@ async def test_inheritance_model_relation_load_related_async():
     )
 
     # Validate the load data for child model
-    child_qs = ChildModel.afind(sort=[("_id", ASCENDING)])
+    child_qs = ChildModel.afind(sort=[(ChildModel.id, ASCENDING)])
     children = await ChildModel.aload_related(child_qs)
 
     assert len(children) == 1, "Should have 1 object"

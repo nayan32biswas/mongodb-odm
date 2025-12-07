@@ -107,13 +107,13 @@ for player in Player.find():
 #### Find one object with filter
 
 ```Python
-player = Player.find_one({"name": "Pelé"})
+player = Player.find_one({Player.name: "Pelé"})
 ```
 
 ### Update Data
 
 ```Python
-player = Player.find_one({"name": "Pelé"})
+player = Player.find_one({Player.name: "Pelé"})
 if player:
     player.rating = 98  # potential
     player.update()
@@ -122,7 +122,7 @@ if player:
 ### Delete Data
 
 ```Python
-player = Player.find_one({"name": "Pelé"})
+player = Player.find_one({Player.name: "Pelé"})
 if player:
     player.delete()
 ```
@@ -181,12 +181,12 @@ zidane = Player(name="Zinedine Zidane", country_code="FRA", rating=96).create()
 for player in Player.find():
     print(player)
 
-player = Player.find_one({"name": "Pelé"})
+player = Player.find_one({Player.name: "Pelé"})
 if player:
     player.rating = 98  # potential
     player.update()
 
-player = Player.find_one({"name": "Pelé"})
+player = Player.find_one({Player.name: "Pelé"})
 if player:
     player.delete()  # RIP
 ```

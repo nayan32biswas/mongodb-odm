@@ -80,7 +80,7 @@ def test_invalid_Config():
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_error_on_null_obj():
     with pytest.raises(ObjectDoesNotExist) as exc_info:
-        _ = Course.get({"_id": -1})
+        _ = Course.get({Course.id: -1})
 
     assert type(exc_info.value) is ObjectDoesNotExist, (
         "Expected ObjectDoesNotExist for no documents found"
@@ -90,7 +90,7 @@ def test_get_error_on_null_obj():
 @pytest.mark.usefixtures(INIT_CONFIG)
 def test_get_random_one_none():
     with pytest.raises(ObjectDoesNotExist) as exc_info:
-        ContentDescription.get_random_one({"_id": -1})
+        ContentDescription.get_random_one({ContentDescription.id: -1})
 
     assert type(exc_info.value) is ObjectDoesNotExist, (
         "Expected ObjectDoesNotExist for no documents found"

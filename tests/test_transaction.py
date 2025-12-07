@@ -25,7 +25,7 @@ def test_create_with_transaction():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = Course.find_one({"author_id": author_id})
+    temp_course = Course.find_one({Course.author_id: author_id})
     assert temp_course is not None, "Course should be created"
 
 
@@ -49,7 +49,7 @@ def test_create_with_transaction_rollback():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = Course.find_one({"author_id": author_id})
+    temp_course = Course.find_one({Course.author_id: author_id})
     assert temp_course is None, "Course should not be created"
 
 
@@ -75,7 +75,7 @@ def test_update_with_transaction_rollback():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    course = Course.get({"_id": course.id})
+    course = Course.get({Course.id: course.id})
     assert course.title == course_title, "Course title should not be updated"
 
 

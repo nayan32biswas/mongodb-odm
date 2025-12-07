@@ -45,14 +45,14 @@ def read_documents():
 
 
 def filter_documents():
-    documents = Player.find(filter={"rating": {"$gte": 90}})
+    documents = Player.find(filter={Player.rating: {"$gte": 90}})
     for player in documents:
         print(player)
     print()
 
 
 def read_documents_with_projection():
-    documents = Player.find(projection={"rating": 0})
+    documents = Player.find(projection={Player.rating: 0})
     for player in documents:
         print(player)
     print()

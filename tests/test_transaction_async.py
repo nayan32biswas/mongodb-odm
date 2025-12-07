@@ -26,7 +26,7 @@ async def test_create_with_async_transaction():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = await Course.afind_one({"author_id": author_id})
+    temp_course = await Course.afind_one({Course.author_id: author_id})
     assert temp_course is not None, "Course should be created"
 
 
@@ -50,7 +50,7 @@ async def test_create_with_transaction_rollback_async():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = await Course.afind_one({"author_id": author_id})
+    temp_course = await Course.afind_one({Course.author_id: author_id})
     assert temp_course is None, "Course should not be created"
 
 
@@ -76,7 +76,7 @@ async def test_update_with_transaction_rollback():
 
     # Sleep for 1 seconds to replicate the dataset.
     sleep(1)
-    temp_course = await Course.afind_one({"author_id": author_id})
+    temp_course = await Course.afind_one({Course.author_id: author_id})
     assert temp_course.title == course_title, "Course title should not be updated"
 
 

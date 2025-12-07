@@ -73,7 +73,7 @@ def insert_data():
 
 
 def read_data():
-    pele = Player.get({"name": "Pelé"})
+    pele = Player.get({Player.name: "Pelé"})
     skills = list(PlayerSkill.find({"player_id": pele.id}))
 
     print(pele)

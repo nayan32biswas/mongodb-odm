@@ -11,12 +11,12 @@ from tests.utils import async_create_courses
 async def test_afind_one():
     course = (await async_create_courses())[0]
 
-    db_course = await Course.afind_one({"_id": course.id})
+    db_course = await Course.afind_one({Course.id: course.id})
 
     assert db_course is not None, "The course should be found in the database"
     assert db_course.id == course.id, "Course ID should match the created course ID"
 
-    db_course = await Course.afind_one({"_id": course.id}, sort=[("title", 1)])
+    db_course = await Course.afind_one({Course.id: course.id}, sort=[("title", 1)])
 
     assert db_course is not None, "The course should be found in the database"
 
@@ -26,7 +26,7 @@ async def test_afind_raw():
     course = (await async_create_courses())[0]
 
     db_course = None
-    query = Course.afind_raw({"_id": course.id})
+    query = Course.afind_raw({Course.id: course.id})
 
     async for doc in query:
         db_course = doc
@@ -41,7 +41,7 @@ async def test_afind():
     course = (await async_create_courses())[0]
 
     db_course = None
-    query = Course.afind({"_id": course.id})
+    query = Course.afind({Course.id: course.id})
 
     async for doc in query:
         db_course = doc
@@ -55,14 +55,14 @@ async def test_afind():
 async def test_aget():
     course = (await async_create_courses())[0]
 
-    db_course = await Course.aget({"_id": course.id})
+    db_course = await Course.aget({Course.id: course.id})
 
     assert db_course is not None, "Course should be found in the database"
     assert isinstance(db_course, Course), "Course should be a Course instance"
     assert db_course.id == course.id, "Course ID should match the created course ID"
 
     with pytest.raises(ObjectDoesNotExist):
-        await Course.aget({"_id": ODMObjectId()})
+        await Course.aget({Course.id: ODMObjectId()})
 
 
 @pytest.mark.usefixtures(ASYNC_INIT_CONFIG)
@@ -70,24 +70,24 @@ async def test_aget_or_create():
     new_course_title = "New Course Title"
 
     # Ensure no existing course with this title
-    await Course.adelete_many({"title": new_course_title})
+    await Course.adelete_many({Course.title: new_course_title})
 
     course_author_id = ODMObjectId()
     course, created = await Course.aget_or_create(
-        {"author_id": course_author_id, "title": new_course_title},
+        {Course.author_id: course_author_id, Course.title: new_course_title},
     )
 
     assert created is True, "Course should be created"
     assert isinstance(course, Course), "Course should be a Course instance"
 
-    db_course = await Course.aget({"author_id": course.author_id})
+    db_course = await Course.aget({Course.author_id: course.author_id})
 
     assert db_course is not None, "Course should be found in the database"
     assert isinstance(db_course, Course), "Course should be a Course instance"
     assert db_course.id == course.id, "Course ID should match the created course ID"
 
     course, created = await Course.aget_or_create(
-        {"author_id": course_author_id, "title": new_course_title},
+        {Course.author_id: course_author_id, Course.title: new_course_title},
     )
 
     assert created is False, "Course should not be created again"
@@ -98,7 +98,7 @@ async def test_aget_or_create():
 async def test_acount_documents():
     course = (await async_create_courses())[0]
 
-    count = await Course.acount_documents({"author_id": course.author_id})
+    count = await Course.acount_documents({Course.author_id: course.author_id})
 
     assert count == 1, "There should be one course in the database"
 
@@ -107,7 +107,7 @@ async def test_acount_documents():
 async def test_aexists():
     course = (await async_create_courses())[0]
 
-    exists = await Course.aexists({"author_id": course.author_id})
+    exists = await Course.aexists({Course.author_id: course.author_id})
 
     assert exists is True, "Course should exist in the database"
 
@@ -128,7 +128,7 @@ async def test_aaggregate():
     other_author_id = ODMObjectId()
     _ = await async_create_courses(1, author_id=other_author_id)
 
-    pipeline = [{"$match": {"author_id": author_id}}]
+    pipeline = [{"$match": {Course.author_id: author_id}}]
 
     results = []
     async for doc in Course.aaggregate(pipeline):
@@ -205,4 +205,4 @@ async def test_aget_random_one():
 
     # Test with filter that matches no documents - should raise ObjectDoesNotExist
     with pytest.raises(ObjectDoesNotExist):
-        await Course.aget_random_one({"author_id": ODMObjectId()})
+        await Course.aget_random_one({Course.author_id: ODMObjectId()})

@@ -28,7 +28,7 @@ We will start with the same database structure and the same amount of data as pr
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/find_and_sort/tutorial000.py[ln:59-63]!}
+{!./docs_src/tutorial/find_and_sort/tutorial000.py[ln:59-64]!}
 
 # Code omitted below
 ```

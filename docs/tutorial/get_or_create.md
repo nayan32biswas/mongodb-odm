@@ -30,7 +30,7 @@ To achieve that functionality, we will first try to get the document. If the dat
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/get_or_create/tutorial000.py[ln:45-52]!}
+{!./docs_src/tutorial/get_or_create/tutorial000.py[ln:45-54]!}
 
 # Code omitted below
 ```
@@ -49,7 +49,7 @@ We can achieve that functionality with a single function `get_or_create`.
 ```python
 # Code omitted above
 
-{!./docs_src/tutorial/get_or_create/tutorial000.py[ln:55-64]!}
+{!./docs_src/tutorial/get_or_create/tutorial000.py[ln:58-66]!}
 
 # Code omitted below
 ```

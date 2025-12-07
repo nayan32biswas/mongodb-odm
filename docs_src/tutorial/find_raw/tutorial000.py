@@ -44,14 +44,14 @@ def create_players():
 
 
 def filter_documents():
-    players = Player.find_raw(filter={"rating": {"$gte": 10}})
+    players = Player.find_raw(filter={Player.rating: {"$gte": 10}})
     for player in players:
         print(player)
     print()
 
 
 def pymongo_find_and_find_raw_comparison():
-    filter = {"rating": {"$gte": 10}}
+    filter = {Player.rating: {"$gte": 10}}
 
     connection_url = os.environ.get("MONGO_URL", "mongodb://localhost:27017/testdb")
     db = MongoClient(connection_url).get_database()

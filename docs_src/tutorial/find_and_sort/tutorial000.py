@@ -50,14 +50,16 @@ def create_players():
 
 
 def sort_by_id_desc():
-    players = Player.find(sort="rating")
+    players = Player.find(sort=Player.rating)
     for player in players:
         print(player)
     print()
 
 
 def sort_with_multiple_key():
-    players = Player.find(sort=[("rating", ASCENDING), ("country_code", DESCENDING)])
+    players = Player.find(
+        sort=[(Player.rating, ASCENDING), (Player.country_code, DESCENDING)]
+    )
     for player in players:
         print(player)
     print()
