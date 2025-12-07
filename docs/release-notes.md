@@ -1,5 +1,15 @@
 # Release Notes
 
+## 1.2.0
+
+### Features
+
+- Add model field name access. PR [#49](https://github.com/nayan32biswas/mongodb-odm/pull/49) by [@nayan32biswas](https://github.com/nayan32biswas).
+
+### Config Changes
+
+- Consolidate the doc packages into pyproject.toml. PR [#50](https://github.com/nayan32biswas/mongodb-odm/pull/50) by [@nayan32biswas](https://github.com/nayan32biswas).
+
 ## 1.1.3
 
 ### Upgrades
