@@ -2,5 +2,5 @@
 
 set -x
 
-uv run pip-compile docs/requirements.in
-uv run mkdocs build
+uv pip compile pyproject.toml --extra docs -o docs/requirements.txt
+uv run --extra docs mkdocs build

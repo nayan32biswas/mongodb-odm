@@ -46,18 +46,23 @@ dev = [
     "coverage[toml]>=7.10.0",
     "pytest>=8.4.0",
     "pytest-asyncio>=1.1.0",
-    "mdx-include>=1.4.2",
-    "mkdocs>=1.4.2",
-    "mkdocs-material>=9.1.4",
     "mypy==1.17.1",
     "pre-commit>=3.3.3",
     "ruff>=0.12.8",
+]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocstrings[python]~=0.30.1",
+    "markdown-include",
+    "mkdocs-material>=9.7.0",
+    "mdx-include",
+    "PyYAML>=6.0.3",
 ]
 
 [tool.uv.build-backend]
 module-name = "mongodb_odm"
 module-root = ""
-source-include = ["tests/**", "docs_src/**", "requirements*.txt", "scripts/**"]
+source-include = ["tests/**", "docs_src/**", "pyproject.toml", "scripts/**"]
 
 [tool.coverage.run]
 parallel = true
